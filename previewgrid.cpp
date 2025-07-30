@@ -3,6 +3,7 @@
 PreviewGrid::PreviewGrid(QWidget *parent) : QWidget(parent) {
     gridLayout = new QGridLayout(this);
     gridLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    gridLayout->setSpacing(10);
     setLayout(gridLayout);
 }
 
@@ -43,16 +44,16 @@ void PreviewGrid::rebuildGrid() {
 
 QWidget* PreviewGrid::createPreviewWidget(const QString& path) {
     QWidget* preview = new QWidget;
-    preview->setFixedSize(120, 120);
+    preview->setFixedSize(previewSize, previewSize);
 
     QGridLayout* overlayLayout = new QGridLayout(preview);
     overlayLayout->setContentsMargins(0, 0, 0, 0);
     overlayLayout->setSpacing(0);
 
     QLabel* label = new QLabel;
-    label->setPixmap(QPixmap(path).scaled(120, 120, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+    label->setPixmap(QPixmap(path).scaled(previewSize, previewSize, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
     label->setAlignment(Qt::AlignCenter);
-    label->setFixedSize(120, 120);
+    label->setFixedSize(previewSize, previewSize);
 
     overlayLayout->addWidget(label, 0, 0);
 
@@ -91,4 +92,19 @@ QWidget* PreviewGrid::createPreviewWidget(const QString& path) {
 
 QStringList PreviewGrid::getPaths() const {
     return imagePaths;
+}
+
+void PreviewGrid::setPreviewSize(int size) {
+    if (size < 50) size = 50;
+    if (size > 300) size = 300;
+    if (size != previewSize) {
+        previewSize = size;
+        rebuildGrid();
+    }
+}
+
+void PreviewGrid::clearAll() {
+    imagePaths.clear();
+    rebuildGrid();
+    emit pathsChanged();
 }

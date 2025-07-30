@@ -38,6 +38,10 @@ add_executable(${PROJECT_NAME}
     utils.h
     cellitemwidget.h
     cellitemwidget.cpp
+    parametertuningwidget.h
+    parametertuningwidget.cpp
+    settingsmanager.h
+    settingsmanager.cpp
 )
 
 # Подключение библиотек

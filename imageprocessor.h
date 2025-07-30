@@ -8,7 +8,16 @@
 
 class ImageProcessor {
 public:
-    void processImages(const QStringList& paths);
+    struct HoughParams {
+        double dp = 1.0;
+        double minDist = 30.0;
+        double param1 = 90.0;
+        double param2 = 50.0;
+        int minRadius = 30;
+        int maxRadius = 150;
+    };
+
+    void processImages(const QStringList& paths, const HoughParams& params = HoughParams());
     QVector<Cell> getDetectedCells() const { return cells; }
 
 private:

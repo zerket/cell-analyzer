@@ -3,7 +3,7 @@
 #include <cctype>
 #include <string>
 
-void ImageProcessor::processImages(const QStringList& paths) {
+void ImageProcessor::processImages(const QStringList& paths, const HoughParams& params) {
     cells.clear();
     for (const QString& path : paths) {
         cv::Mat src = cv::imread(path.toStdString());
@@ -20,12 +20,12 @@ void ImageProcessor::processImages(const QStringList& paths) {
         cv::HoughCircles(
             blurred, circles,
             cv::HOUGH_GRADIENT,
-            1,      // dp — разрешение аккумулятора (оставьте 1)
-            30,     // minDist — минимальное расстояние между центрами (уменьшить с 50 до 30, чтобы не пропускать близко расположенные клетки)
-            80,     // param1 — порог для Canny (увеличить с 100 до 120 для более чётких границ)
-            40,     // param2 — порог для центра круга (увеличить с 30 до 40-50, чтобы уменьшить ложные срабатывания)
-            30,     // minRadius — минимальный радиус (оставьте 10)
-            130     // maxRadius — максимальный радиус (уменьшить с 50 до 60, подберите под размер клеток)
+            params.dp,
+            params.minDist,
+            params.param1,
+            params.param2,
+            params.minRadius,
+            params.maxRadius
         );
 
         int padding = 30; // паддинг для вырезания клетки

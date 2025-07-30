@@ -16,6 +16,9 @@ public:
     void rebuildGrid();
     QStringList getPaths() const;
     void setMaxColumns(int columns);
+    void setPreviewSize(int size);
+    int getPreviewSize() const { return previewSize; }
+    void clearAll();
 
 signals:
     void imageRemoved(const QString& path);
@@ -27,6 +30,7 @@ private:
     QGridLayout* gridLayout;
     QStringList imagePaths;
     int maxColumns = 3;
+    int previewSize = 120;
 };
 
 #endif // PREVIEWGRID_H

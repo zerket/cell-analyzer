@@ -5,6 +5,9 @@
 #include <QWidget>
 #include <QListWidget>
 #include <QPushButton>
+#include <QButtonGroup>
+#include <QRadioButton>
+#include <QScrollArea>
 #include "cell.h"
 #include "cellitemwidget.h"
 
@@ -22,6 +25,7 @@ private slots:
     void onRecalculateClicked();
     void onRemoveCellRequested(CellItemWidget* item);
     void onClearDiametersClicked();
+    void onViewModeChanged(int mode);
 
 private:
     QListWidget* listWidget;
@@ -30,10 +34,17 @@ private:
     QPushButton* recalcButton;
     QPushButton* saveButton;
     QPushButton* clearDiametersButton;
+    QRadioButton* gridViewButton;
+    QRadioButton* listViewButton;
+    QButtonGroup* viewModeGroup;
+    QScrollArea* scrollArea;
+    QWidget* cellsContainer;
 
     void onSaveCellsClicked();
     void updateRecalcButtonState();
     void recalculateDiameters();
+    void setupGridView();
+    void setupListView();
 };
 
 #endif // VERIFICATIONWIDGET_H
