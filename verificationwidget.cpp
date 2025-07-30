@@ -8,6 +8,9 @@
 #include <QStandardPaths>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMessageBox>
+#include <QTextStream>
+#include <QFileInfo>
 #include "utils.h"
 
 VerificationWidget::VerificationWidget(const QVector<Cell>& cells, QWidget *parent)
@@ -185,35 +188,96 @@ void VerificationWidget::onRemoveCellRequested(CellItemWidget* item) {
 }
 
 void VerificationWidget::onSaveCellsClicked() {
-    QString outputDir = QDir::currentPath() + "/cells_output";
-    QDir dir(outputDir);
-    if (!dir.exists()) {
-        dir.mkpath(".");
-    }
-
+    // Группируем клетки по изображениям
+    QMap<QString, QVector<QPair<Cell, double>>> cellsByImage;
+    
+    // Собираем все виджеты и их данные
     QVector<CellItemWidget*> widgets;
     if (listWidget) {
         for (int i = 0; i < listWidget->count(); ++i) {
             CellItemWidget* w = qobject_cast<CellItemWidget*>(listWidget->itemWidget(listWidget->item(i)));
-            if (w) widgets.append(w);
+            if (w && i < m_cells.size()) {
+                widgets.append(w);
+                QString nmText = w->diameterNmText();
+                double diameterNm = nmText.isEmpty() ? 0.0 : nmText.toDouble();
+                cellsByImage[QString::fromStdString(m_cells[i].imagePath)].append(qMakePair(m_cells[i], diameterNm));
+            }
         }
     } else {
         QLayout* layout = cellsContainer->layout();
         if (layout) {
             for (int i = 0; i < layout->count(); ++i) {
                 CellItemWidget* w = qobject_cast<CellItemWidget*>(layout->itemAt(i)->widget());
-                if (w) widgets.append(w);
+                if (w && i < m_cells.size()) {
+                    widgets.append(w);
+                    QString nmText = w->diameterNmText();
+                    double diameterNm = nmText.isEmpty() ? 0.0 : nmText.toDouble();
+                    cellsByImage[QString::fromStdString(m_cells[i].imagePath)].append(qMakePair(m_cells[i], diameterNm));
+                }
             }
         }
     }
     
-    for (int i = 0; i < widgets.size(); ++i) {
-        QImage img = widgets[i]->getImage();
-        QString filename = dir.filePath(QString("cell_%1.png").arg(i + 1));
-        if (!img.save(filename, "PNG")) {
-            qWarning() << "Не удалось сохранить файл:" << filename;
+    // Создаем папку results
+    QDir resultsDir(QDir::currentPath() + "/results");
+    if (!resultsDir.exists()) {
+        resultsDir.mkpath(".");
+    }
+    
+    // Обрабатываем каждое изображение
+    for (auto it = cellsByImage.begin(); it != cellsByImage.end(); ++it) {
+        QString imagePath = it.key();
+        QVector<QPair<Cell, double>> cells = it.value();
+        
+        // Получаем имя файла без расширения
+        QFileInfo fileInfo(imagePath);
+        QString baseName = fileInfo.baseName();
+        
+        // Создаем папку для этого изображения
+        QDir imageDir(resultsDir.filePath(baseName));
+        if (!imageDir.exists()) {
+            imageDir.mkpath(".");
+        }
+        
+        // Сохраняем debug изображение с квадратами
+        saveDebugImage(imagePath, cells, imageDir.filePath("debug.png"));
+        
+        // Открываем CSV файл для записи
+        QFile csvFile(imageDir.filePath("results.csv"));
+        if (csvFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream stream(&csvFile);
+            stream << "filename,diameter_nm\n";
+            
+            // Сохраняем отдельные изображения клеток
+            int cellIndex = 1;
+            for (const auto& cellPair : cells) {
+                const Cell& cell = cellPair.first;
+                double diameterNm = cellPair.second;
+                
+                // Формируем имя файла
+                QString cellFileName = QString("cell_%1_%2nm.png")
+                    .arg(cellIndex, 3, 10, QChar('0'))
+                    .arg(static_cast<int>(diameterNm));
+                
+                // Сохраняем изображение клетки
+                QImage img = matToQImage(cell.image);
+                QString cellFilePath = imageDir.filePath(cellFileName);
+                if (img.save(cellFilePath, "PNG")) {
+                    // Записываем в CSV
+                    stream << cellFileName << "," << QString::number(diameterNm, 'f', 2) << "\n";
+                } else {
+                    qWarning() << "Не удалось сохранить файл:" << cellFilePath;
+                }
+                
+                cellIndex++;
+            }
+            
+            csvFile.close();
         }
     }
+    
+    QMessageBox::information(this, "Сохранение завершено", 
+        QString("Результаты сохранены в папку: %1").arg(resultsDir.absolutePath()));
 }
 
 void VerificationWidget::onClearDiametersClicked() {
@@ -365,4 +429,46 @@ void VerificationWidget::setupListView() {
     }
     
     listLayout->addStretch();
+}
+
+void VerificationWidget::saveDebugImage(const QString& originalImagePath, 
+                                       const QVector<QPair<Cell, double>>& cells,
+                                       const QString& outputPath) {
+    // Загружаем оригинальное изображение
+    cv::Mat originalImage = cv::imread(originalImagePath.toStdString());
+    if (originalImage.empty()) {
+        qWarning() << "Не удалось загрузить изображение для debug:" << originalImagePath;
+        return;
+    }
+    
+    // Рисуем красные квадраты вокруг найденных клеток
+    for (const auto& cellPair : cells) {
+        const Cell& cell = cellPair.first;
+        cv::Vec3f circle = cell.circle;
+        
+        int x = cvRound(circle[0]);
+        int y = cvRound(circle[1]);
+        int r = cvRound(circle[2]);
+        
+        // Проверяем границы
+        if (x - r >= 0 && y - r >= 0 && 
+            x + r < originalImage.cols && y + r < originalImage.rows) {
+            // Рисуем красный прямоугольник
+            cv::Rect rect(x - r, y - r, 2 * r, 2 * r);
+            cv::rectangle(originalImage, rect, cv::Scalar(0, 0, 255), 2);
+            
+            // Добавляем подпись с размером
+            double diameterNm = cellPair.second;
+            if (diameterNm > 0) {
+                std::string text = std::to_string(static_cast<int>(diameterNm)) + " nm";
+                cv::putText(originalImage, text, 
+                           cv::Point(x - r, y - r - 5),
+                           cv::FONT_HERSHEY_SIMPLEX, 0.5, 
+                           cv::Scalar(0, 0, 255), 1);
+            }
+        }
+    }
+    
+    // Сохраняем debug изображение
+    cv::imwrite(outputPath.toStdString(), originalImage);
 }

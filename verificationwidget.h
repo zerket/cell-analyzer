@@ -45,6 +45,9 @@ private:
     void recalculateDiameters();
     void setupGridView();
     void setupListView();
+    void saveDebugImage(const QString& originalImagePath, 
+                       const QVector<QPair<Cell, double>>& cells,
+                       const QString& outputPath);
 };
 
 #endif // VERIFICATIONWIDGET_H
