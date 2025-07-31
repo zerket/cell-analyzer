@@ -58,6 +58,7 @@ void ImageProcessor::processImages(const QStringList& paths, const HoughParams& 
             cell.circle = c;
             cell.image = src(rectForCrop).clone(); // с паддингом для превью
             cell.diameterPx = 2 * r;
+            cell.imagePath = path.toStdString(); // Сохраняем путь к исходному изображению
             cells.append(cell);
         }
 

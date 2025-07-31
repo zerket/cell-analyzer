@@ -11,12 +11,19 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QFileInfo>
+#include <QDateTime>
 #include "utils.h"
+#include "logger.h"
 
 VerificationWidget::VerificationWidget(const QVector<Cell>& cells, QWidget *parent)
     : QWidget(parent), m_cells(cells)
 {
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    LOG_INFO("VerificationWidget constructor called");
+    LOG_INFO(QString("Received %1 cells").arg(cells.size()));
+    
+    try {
+        QVBoxLayout* mainLayout = new QVBoxLayout(this);
+        LOG_INFO("Main layout created");
 
     // Панель переключения вида
     QHBoxLayout* viewModeLayout = new QHBoxLayout();
@@ -67,6 +74,17 @@ VerificationWidget::VerificationWidget(const QVector<Cell>& cells, QWidget *pare
 
     mainLayout->addLayout(buttonsLayout);
     setLayout(mainLayout);
+    
+    LOG_INFO("VerificationWidget layout completed");
+    } catch (const std::exception& e) {
+        LOG_ERROR(QString("Exception in VerificationWidget constructor: %1").arg(e.what()));
+        throw;
+    } catch (...) {
+        LOG_ERROR("Unknown exception in VerificationWidget constructor");
+        throw;
+    }
+    
+    LOG_INFO("VerificationWidget constructor completed successfully");
 }
 
 void VerificationWidget::onDiameterNmChanged() {
@@ -218,11 +236,15 @@ void VerificationWidget::onSaveCellsClicked() {
         }
     }
     
-    // Создаем папку results
-    QDir resultsDir(QDir::currentPath() + "/results");
+    // Создаем папку results с датой
+    QString dateStr = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss");
+    QString resultsPath = QDir::currentPath() + "/results/" + dateStr;
+    QDir resultsDir(resultsPath);
     if (!resultsDir.exists()) {
         resultsDir.mkpath(".");
     }
+    
+    LOG_INFO(QString("Saving results to: %1").arg(resultsDir.absolutePath()));
     
     // Обрабатываем каждое изображение
     for (auto it = cellsByImage.begin(); it != cellsByImage.end(); ++it) {
@@ -238,6 +260,8 @@ void VerificationWidget::onSaveCellsClicked() {
         if (!imageDir.exists()) {
             imageDir.mkpath(".");
         }
+        
+        LOG_INFO(QString("Processing image: %1, cells count: %2").arg(baseName).arg(cells.size()));
         
         // Сохраняем debug изображение с квадратами
         saveDebugImage(imagePath, cells, imageDir.filePath("debug.png"));
@@ -312,6 +336,9 @@ void VerificationWidget::onViewModeChanged(int mode) {
 }
 
 void VerificationWidget::setupGridView() {
+    LOG_INFO("setupGridView() called");
+    LOG_INFO(QString("Number of cells to display: %1").arg(m_cells.size()));
+    
     // Удаляем старый виджет списка если есть
     if (listWidget) {
         listWidget->deleteLater();
@@ -339,19 +366,36 @@ void VerificationWidget::setupGridView() {
     int row = 0;
     int maxCols = 4; // Можно сделать адаптивным
     
+    LOG_INFO("Starting to create cell widgets");
+    int cellCount = 0;
+    
     for (const Cell& cell : m_cells) {
-        CellItemWidget* cellWidget = new CellItemWidget(cell);
+        LOG_DEBUG(QString("Creating CellItemWidget for cell %1").arg(cellCount));
+        
+        CellItemWidget* cellWidget = nullptr;
+        try {
+            cellWidget = new CellItemWidget(cell);
+            LOG_DEBUG(QString("CellItemWidget %1 created successfully").arg(cellCount));
+        } catch (const std::exception& e) {
+            LOG_ERROR(QString("Failed to create CellItemWidget %1: %2").arg(cellCount).arg(e.what()));
+            continue;
+        }
+        
         connect(cellWidget, &CellItemWidget::diameterNmChanged, this, &VerificationWidget::onDiameterNmChanged);
         connect(cellWidget, &CellItemWidget::removeRequested, this, &VerificationWidget::onRemoveCellRequested);
         
         gridLayout->addWidget(cellWidget, row, col);
+        LOG_DEBUG(QString("Added cell %1 to grid at position (%2, %3)").arg(cellCount).arg(row).arg(col));
         
         col++;
         if (col >= maxCols) {
             col = 0;
             row++;
         }
+        cellCount++;
     }
+    
+    LOG_INFO(QString("setupGridView() completed. Created %1 cell widgets").arg(cellCount));
 }
 
 void VerificationWidget::setupListView() {
@@ -434,14 +478,21 @@ void VerificationWidget::setupListView() {
 void VerificationWidget::saveDebugImage(const QString& originalImagePath, 
                                        const QVector<QPair<Cell, double>>& cells,
                                        const QString& outputPath) {
+    LOG_INFO(QString("saveDebugImage called: originalImagePath=%1, outputPath=%2, cells count=%3")
+        .arg(originalImagePath).arg(outputPath).arg(cells.size()));
+    
     // Загружаем оригинальное изображение
     cv::Mat originalImage = cv::imread(originalImagePath.toStdString());
     if (originalImage.empty()) {
+        LOG_ERROR(QString("Failed to load image for debug: %1").arg(originalImagePath));
         qWarning() << "Не удалось загрузить изображение для debug:" << originalImagePath;
         return;
     }
     
+    LOG_INFO(QString("Original image loaded: %1x%2").arg(originalImage.cols).arg(originalImage.rows));
+    
     // Рисуем красные квадраты вокруг найденных клеток
+    int drawnCount = 0;
     for (const auto& cellPair : cells) {
         const Cell& cell = cellPair.first;
         cv::Vec3f circle = cell.circle;
@@ -466,9 +517,17 @@ void VerificationWidget::saveDebugImage(const QString& originalImagePath,
                            cv::FONT_HERSHEY_SIMPLEX, 0.5, 
                            cv::Scalar(0, 0, 255), 1);
             }
+            drawnCount++;
         }
     }
     
+    LOG_INFO(QString("Drew %1 rectangles on debug image").arg(drawnCount));
+    
     // Сохраняем debug изображение
-    cv::imwrite(outputPath.toStdString(), originalImage);
+    bool saved = cv::imwrite(outputPath.toStdString(), originalImage);
+    if (saved) {
+        LOG_INFO(QString("Debug image saved successfully to: %1").arg(outputPath));
+    } else {
+        LOG_ERROR(QString("Failed to save debug image to: %1").arg(outputPath));
+    }
 }

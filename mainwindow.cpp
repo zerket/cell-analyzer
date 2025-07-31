@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include "settingsmanager.h"
+#include "logger.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
@@ -65,25 +66,58 @@ void MainWindow::onPreviewSizeChanged(int value) {
 }
 
 void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams& params) {
-    currentHoughParams = params;
-    // Сохраняем параметры
-    SettingsManager::instance().setHoughParams(params);
+    LOG_INFO("MainWindow::onParametersConfirmed() called");
     
+    currentHoughParams = params;
+    LOG_INFO("Saving parameters to settings");
+    
+    // Сохраняем параметры
+    try {
+        SettingsManager::instance().setHoughParams(params);
+        LOG_INFO("Parameters saved successfully");
+    } catch (const std::exception& e) {
+        LOG_ERROR(QString("Failed to save parameters: %1").arg(e.what()));
+    }
+    
+    LOG_INFO("Cleaning up parameter tuning widget");
     // Удаляем виджет настройки параметров
     if (parameterTuningWidget) {
         parameterTuningWidget->hide();
         parameterTuningWidget->deleteLater();
         parameterTuningWidget = nullptr;
+        LOG_INFO("Parameter tuning widget cleaned up");
     }
     
+    LOG_INFO("Creating ImageProcessor");
     // Обработка изображений с заданными параметрами
-    ImageProcessor processor;
-    processor.processImages(selectedImagePaths, params);
+    ImageProcessor* processor = nullptr;
+    try {
+        processor = new ImageProcessor();
+        LOG_INFO("ImageProcessor created successfully");
+    } catch (const std::exception& e) {
+        LOG_ERROR(QString("Failed to create ImageProcessor: %1").arg(e.what()));
+        return;
+    }
+    
+    LOG_INFO(QString("Processing %1 images").arg(selectedImagePaths.size()));
+    try {
+        processor->processImages(selectedImagePaths, params);
+        LOG_INFO("Images processed successfully");
+    } catch (const std::exception& e) {
+        LOG_ERROR(QString("Failed to process images: %1").arg(e.what()));
+        delete processor;
+        return;
+    }
 
-    if (processor.getDetectedCells().isEmpty()) {
+    LOG_INFO(QString("Detected %1 cells").arg(processor->getDetectedCells().size()));
+    
+    if (processor->getDetectedCells().isEmpty()) {
+        LOG_WARNING("No cells detected");
         QMessageBox::information(this, "Результат", "Клетки не обнаружены на выбранных изображениях");
+        delete processor;
         
         // Возвращаемся к главному экрану
+        LOG_INFO("Returning to main screen");
         QScrollArea* scrollArea = new QScrollArea(this);
         scrollArea->setWidgetResizable(true);
         scrollArea->setWidget(createMainWidget());
@@ -91,13 +125,32 @@ void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams&
         return;
     }
 
+    LOG_INFO("Cleaning up old verification widget");
     if (verificationWidget) {
         verificationWidget->deleteLater();
         verificationWidget = nullptr;
     }
-    verificationWidget = new VerificationWidget(processor.getDetectedCells());
+    
+    LOG_INFO("Creating copy of detected cells");
+    // Создаем копию вектора cells перед удалением processor
+    QVector<Cell> detectedCells = processor->getDetectedCells();
+    LOG_INFO(QString("Copied %1 cells").arg(detectedCells.size()));
+    
+    delete processor;
+    LOG_INFO("ImageProcessor deleted");
+    
+    LOG_INFO("Creating VerificationWidget");
+    try {
+        verificationWidget = new VerificationWidget(detectedCells);
+        LOG_INFO("VerificationWidget created successfully");
+    } catch (const std::exception& e) {
+        LOG_ERROR(QString("Failed to create VerificationWidget: %1").arg(e.what()));
+        return;
+    }
 
+    LOG_INFO("Connecting analysisCompleted signal");
     connect(verificationWidget, &VerificationWidget::analysisCompleted, this, [this]() {
+        LOG_INFO("Analysis completed, returning to main screen");
         // Возвращаемся к главному экрану после анализа
         QScrollArea* scrollArea = new QScrollArea(this);
         scrollArea->setWidgetResizable(true);
@@ -105,8 +158,10 @@ void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams&
         setCentralWidget(scrollArea);
     });
 
+    LOG_INFO("Setting VerificationWidget as central widget");
     // НЕ оборачиваем в QScrollArea, т.к. он уже есть внутри VerificationWidget
     setCentralWidget(verificationWidget);
+    LOG_INFO("onParametersConfirmed() completed successfully");
 }
 
 void MainWindow::updateAnalysisButtonState() {

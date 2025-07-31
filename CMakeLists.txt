@@ -42,6 +42,7 @@ add_executable(${PROJECT_NAME}
     parametertuningwidget.cpp
     settingsmanager.h
     settingsmanager.cpp
+    logger.h
 )
 
 # Подключение библиотек

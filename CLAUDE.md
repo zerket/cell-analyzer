@@ -1,167 +1,154 @@
-# CellAnalyzer - Резюме проекта
+# CLAUDE.md
 
-## Описание проекта
-CellAnalyzer - десктопное приложение для автоматического распознавания и анализа клеток организма на микроскопических изображениях. Приложение решает задачу автоматизации рутинной работы исследователей по измерению диаметров клеток, которая ранее выполнялась вручную.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Основные функции
-- Автоматическое распознавание клеток круглой формы на микроскопических изображениях
-- Интерактивная настройка параметров распознавания с предпросмотром в реальном времени
-- Фильтрация артефактов (капли воды и другие помехи)
-- Автоматическое определение масштабной линейки на изображении
-- Расчет диаметра клеток в пикселях и нанометрах
-- Ручная верификация распознанных клеток
-- Экспорт результатов в CSV формат
-- Сохранение отдельных изображений каждой клетки
-- Сохранение и загрузка наборов параметров для разных типов изображений
+## Project Overview
 
-## Технологический стек
-- **GUI Framework**: Qt6 (C++)
-- **Обработка изображений**: OpenCV 4.11.0
-- **Компилятор**: MSVC 2022
-- **Система сборки**: CMake
-- **Целевая платформа**: Windows x64
+CellAnalyzer is a Qt6-based desktop application for automated cell detection and analysis in microscopic images. It uses OpenCV for image processing and provides an intuitive GUI for researchers to measure cell diameters automatically, replacing manual measurement work.
 
-## Основные алгоритмы
+### Main Features
+- Automatic detection of circular cells in microscopic images
+- Interactive parameter tuning with real-time preview
+- Artifact filtering (water droplets and other interference)
+- Automatic scale bar detection on images
+- Cell diameter calculation in pixels and nanometers
+- Manual verification of detected cells
+- CSV export of results
+- Individual cell image extraction
+- Save/load parameter presets for different image types
 
-### 1. Детекция клеток
-- **Предобработка**: Медианное размытие (cv::medianBlur)
-- **Основной метод**: HoughCircles с настраиваемыми параметрами
-- **Параметры по умолчанию**:
-  - dp = 1.0 (разрешение аккумулятора)
-  - minDist = 30.0 (минимальное расстояние между центрами)
-  - param1 = 90.0 (порог для детектора границ Canny)
-  - param2 = 50.0 (порог для центра круга)
-  - minRadius = 30 (минимальный радиус в пикселях)
-  - maxRadius = 150 (максимальный радиус в пикселях)
-- **Фильтрация**: По видимости круга (минимум 60% должно быть видно)
+## Build Commands
 
-### 2. Определение масштаба
-- Поиск масштабной линейки методом Хафа (HoughLinesP)
-- Распознавание числового значения рядом с линейкой (заглушка для OCR)
-- Расчет коэффициента масштабирования (нм/пиксель)
+### Building the project:
+```bash
+# Clean build (Windows)
+build-release.bat
 
-### 3. Измерение клеток
-- Вычисление диаметра в пикселях через радиус найденного круга
-- Конвертация в нанометры с использованием масштабного коэффициента
+# Or using CMake directly:
+mkdir build-release
+cd build-release
+cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --config Release
+windeployqt --release --no-translations --no-system-d3d-compiler --no-opengl-sw Release\CellAnalyzer.exe
 
-## Архитектура приложения
+# Copy OpenCV DLLs (paths from build script):
+copy "D:\opencv\build\x64\vc16\bin\opencv_world4110.dll" "Release\"
+copy "D:\opencv\build\x64\vc16\bin\opencv_videoio_msmf4110_64.dll" "Release\"
+copy "D:\opencv\build\x64\vc16\bin\opencv_videoio_ffmpeg4110_64.dll" "Release\"
+```
 
-### Главные компоненты
+### Running the application:
+```bash
+test_run.bat
+# Or directly:
+build\Release\CellAnalyzer.exe
+```
 
-#### MainWindow
-- Управление основным workflow приложения
-- Два состояния интерфейса: начальное (без изображений) и рабочее (с изображениями)
-- Нижний тулбар с элементами управления
-- Поддержка responsive дизайна с QScrollArea
+## Architecture
 
-#### ParameterTuningWidget
-- Интерактивная настройка параметров HoughCircles
-- Предпросмотр результатов в реальном времени
-- Сохранение и загрузка наборов параметров (пресетов)
-- Горизонтальная компоновка: изображение слева, параметры справа
+### Core Components
 
-#### PreviewGrid
-- Динамическая сетка превью изображений
-- Изменяемый размер превью (100-500 пикселей)
-- Кнопка удаления на каждом превью
-- Автоматическая перекомпоновка при изменении размера окна
+**MainWindow** (`mainwindow.h/cpp`)
+- Central application controller managing workflow states
+- Handles transitions between initial state (no images) and working state (with images)
+- Contains toolbar with preview size slider, clear button, add images button, and analyze button
 
-#### ImageProcessor
-- Основная логика обработки изображений
-- Применение алгоритма HoughCircles с заданными параметрами
-- Определение масштаба изображения
+**ImageProcessor** (`imageprocessor.h/cpp`)
+- Core image processing logic using OpenCV HoughCircles algorithm
+- Processes multiple images with configurable parameters
+- Detects scale ruler and calculates nm/pixel ratio
+- HoughCircles parameters:
+  - dp = 1.0 (accumulator resolution)
+  - minDist = 30.0 (minimum distance between circle centers)
+  - param1 = 90.0 (Canny edge detector threshold)
+  - param2 = 50.0 (circle center threshold)
+  - minRadius = 30 pixels
+  - maxRadius = 150 pixels
 
-#### VerificationWidget
-- Сетка найденных клеток для ручной верификации
-- Отображение диаметра в пикселях и нанометрах
-- Возможность удаления ложных срабатываний
-- Экспорт результатов в CSV
+**ParameterTuningWidget** (`parametertuningwidget.h/cpp`)
+- Interactive parameter tuning interface with real-time preview
+- Allows saving/loading parameter presets
+- Shows original image on left, processed result on right
 
-#### SettingsManager (Singleton)
-- Централизованное управление настройками приложения
-- Сохранение параметров в JSON файл
-- Автоматическое сохранение при изменении
-- Путь к файлу настроек: AppData/Local/CellAnalyzer/settings.json
+**VerificationWidget** (`verificationwidget.h/cpp`)
+- Grid display of detected cells for manual verification
+- Shows diameter in pixels and nanometers
+- Allows removing false positives
+- Exports results to CSV format
 
-### Вспомогательные компоненты
-- **CellItem**: Структура для хранения данных о клетке
-- **CellItemWidget**: Виджет для отображения отдельной клетки
-- **Utils**: Вспомогательные функции (расчет видимости круга)
+**SettingsManager** (`settingsmanager.h/cpp`)
+- Singleton pattern for centralized settings management
+- Saves to `AppData/Local/CellAnalyzer/settings.json`
+- Auto-saves on parameter changes
 
-## Пользовательский интерфейс
+### Supporting Components
 
-### Начальное состояние
-- Центрированная кнопка "Выбрать изображения" (250px ширина)
-- Минималистичный дизайн без лишних элементов
+- **PreviewGrid**: Dynamic grid for image thumbnails with adjustable size (100-500px)
+- **CellItem/CellItemWidget**: Data structure and widget for individual cell display
+- **Utils**: Helper functions including circle visibility calculations
 
-### Рабочее состояние
-- Сетка превью изображений
-- Нижний тулбар с элементами:
-  - Ползунок размера превью (100-500px)
-  - Кнопка "Очистить" (красная)
-  - Кнопка "Добавить изображения" (зеленая)
-  - Кнопка "Начать анализ" (голубая)
+### Key Design Patterns
 
-### Стилизация
-- Все кнопки со скругленными углами (border-radius: 10px)
-- Цветовая схема:
-  - Основная кнопка выбора: #2196F3
-  - Кнопка очистки: #f44336
-  - Кнопка добавления: #4CAF50
-  - Кнопка анализа: #03A9F4
-- Адаптивные hover эффекты
+1. **State Management**: MainWindow manages UI states (initial vs working)
+2. **Singleton Pattern**: SettingsManager for global settings access
+3. **Observer Pattern**: Qt signals/slots for component communication
+4. **Factory Pattern**: Dynamic widget creation in preview and verification grids
 
-## Пользовательские сценарии
+## Dependencies
 
-### 1. Первичная загрузка
-1. Запуск приложения показывает центрированную кнопку
-2. Выбор изображений переключает интерфейс в рабочий режим
-3. Появляется нижний тулбар с элементами управления
+- **Qt6**: Widgets, Gui modules
+- **OpenCV 4.11.0**: core, imgproc, highgui, objdetect modules
+- **Compiler**: MSVC 2022
+- **Build System**: CMake 3.16+
+- **Platform**: Windows x64
 
-### 2. Настройка параметров (для одного изображения)
-1. При выборе одного изображения открывается экран настройки
-2. Пользователь видит изображение и может менять 6 параметров
-3. Результаты обновляются в реальном времени
-4. Возможность сохранить набор параметров с именем
-5. Кнопка "Применить параметры и продолжить"
+## Important Implementation Details
 
-### 3. Анализ
-1. Для нескольких изображений используются сохраненные параметры
-2. Обработка всех изображений с прогресс-баром
-3. Автоматическое определение масштаба
-4. Детекция клеток на всех изображениях
+1. **Image Processing Pipeline**:
+   - Median blur preprocessing (`cv::medianBlur`)
+   - HoughCircles for circle detection
+   - Visibility filtering (minimum 60% of circle must be visible)
+   - Scale detection using HoughLinesP
+   - Scale text recognition (OCR placeholder for future implementation)
 
-### 4. Верификация и экспорт
-1. Отображение всех найденных клеток в сетке
-2. Возможность удалить ложные срабатывания
-3. Экспорт в CSV с полной информацией
-4. Сохранение отдельных изображений клеток
+2. **Responsive UI**:
+   - QScrollArea for content overflow
+   - Dynamic grid layouts that adjust to window size
+   - Minimum window size: 800x600
+   - Progress bar during batch processing
 
-## Сохраняемые настройки
-- Параметры HoughCircles (6 параметров)
-- Размер превью изображений
-- Пользовательские наборы параметров (пресеты)
+3. **File Output**:
+   - CSV export with columns: filename, cell_number, center_x, center_y, diameter_pixels, diameter_nm
+   - Individual cell images saved separately
+   - Debug images with highlighted cells (when logging enabled)
 
-## Обработка ошибок
-- Проверка загрузки изображений
-- Обработка исключений OpenCV
-- Валидация границ при рисовании
-- Предупреждения при отсутствии найденных клеток
+4. **Error Handling**:
+   - OpenCV exception catching
+   - Boundary validation for drawing operations
+   - User warnings for no detected cells
 
-## Результаты работы
-1. CSV файл с колонками:
-   - Имя исходного файла
-   - Номер клетки
-   - Координаты центра (X, Y)
-   - Диаметр в пикселях
-   - Диаметр в нанометрах
-2. Набор изображений отдельных клеток
-3. Сохраненные настройки для последующих сессий
+5. **Styling**:
+   - All buttons use border-radius: 10px
+   - Color scheme: Primary (#2196F3), Clear (#f44336), Add (#4CAF50), Analyze (#03A9F4)
+   - Hover effects on interactive elements
+   - Adaptive button hover states
 
-## Преимущества решения
-- Интуитивный пользовательский интерфейс
-- Гибкая настройка параметров распознавания
-- Визуальный контроль на каждом этапе
-- Сохранение настроек между сессиями
-- Responsive дизайн для разных размеров экрана
-- Быстрая обработка без специальных требований к GPU
+## User Workflows
+
+### Single Image Analysis
+1. User selects one image → Parameter tuning screen opens
+2. Real-time preview updates as parameters change
+3. User can save parameter preset with custom name
+4. "Apply parameters and continue" proceeds to analysis
+
+### Batch Processing
+1. User selects multiple images → Uses saved presets
+2. Progress bar shows processing status
+3. Automatic scale detection on each image
+4. Cell detection using selected parameters
+
+### Verification and Export
+1. Grid view shows all detected cells
+2. Click to remove false positives
+3. Export to CSV with complete measurements
+4. Save individual cell images

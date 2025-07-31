@@ -9,6 +9,7 @@
 #include <QPixmap>
 #include <QScrollArea>
 #include "settingsmanager.h"
+#include "logger.h"
 
 ParameterTuningWidget::ParameterTuningWidget(const QString& imagePath, QWidget *parent)
     : QWidget(parent), m_imagePath(imagePath) {
@@ -242,7 +243,18 @@ void ParameterTuningWidget::updatePreview() {
 }
 
 void ParameterTuningWidget::onConfirmClicked() {
+    LOG_INFO("ParameterTuningWidget::onConfirmClicked() called");
+    LOG_INFO(QString("Parameters: dp=%1, minDist=%2, param1=%3, param2=%4, minRadius=%5, maxRadius=%6")
+        .arg(m_currentParams.dp)
+        .arg(m_currentParams.minDist)
+        .arg(m_currentParams.param1)
+        .arg(m_currentParams.param2)
+        .arg(m_currentParams.minRadius)
+        .arg(m_currentParams.maxRadius));
+    
     emit parametersConfirmed(m_currentParams);
+    
+    LOG_INFO("parametersConfirmed signal emitted");
 }
 
 void ParameterTuningWidget::onSavePreset() {
