@@ -20,7 +20,14 @@ CellItemWidget::CellItemWidget(const Cell& cell, QWidget* parent)
         LOG_DEBUG(QString("QImage created: %1x%2").arg(img.width()).arg(img.height()));
         
         imageLabel = new QLabel(this);
-        imageLabel->setPixmap(QPixmap::fromImage(img).scaled(150,150, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        if (!img.isNull()) {
+            imageLabel->setPixmap(QPixmap::fromImage(img).scaled(150,150, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        } else {
+            LOG_WARNING("Failed to convert cell image to QImage - using placeholder");
+            QPixmap placeholder(150, 150);
+            placeholder.fill(Qt::gray);
+            imageLabel->setPixmap(placeholder);
+        }
         imageLabel->setFixedSize(150,150);
         LOG_DEBUG("Image label created and configured");
 
@@ -28,20 +35,26 @@ CellItemWidget::CellItemWidget(const Cell& cell, QWidget* parent)
 
     diameterNmEdit = new QLineEdit(this);
     diameterNmEdit->setPlaceholderText("Диаметр (нм)");
+    diameterNmEdit->setFixedWidth(150);  // Sync with image width
     connect(diameterNmEdit, &QLineEdit::textChanged, this, &CellItemWidget::diameterNmChanged);
 
     removeButton = new QPushButton("Удалить", this);
+    removeButton->setFixedWidth(150);  // Sync with image width
+    removeButton->setStyleSheet("QPushButton { border: 1px solid #ccc; border-radius: 5px; padding: 3px 10px; }");
     connect(removeButton, &QPushButton::clicked, this, [this]() {
         emit removeRequested(this);
     });
 
     QVBoxLayout* layout = new QVBoxLayout(this);
+    layout->setContentsMargins(5, 5, 5, 5);
+    layout->setSpacing(5);
     layout->addWidget(imageLabel);
     layout->addWidget(diameterPxLabel);
     layout->addWidget(diameterNmEdit);
     layout->addWidget(removeButton);
 
     setLayout(layout);
+    setFixedWidth(160);  // Fixed widget width
     
     LOG_DEBUG("CellItemWidget layout completed");
     } catch (const std::exception& e) {

@@ -1,9 +1,16 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Bash(cmake:*)",
       "Bash(cp:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(rg:*)",
+      "Bash(build-release.bat)",
+      "Bash(windeployqt:*)",
+      "Bash(cmd:*)",
+      "Bash(mkdir:*)",
+      "Bash(copy build-releaseReleaseCellAnalyzer.exe portableCellAnalyzer)"
     ],
     "deny": []
   }

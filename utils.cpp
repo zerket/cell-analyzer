@@ -1,19 +1,23 @@
 #include "utils.h"
 
 QImage matToQImage(const cv::Mat& mat) {
+    if (mat.empty()) {
+        return QImage();
+    }
+    
     switch (mat.type()) {
     case CV_8UC1: {
         QImage img(mat.data, mat.cols, mat.rows, int(mat.step), QImage::Format_Grayscale8);
         return img.copy();
     }
     case CV_8UC3: {
-        cv::Mat rgb;
+        static thread_local cv::Mat rgb;
         cv::cvtColor(mat, rgb, cv::COLOR_BGR2RGB);
         QImage img(rgb.data, rgb.cols, rgb.rows, int(rgb.step), QImage::Format_RGB888);
         return img.copy();
     }
     case CV_8UC4: {
-        cv::Mat rgba;
+        static thread_local cv::Mat rgba;
         cv::cvtColor(mat, rgba, cv::COLOR_BGRA2RGBA);
         QImage img(rgba.data, rgba.cols, rgba.rows, int(rgba.step), QImage::Format_RGBA8888);
         return img.copy();

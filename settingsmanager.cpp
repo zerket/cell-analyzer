@@ -38,6 +38,9 @@ void SettingsManager::saveSettings() {
     // Сохраняем размер превью
     root["previewSize"] = m_previewSize;
     
+    // Сохраняем коэффициент nm/pixel
+    root["nmPerPixel"] = m_nmPerPixel;
+    
     // Записываем в файл
     QJsonDocument doc(root);
     QFile file(getSettingsPath());
@@ -76,6 +79,11 @@ void SettingsManager::loadSettings() {
                 m_previewSize = root["previewSize"].toInt(150);
             }
             
+            // Загружаем коэффициент nm/pixel
+            if (root.contains("nmPerPixel")) {
+                m_nmPerPixel = root["nmPerPixel"].toDouble(0.0);
+            }
+            
             qDebug() << "Settings loaded from:" << getSettingsPath();
         }
     } else {
@@ -90,6 +98,11 @@ void SettingsManager::setHoughParams(const ImageProcessor::HoughParams& params) 
 
 void SettingsManager::setPreviewSize(int size) {
     m_previewSize = size;
+    saveSettings();
+}
+
+void SettingsManager::setNmPerPixel(double coefficient) {
+    m_nmPerPixel = coefficient;
     saveSettings();
 }
 

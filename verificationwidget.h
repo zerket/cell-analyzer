@@ -8,6 +8,7 @@
 #include <QButtonGroup>
 #include <QRadioButton>
 #include <QScrollArea>
+#include <QLineEdit>
 #include "cell.h"
 #include "cellitemwidget.h"
 
@@ -39,6 +40,8 @@ private:
     QButtonGroup* viewModeGroup;
     QScrollArea* scrollArea;
     QWidget* cellsContainer;
+    QLineEdit* coefficientEdit;
+    QVector<QLineEdit*> listViewDiameterEdits;
 
     void onSaveCellsClicked();
     void updateRecalcButtonState();
@@ -48,6 +51,9 @@ private:
     void saveDebugImage(const QString& originalImagePath, 
                        const QVector<QPair<Cell, double>>& cells,
                        const QString& outputPath);
+                       
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 };
 
 #endif // VERIFICATIONWIDGET_H

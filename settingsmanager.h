@@ -20,6 +20,10 @@ public:
     int getPreviewSize() const { return m_previewSize; }
     void setPreviewSize(int size);
     
+    // Коэффициент nm/pixel
+    double getNmPerPixel() const { return m_nmPerPixel; }
+    void setNmPerPixel(double coefficient);
+    
     // Путь к файлу настроек
     QString getSettingsPath() const;
 
@@ -35,6 +39,7 @@ private:
     
     ImageProcessor::HoughParams m_houghParams;
     int m_previewSize = 150;
+    double m_nmPerPixel = 0.0;
     QString m_settingsFile = "settings.json";
 };
 
