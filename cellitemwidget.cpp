@@ -34,7 +34,7 @@ CellItemWidget::CellItemWidget(const Cell& cell, QWidget* parent)
     diameterPxLabel = new QLabel(QString("Диаметр (px): %1").arg(cell.diameterPx), this);
 
     diameterNmEdit = new QLineEdit(this);
-    diameterNmEdit->setPlaceholderText("Диаметр (нм)");
+    diameterNmEdit->setPlaceholderText("Диаметр (мкм)");
     diameterNmEdit->setFixedWidth(150);  // Sync with image width
     connect(diameterNmEdit, &QLineEdit::textChanged, this, &CellItemWidget::diameterNmChanged);
 

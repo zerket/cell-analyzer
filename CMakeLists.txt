@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(OpenCV_DIR "D:/opencv/build")  # Путь к директории OpenCV с CMake-конфигурацией
 
 # Поиск Qt6
-find_package(Qt6 COMPONENTS Widgets Gui REQUIRED)
+find_package(Qt6 COMPONENTS Widgets Gui Concurrent REQUIRED)
 
 # Поиск OpenCV с конкретными модулями
 find_package(OpenCV REQUIRED
@@ -49,6 +49,7 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     Qt6::Widgets
     Qt6::Gui
+    Qt6::Concurrent
     ${OpenCV_LIBS}  # Подключаем указанные модули OpenCV
 )
 

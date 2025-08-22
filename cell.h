@@ -7,7 +7,7 @@ struct Cell {
     cv::Vec3f circle;         // Координаты и радиус круга (x, y, r)
     cv::Mat image;            // Изображение клетки (вырезанный фрагмент)
     float diameterPx = 0.0f;  // Диаметр в пикселях
-    float diameterNm = 0.0f;  // Диаметр в нанометрах
+    float diameterNm = 0.0f;  // Диаметр в микрометрах
     int pixelDiameter = 0;
     std::string imagePath = "";
     

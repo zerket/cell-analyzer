@@ -152,3 +152,6 @@ build\Release\CellAnalyzer.exe
 2. Click to remove false positives
 3. Export to CSV with complete measurements
 4. Save individual cell images
+
+## ToDo plan
+1. all todo plan in file ./todo.md

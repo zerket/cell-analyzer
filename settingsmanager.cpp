@@ -38,7 +38,7 @@ void SettingsManager::saveSettings() {
     // Сохраняем размер превью
     root["previewSize"] = m_previewSize;
     
-    // Сохраняем коэффициент nm/pixel
+    // Сохраняем коэффициент μm/pixel
     root["nmPerPixel"] = m_nmPerPixel;
     
     // Записываем в файл
@@ -79,7 +79,7 @@ void SettingsManager::loadSettings() {
                 m_previewSize = root["previewSize"].toInt(150);
             }
             
-            // Загружаем коэффициент nm/pixel
+            // Загружаем коэффициент μm/pixel
             if (root.contains("nmPerPixel")) {
                 m_nmPerPixel = root["nmPerPixel"].toDouble(0.0);
             }

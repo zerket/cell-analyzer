@@ -197,7 +197,8 @@ QWidget* MainWindow::createMainWidget() {
     // Область для превью
     previewGrid = new PreviewGrid(this);
     int savedSize = SettingsManager::instance().getPreviewSize();
-    previewGrid->setPreviewSize(savedSize);
+    int actualSize = savedSize > 300 ? 300 : savedSize;
+    previewGrid->setPreviewSize(actualSize);
     connect(previewGrid, &PreviewGrid::pathsChanged, this, &MainWindow::updateAnalysisButtonState);
     
     // Прогресс бар
@@ -208,22 +209,22 @@ QWidget* MainWindow::createMainWidget() {
     // Нижний тулбар
     toolbarWidget = new QWidget();
     toolbarWidget->setVisible(false);
-    toolbarWidget->setMaximumHeight(150);
+    toolbarWidget->setMaximumHeight(80);
     QHBoxLayout* toolbarLayout = new QHBoxLayout(toolbarWidget);
-    toolbarLayout->setContentsMargins(0, 10, 0, 10);
+    toolbarLayout->setContentsMargins(0, 5, 0, 5);
     
     // Ползунок размера превью
     QLabel* sizeLabel = new QLabel("Размер превью:");
     toolbarLayout->addWidget(sizeLabel);
     
     previewSizeSlider = new QSlider(Qt::Horizontal);
-    previewSizeSlider->setRange(100, 500);
-    previewSizeSlider->setValue(savedSize);
+    previewSizeSlider->setRange(100, 300);
+    previewSizeSlider->setValue(savedSize > 300 ? 300 : savedSize);
     previewSizeSlider->setMaximumWidth(200);
     connect(previewSizeSlider, &QSlider::valueChanged, this, &MainWindow::onPreviewSizeChanged);
     toolbarLayout->addWidget(previewSizeSlider);
     
-    previewSizeLabel = new QLabel(QString::number(savedSize));
+    previewSizeLabel = new QLabel(QString::number(savedSize > 300 ? 300 : savedSize));
     previewSizeLabel->setMinimumWidth(30);
     toolbarLayout->addWidget(previewSizeLabel);
     
@@ -323,9 +324,17 @@ void MainWindow::setupWithImagesState() {
     
     selectButton->hide();
     
-    centralLayout->addWidget(previewGrid);
-    centralLayout->addWidget(progressBar);
-    centralLayout->addWidget(toolbarWidget);
+    // Добавляем виджеты только если их нет в layout
+    if (centralLayout->indexOf(previewGrid) == -1) {
+        centralLayout->addWidget(previewGrid);
+    }
+    if (centralLayout->indexOf(progressBar) == -1) {
+        centralLayout->addWidget(progressBar);
+    }
+    centralLayout->addStretch();
+    if (centralLayout->indexOf(toolbarWidget) == -1) {
+        centralLayout->addWidget(toolbarWidget);
+    }
     
     previewGrid->show();
     toolbarWidget->show();

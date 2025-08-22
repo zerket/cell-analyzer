@@ -18,10 +18,10 @@ CellItem::CellItem(const Cell& cell, QWidget* parent)
     mainLayout->addWidget(diameterPxLabel);
 
     QHBoxLayout* nmLayout = new QHBoxLayout;
-    nmLayout->addWidget(new QLabel("Диаметр (нм):", this));
+    nmLayout->addWidget(new QLabel("Диаметр (мкм):", this));
 
     diameterNmEdit = new QLineEdit(this);
-    diameterNmEdit->setPlaceholderText("Введите диаметр в нм");
+    diameterNmEdit->setPlaceholderText("Введите диаметр в мкм");
     diameterNmEdit->setValidator(new QDoubleValidator(0, 1e6, 2, this));
     //diameterNmEdit->setEnabled(true);
     nmLayout->addWidget(diameterNmEdit);

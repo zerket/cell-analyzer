@@ -20,7 +20,7 @@ public:
     int getPreviewSize() const { return m_previewSize; }
     void setPreviewSize(int size);
     
-    // Коэффициент nm/pixel
+    // Коэффициент μm/pixel
     double getNmPerPixel() const { return m_nmPerPixel; }
     void setNmPerPixel(double coefficient);
     

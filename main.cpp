@@ -1,15 +1,16 @@
-#include "mainwindow.h"
 #include <QApplication>
+#include <QtConcurrent/QtConcurrent>
+#include "mainwindow.h"
 #include "logger.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
+    INIT_LOGGER();
     
     // Инициализируем логирование
     LOG_INFO("==================================================");
     LOG_INFO("CellAnalyzer application started");
     LOG_INFO("==================================================");
-    
     try {
         MainWindow window;
         window.show();

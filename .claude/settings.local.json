@@ -10,7 +10,8 @@
       "Bash(windeployqt:*)",
       "Bash(cmd:*)",
       "Bash(mkdir:*)",
-      "Bash(copy build-releaseReleaseCellAnalyzer.exe portableCellAnalyzer)"
+      "Bash(copy build-releaseReleaseCellAnalyzer.exe portableCellAnalyzer)",
+      "Bash(powershell:*)"
     ],
     "deny": []
   }

@@ -1,0 +1,306 @@
+2025-08-22 12:29:48.796 [INFO] ==================================================
+2025-08-22 12:29:48.796 [INFO] CellAnalyzer application started
+2025-08-22 12:29:48.796 [INFO] ==================================================
+2025-08-22 12:30:18.327 [INFO] ParameterTuningWidget::onConfirmClicked() called
+2025-08-22 12:30:18.327 [INFO] Parameters: dp=1, minDist=30, param1=90, param2=50, minRadius=30, maxRadius=130
+2025-08-22 12:30:18.327 [INFO] MainWindow::onParametersConfirmed() called
+2025-08-22 12:30:18.327 [INFO] Saving parameters to settings
+2025-08-22 12:30:18.327 [INFO] Parameters saved successfully
+2025-08-22 12:30:18.328 [INFO] Cleaning up parameter tuning widget
+2025-08-22 12:30:18.328 [INFO] Parameter tuning widget cleaned up
+2025-08-22 12:30:18.331 [INFO] Creating ImageProcessor
+2025-08-22 12:30:18.331 [INFO] ImageProcessor created
+2025-08-22 12:30:18.331 [INFO] ImageProcessor created successfully
+2025-08-22 12:30:18.331 [INFO] Processing 1 images
+2025-08-22 12:30:18.331 [INFO] Processing 1 images
+2025-08-22 12:30:18.407 [INFO] Scale detected: 100 nm over 61.0737 pixels = 1.63737 nm/pixel
+2025-08-22 12:30:18.407 [INFO] Scale detected: 1.63737 nm/pixel
+2025-08-22 12:30:18.413 [INFO] Processing complete. Detected 65 cells total
+2025-08-22 12:30:18.413 [INFO] Images processed successfully
+2025-08-22 12:30:18.413 [INFO] Detected 65 cells
+2025-08-22 12:30:18.413 [INFO] Cleaning up old verification widget
+2025-08-22 12:30:18.413 [INFO] Creating copy of detected cells
+2025-08-22 12:30:18.413 [INFO] Copied 65 cells
+2025-08-22 12:30:18.413 [INFO] ImageProcessor destroyed
+2025-08-22 12:30:18.413 [INFO] ImageProcessor deleted
+2025-08-22 12:30:18.413 [INFO] Creating VerificationWidget
+2025-08-22 12:30:18.413 [INFO] VerificationWidget constructor called
+2025-08-22 12:30:18.413 [INFO] Received 65 cells
+2025-08-22 12:30:18.413 [INFO] Main layout created
+2025-08-22 12:30:18.413 [INFO] VerificationWidget UI setup completed
+2025-08-22 12:30:18.413 [INFO] setupGridView() called
+2025-08-22 12:30:18.413 [INFO] Number of cells to display: 65
+2025-08-22 12:30:18.413 [INFO] Cleaning up widgets
+2025-08-22 12:30:18.413 [INFO] Widget cleanup completed
+2025-08-22 12:30:18.413 [INFO] Grid layout: width=70, columns=1
+2025-08-22 12:30:18.434 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:30:18.434 [INFO] VerificationWidget created successfully
+2025-08-22 12:30:18.434 [INFO] Connecting analysisCompleted signal
+2025-08-22 12:30:18.434 [INFO] Setting VerificationWidget as central widget
+2025-08-22 12:30:18.457 [INFO] onParametersConfirmed() completed successfully
+2025-08-22 12:30:18.457 [INFO] parametersConfirmed signal emitted
+2025-08-22 12:30:18.665 [INFO] setupGridView() called
+2025-08-22 12:30:18.665 [INFO] Number of cells to display: 65
+2025-08-22 12:30:18.665 [INFO] Cleaning up widgets
+2025-08-22 12:30:18.665 [INFO] Widget cleanup completed
+2025-08-22 12:30:18.665 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:30:18.690 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:30:23.061 [INFO] setupListView() called
+2025-08-22 12:30:23.061 [INFO] Cleaning up widgets
+2025-08-22 12:30:23.061 [INFO] Widget cleanup completed
+2025-08-22 12:30:23.085 [INFO] setupListView() completed
+2025-08-22 12:30:41.780 [INFO] Analysis completed, returning to main screen
+2025-08-22 12:30:41.782 [INFO] VerificationWidget destructor called
+2025-08-22 12:30:41.782 [INFO] Cleaning up widgets
+2025-08-22 12:30:41.783 [INFO] Widget cleanup completed
+2025-08-22 12:43:12.690 [INFO] ==================================================
+2025-08-22 12:43:12.690 [INFO] CellAnalyzer application started
+2025-08-22 12:43:12.691 [INFO] ==================================================
+2025-08-22 12:47:18.165 [INFO] ==================================================
+2025-08-22 12:47:18.166 [INFO] CellAnalyzer application started
+2025-08-22 12:47:18.166 [INFO] ==================================================
+2025-08-22 12:47:51.268 [INFO] ParameterTuningWidget::onConfirmClicked() called
+2025-08-22 12:47:51.268 [INFO] Parameters: dp=1, minDist=30, param1=90, param2=50, minRadius=30, maxRadius=130
+2025-08-22 12:47:51.268 [INFO] MainWindow::onParametersConfirmed() called
+2025-08-22 12:47:51.268 [INFO] Saving parameters to settings
+2025-08-22 12:47:51.269 [INFO] Parameters saved successfully
+2025-08-22 12:47:51.269 [INFO] Cleaning up parameter tuning widget
+2025-08-22 12:47:51.269 [INFO] Parameter tuning widget cleaned up
+2025-08-22 12:47:51.269 [INFO] Creating ImageProcessor
+2025-08-22 12:47:51.269 [INFO] ImageProcessor created
+2025-08-22 12:47:51.269 [INFO] ImageProcessor created successfully
+2025-08-22 12:47:51.269 [INFO] Processing 1 images
+2025-08-22 12:47:51.269 [INFO] Processing 1 images
+2025-08-22 12:47:51.331 [INFO] Scale detected: 100 nm over 61.0737 pixels = 1.63737 nm/pixel
+2025-08-22 12:47:51.331 [INFO] Scale detected: 1.63737 nm/pixel
+2025-08-22 12:47:51.337 [INFO] Processing complete. Detected 65 cells total
+2025-08-22 12:47:51.337 [INFO] Images processed successfully
+2025-08-22 12:47:51.337 [INFO] Detected 65 cells
+2025-08-22 12:47:51.337 [INFO] Cleaning up old verification widget
+2025-08-22 12:47:51.337 [INFO] Creating copy of detected cells
+2025-08-22 12:47:51.337 [INFO] Copied 65 cells
+2025-08-22 12:47:51.337 [INFO] ImageProcessor destroyed
+2025-08-22 12:47:51.337 [INFO] ImageProcessor deleted
+2025-08-22 12:47:51.337 [INFO] Creating VerificationWidget
+2025-08-22 12:47:51.337 [INFO] VerificationWidget constructor called
+2025-08-22 12:47:51.337 [INFO] Received 65 cells
+2025-08-22 12:47:51.337 [INFO] Main layout created
+2025-08-22 12:47:51.338 [INFO] VerificationWidget UI setup completed
+2025-08-22 12:47:51.338 [INFO] setupGridView() called
+2025-08-22 12:47:51.338 [INFO] Number of cells to display: 65
+2025-08-22 12:47:51.338 [INFO] Cleaning up widgets
+2025-08-22 12:47:51.338 [INFO] Widget cleanup completed
+2025-08-22 12:47:51.338 [INFO] Grid layout: width=70, columns=1
+2025-08-22 12:47:51.357 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:47:51.357 [INFO] VerificationWidget created successfully
+2025-08-22 12:47:51.357 [INFO] Connecting analysisCompleted signal
+2025-08-22 12:47:51.357 [INFO] Setting VerificationWidget as central widget
+2025-08-22 12:47:51.383 [INFO] onParametersConfirmed() completed successfully
+2025-08-22 12:47:51.383 [INFO] parametersConfirmed signal emitted
+2025-08-22 12:47:51.586 [INFO] setupGridView() called
+2025-08-22 12:47:51.587 [INFO] Number of cells to display: 65
+2025-08-22 12:47:51.587 [INFO] Cleaning up widgets
+2025-08-22 12:47:51.587 [INFO] Widget cleanup completed
+2025-08-22 12:47:51.587 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:47:51.611 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:47:53.017 [INFO] setupListView() called
+2025-08-22 12:47:53.017 [INFO] Cleaning up widgets
+2025-08-22 12:47:53.018 [INFO] Widget cleanup completed
+2025-08-22 12:47:53.041 [INFO] setupListView() completed
+2025-08-22 12:47:54.737 [INFO] setupGridView() called
+2025-08-22 12:47:54.738 [INFO] Number of cells to display: 65
+2025-08-22 12:47:54.738 [INFO] Cleaning up widgets
+2025-08-22 12:47:54.738 [INFO] Widget cleanup completed
+2025-08-22 12:47:54.738 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:47:54.767 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:48:01.657 [INFO] setupListView() called
+2025-08-22 12:48:01.657 [INFO] Cleaning up widgets
+2025-08-22 12:48:01.657 [INFO] Widget cleanup completed
+2025-08-22 12:48:01.681 [INFO] setupListView() completed
+2025-08-22 12:48:03.133 [INFO] setupGridView() called
+2025-08-22 12:48:03.133 [INFO] Number of cells to display: 65
+2025-08-22 12:48:03.133 [INFO] Cleaning up widgets
+2025-08-22 12:48:03.134 [INFO] Widget cleanup completed
+2025-08-22 12:48:03.134 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:48:03.159 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:50:55.371 [INFO] ==================================================
+2025-08-22 12:50:55.373 [INFO] CellAnalyzer application started
+2025-08-22 12:50:55.373 [INFO] ==================================================
+2025-08-22 12:51:04.197 [INFO] ParameterTuningWidget::onConfirmClicked() called
+2025-08-22 12:51:04.197 [INFO] Parameters: dp=1, minDist=30, param1=90, param2=50, minRadius=30, maxRadius=130
+2025-08-22 12:51:04.197 [INFO] MainWindow::onParametersConfirmed() called
+2025-08-22 12:51:04.197 [INFO] Saving parameters to settings
+2025-08-22 12:51:04.198 [INFO] Parameters saved successfully
+2025-08-22 12:51:04.198 [INFO] Cleaning up parameter tuning widget
+2025-08-22 12:51:04.198 [INFO] Parameter tuning widget cleaned up
+2025-08-22 12:51:04.198 [INFO] Creating ImageProcessor
+2025-08-22 12:51:04.198 [INFO] ImageProcessor created
+2025-08-22 12:51:04.198 [INFO] ImageProcessor created successfully
+2025-08-22 12:51:04.198 [INFO] Processing 1 images
+2025-08-22 12:51:04.198 [INFO] Processing 1 images
+2025-08-22 12:51:04.256 [INFO] Scale detected: 100 nm over 61.0737 pixels = 1.63737 nm/pixel
+2025-08-22 12:51:04.256 [INFO] Scale detected: 1.63737 nm/pixel
+2025-08-22 12:51:04.262 [INFO] Processing complete. Detected 65 cells total
+2025-08-22 12:51:04.262 [INFO] Images processed successfully
+2025-08-22 12:51:04.262 [INFO] Detected 65 cells
+2025-08-22 12:51:04.262 [INFO] Cleaning up old verification widget
+2025-08-22 12:51:04.262 [INFO] Creating copy of detected cells
+2025-08-22 12:51:04.262 [INFO] Copied 65 cells
+2025-08-22 12:51:04.262 [INFO] ImageProcessor destroyed
+2025-08-22 12:51:04.262 [INFO] ImageProcessor deleted
+2025-08-22 12:51:04.262 [INFO] Creating VerificationWidget
+2025-08-22 12:51:04.262 [INFO] VerificationWidget constructor called
+2025-08-22 12:51:04.262 [INFO] Received 65 cells
+2025-08-22 12:51:04.262 [INFO] Main layout created
+2025-08-22 12:51:04.263 [INFO] VerificationWidget UI setup completed
+2025-08-22 12:51:04.263 [INFO] setupGridView() called
+2025-08-22 12:51:04.263 [INFO] Number of cells to display: 65
+2025-08-22 12:51:04.263 [INFO] Cleaning up widgets
+2025-08-22 12:51:04.263 [INFO] Widget cleanup completed
+2025-08-22 12:51:04.263 [INFO] Grid layout: width=70, columns=1
+2025-08-22 12:51:04.282 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:51:04.282 [INFO] VerificationWidget created successfully
+2025-08-22 12:51:04.282 [INFO] Connecting analysisCompleted signal
+2025-08-22 12:51:04.282 [INFO] Setting VerificationWidget as central widget
+2025-08-22 12:51:04.303 [INFO] onParametersConfirmed() completed successfully
+2025-08-22 12:51:04.303 [INFO] parametersConfirmed signal emitted
+2025-08-22 12:51:04.504 [INFO] setupGridView() called
+2025-08-22 12:51:04.504 [INFO] Number of cells to display: 65
+2025-08-22 12:51:04.504 [INFO] Cleaning up widgets
+2025-08-22 12:51:04.504 [INFO] Widget cleanup completed
+2025-08-22 12:51:04.504 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:51:04.530 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:51:05.989 [INFO] setupListView() called
+2025-08-22 12:51:05.989 [INFO] Cleaning up widgets
+2025-08-22 12:51:05.989 [INFO] Widget cleanup completed
+2025-08-22 12:51:06.013 [INFO] setupListView() completed
+2025-08-22 12:51:06.803 [INFO] setupGridView() called
+2025-08-22 12:51:06.803 [INFO] Number of cells to display: 65
+2025-08-22 12:51:06.803 [INFO] Cleaning up widgets
+2025-08-22 12:51:06.803 [INFO] Widget cleanup completed
+2025-08-22 12:51:06.803 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:51:06.828 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:51:07.852 [INFO] setupListView() called
+2025-08-22 12:51:07.852 [INFO] Cleaning up widgets
+2025-08-22 12:51:07.852 [INFO] Widget cleanup completed
+2025-08-22 12:51:07.877 [INFO] setupListView() completed
+2025-08-22 12:51:08.340 [INFO] setupGridView() called
+2025-08-22 12:51:08.340 [INFO] Number of cells to display: 65
+2025-08-22 12:51:08.340 [INFO] Cleaning up widgets
+2025-08-22 12:51:08.341 [INFO] Widget cleanup completed
+2025-08-22 12:51:08.341 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:51:08.367 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:51:08.871 [INFO] setupListView() called
+2025-08-22 12:51:08.871 [INFO] Cleaning up widgets
+2025-08-22 12:51:08.871 [INFO] Widget cleanup completed
+2025-08-22 12:51:08.897 [INFO] setupListView() completed
+2025-08-22 12:51:09.615 [INFO] setupGridView() called
+2025-08-22 12:51:09.615 [INFO] Number of cells to display: 65
+2025-08-22 12:51:09.615 [INFO] Cleaning up widgets
+2025-08-22 12:51:09.615 [INFO] Widget cleanup completed
+2025-08-22 12:51:09.615 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:51:09.641 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:51:10.145 [INFO] setupListView() called
+2025-08-22 12:51:10.145 [INFO] Cleaning up widgets
+2025-08-22 12:51:10.145 [INFO] Widget cleanup completed
+2025-08-22 12:51:10.170 [INFO] setupListView() completed
+2025-08-22 12:51:11.765 [INFO] setupGridView() called
+2025-08-22 12:51:11.765 [INFO] Number of cells to display: 65
+2025-08-22 12:51:11.765 [INFO] Cleaning up widgets
+2025-08-22 12:51:11.765 [INFO] Widget cleanup completed
+2025-08-22 12:51:11.765 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:51:11.791 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:51:13.841 [INFO] setupListView() called
+2025-08-22 12:51:13.841 [INFO] Cleaning up widgets
+2025-08-22 12:51:13.842 [INFO] Widget cleanup completed
+2025-08-22 12:51:13.865 [INFO] setupListView() completed
+2025-08-22 12:51:14.265 [INFO] setupGridView() called
+2025-08-22 12:51:14.265 [INFO] Number of cells to display: 65
+2025-08-22 12:51:14.265 [INFO] Cleaning up widgets
+2025-08-22 12:51:14.265 [INFO] Widget cleanup completed
+2025-08-22 12:51:14.265 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:51:14.290 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:51:14.685 [INFO] setupListView() called
+2025-08-22 12:51:14.685 [INFO] Cleaning up widgets
+2025-08-22 12:51:14.686 [INFO] Widget cleanup completed
+2025-08-22 12:51:14.711 [INFO] setupListView() completed
+2025-08-22 12:51:15.114 [INFO] setupGridView() called
+2025-08-22 12:51:15.114 [INFO] Number of cells to display: 65
+2025-08-22 12:51:15.114 [INFO] Cleaning up widgets
+2025-08-22 12:51:15.114 [INFO] Widget cleanup completed
+2025-08-22 12:51:15.114 [INFO] Grid layout: width=976, columns=5
+2025-08-22 12:51:15.139 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 12:51:15.708 [INFO] setupListView() called
+2025-08-22 12:51:15.708 [INFO] Cleaning up widgets
+2025-08-22 12:51:15.708 [INFO] Widget cleanup completed
+2025-08-22 12:51:15.732 [INFO] setupListView() completed
+2025-08-22 12:54:52.459 [INFO] ==================================================
+2025-08-22 12:54:52.460 [INFO] CellAnalyzer application started
+2025-08-22 12:54:52.460 [INFO] ==================================================
+2025-08-22 13:00:09.046 [INFO] ParameterTuningWidget::onConfirmClicked() called
+2025-08-22 13:00:09.046 [INFO] Parameters: dp=1, minDist=30, param1=90, param2=50, minRadius=30, maxRadius=130
+2025-08-22 13:00:09.046 [INFO] MainWindow::onParametersConfirmed() called
+2025-08-22 13:00:09.046 [INFO] Saving parameters to settings
+2025-08-22 13:00:09.046 [INFO] Parameters saved successfully
+2025-08-22 13:00:09.046 [INFO] Cleaning up parameter tuning widget
+2025-08-22 13:00:09.047 [INFO] Parameter tuning widget cleaned up
+2025-08-22 13:00:09.047 [INFO] Creating ImageProcessor
+2025-08-22 13:00:09.047 [INFO] ImageProcessor created
+2025-08-22 13:00:09.047 [INFO] ImageProcessor created successfully
+2025-08-22 13:00:09.047 [INFO] Processing 1 images
+2025-08-22 13:00:09.047 [INFO] Processing 1 images
+2025-08-22 13:00:09.107 [INFO] Scale detected: 100 nm over 61.0737 pixels = 1.63737 nm/pixel
+2025-08-22 13:00:09.107 [INFO] Scale detected: 1.63737 nm/pixel
+2025-08-22 13:00:09.113 [INFO] Processing complete. Detected 65 cells total
+2025-08-22 13:00:09.113 [INFO] Images processed successfully
+2025-08-22 13:00:09.113 [INFO] Detected 65 cells
+2025-08-22 13:00:09.113 [INFO] Cleaning up old verification widget
+2025-08-22 13:00:09.113 [INFO] Creating copy of detected cells
+2025-08-22 13:00:09.113 [INFO] Copied 65 cells
+2025-08-22 13:00:09.113 [INFO] ImageProcessor destroyed
+2025-08-22 13:00:09.113 [INFO] ImageProcessor deleted
+2025-08-22 13:00:09.113 [INFO] Creating VerificationWidget
+2025-08-22 13:00:09.113 [INFO] VerificationWidget constructor called
+2025-08-22 13:00:09.113 [INFO] Received 65 cells
+2025-08-22 13:00:09.113 [INFO] Main layout created
+2025-08-22 13:00:09.113 [INFO] VerificationWidget UI setup completed
+2025-08-22 13:00:09.113 [INFO] setupGridView() called
+2025-08-22 13:00:09.113 [INFO] Number of cells to display: 65
+2025-08-22 13:00:09.113 [INFO] Cleaning up widgets
+2025-08-22 13:00:09.113 [INFO] Widget cleanup completed
+2025-08-22 13:00:09.114 [INFO] Grid layout: width=70, columns=1
+2025-08-22 13:00:09.133 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 13:00:09.134 [INFO] VerificationWidget created successfully
+2025-08-22 13:00:09.134 [INFO] Connecting analysisCompleted signal
+2025-08-22 13:00:09.134 [INFO] Setting VerificationWidget as central widget
+2025-08-22 13:00:09.154 [INFO] onParametersConfirmed() completed successfully
+2025-08-22 13:00:09.154 [INFO] parametersConfirmed signal emitted
+2025-08-22 13:00:09.361 [INFO] setupGridView() called
+2025-08-22 13:00:09.361 [INFO] Number of cells to display: 65
+2025-08-22 13:00:09.361 [INFO] Cleaning up widgets
+2025-08-22 13:00:09.362 [INFO] Widget cleanup completed
+2025-08-22 13:00:09.362 [INFO] Grid layout: width=976, columns=5
+2025-08-22 13:00:09.386 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 13:00:11.029 [INFO] setupListView() called
+2025-08-22 13:00:11.029 [INFO] Cleaning up widgets
+2025-08-22 13:00:11.029 [INFO] Widget cleanup completed
+2025-08-22 13:00:11.052 [INFO] setupListView() completed
+2025-08-22 13:00:11.823 [INFO] setupGridView() called
+2025-08-22 13:00:11.823 [INFO] Number of cells to display: 65
+2025-08-22 13:00:11.823 [INFO] Cleaning up widgets
+2025-08-22 13:00:11.824 [INFO] Widget cleanup completed
+2025-08-22 13:00:11.824 [INFO] Grid layout: width=976, columns=5
+2025-08-22 13:00:11.850 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 13:06:25.688 [INFO] setupListView() called
+2025-08-22 13:06:25.688 [INFO] Cleaning up widgets
+2025-08-22 13:06:25.688 [INFO] Widget cleanup completed
+2025-08-22 13:06:25.717 [INFO] setupListView() completed
+2025-08-22 13:06:26.367 [INFO] setupGridView() called
+2025-08-22 13:06:26.368 [INFO] Number of cells to display: 65
+2025-08-22 13:06:26.368 [INFO] Cleaning up widgets
+2025-08-22 13:06:26.368 [INFO] Widget cleanup completed
+2025-08-22 13:06:26.368 [INFO] Grid layout: width=976, columns=5
+2025-08-22 13:06:26.396 [INFO] setupGridView() completed. Created 65 widgets
+2025-08-22 13:06:30.835 [INFO] VerificationWidget destructor called
+2025-08-22 13:06:30.835 [INFO] Cleaning up widgets
+2025-08-22 13:06:30.836 [INFO] Widget cleanup completed
