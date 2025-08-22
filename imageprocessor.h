@@ -59,6 +59,7 @@ private:
     
     // Image preprocessing
     cv::Mat applyPreprocessing(const cv::Mat& input, const PreprocessingParams& params);
+    cv::Mat loadImageSafely(const QString& imagePath);
     
     // Circle detection
     void detectCircles(const cv::Mat& blurred, std::vector<cv::Vec3f>& circles, 

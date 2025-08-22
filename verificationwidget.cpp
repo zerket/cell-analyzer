@@ -13,6 +13,7 @@
 #include <QTextStream>
 #include <QFileInfo>
 #include <QDateTime>
+#include <QImage>
 #include <QResizeEvent>
 #include <QTimer>
 #include <QSet>
@@ -186,6 +187,15 @@ void VerificationWidget::setupGridView()
     for (int i = 0; i < m_cells.size(); ++i) {
         try {
             auto cellWidget = std::make_unique<CellItemWidget>(m_cells[i]);
+            
+            // Автоматически заполняем диаметр если есть коэффициент
+            double currentCoeff = SettingsManager::instance().getNmPerPixel();
+            if (currentCoeff > 0.0 && m_cells[i].diameterNm <= 0.0) {
+                double calculatedDiameter = m_cells[i].diameterPx * currentCoeff;
+                cellWidget->setDiameterNm(calculatedDiameter);
+                LOG_INFO(QString("Автоматически заполнен диаметр клетки %1: %2 нм (коэфф=%3)")
+                    .arg(i).arg(calculatedDiameter, 0, 'f', 2).arg(currentCoeff, 0, 'f', 4));
+            }
             
             connect(cellWidget.get(), &CellItemWidget::diameterNmChanged, 
                     this, &VerificationWidget::onDiameterNmChanged);
@@ -560,7 +570,7 @@ void VerificationWidget::saveDebugImage(const QString& originalImagePath,
         .arg(originalImagePath).arg(outputPath).arg(cells.size()));
     
     // Загружаем оригинальное изображение
-    cv::Mat originalImage = cv::imread(originalImagePath.toStdString());
+    cv::Mat originalImage = loadImageSafely(originalImagePath);
     if (originalImage.empty()) {
         LOG_ERROR(QString("Failed to load image for debug: %1").arg(originalImagePath));
         qWarning() << "Не удалось загрузить изображение для debug:" << originalImagePath;
@@ -608,5 +618,30 @@ void VerificationWidget::saveDebugImage(const QString& originalImagePath,
     } else {
         LOG_ERROR(QString("Failed to save debug image to: %1").arg(outputPath));
     }
+}
+
+cv::Mat VerificationWidget::loadImageSafely(const QString& imagePath) {
+    // Попробуем загрузить стандартным способом
+    cv::Mat image = cv::imread(imagePath.toStdString());
+    
+    if (!image.empty()) {
+        return image;
+    }
+    
+    // Если не получилось, попробуем через QImage (лучше работает с Unicode)
+    QImage qImage;
+    if (!qImage.load(imagePath)) {
+        LOG_ERROR("Не удалось загрузить изображение: " + imagePath);
+        return cv::Mat();
+    }
+    
+    // Конвертируем QImage в cv::Mat
+    QImage rgbImage = qImage.convertToFormat(QImage::Format_RGB888);
+    cv::Mat mat(rgbImage.height(), rgbImage.width(), CV_8UC3, (void*)rgbImage.constBits(), rgbImage.bytesPerLine());
+    cv::Mat result;
+    cv::cvtColor(mat, result, cv::COLOR_RGB2BGR);
+    
+    LOG_INFO("Изображение загружено через QImage: " + imagePath);
+    return result.clone();
 }
 

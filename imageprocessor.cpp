@@ -8,6 +8,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <QThreadPool>
 #include <QtConcurrent/QtConcurrent>
+#include <QImage>
 #include <QFuture>
 
 ImageProcessor::ImageProcessor() : m_enableParallel(true), m_debugMode(false) {
@@ -69,7 +70,7 @@ void ImageProcessor::processImagesParallel(const QStringList& paths, const Hough
 QVector<Cell> ImageProcessor::processSingleImageThreadSafe(const QString& path, const HoughParams& params, const PreprocessingParams& prepParams) {
     QVector<Cell> localCells;
     
-    cv::Mat src = cv::imread(path.toStdString());
+    cv::Mat src = loadImageSafely(path);
     if (src.empty()) {
         LOG_WARNING(QString("Failed to load image: %1").arg(path));
         return localCells;
@@ -114,7 +115,7 @@ QVector<Cell> ImageProcessor::processSingleImageThreadSafe(const QString& path, 
 }
 
 void ImageProcessor::processSingleImage(const QString& path, const HoughParams& params, const PreprocessingParams& prepParams) {
-    cv::Mat src = cv::imread(path.toStdString());
+    cv::Mat src = loadImageSafely(path);
     if (src.empty()) {
         throw std::runtime_error("Failed to load image: " + path.toStdString());
     }
@@ -479,4 +480,29 @@ cv::Mat ImageProcessor::applyPreprocessing(const cv::Mat& input, const Preproces
     }
     
     return result;
+}
+
+cv::Mat ImageProcessor::loadImageSafely(const QString& imagePath) {
+    // Попробуем загрузить стандартным способом
+    cv::Mat image = cv::imread(imagePath.toStdString());
+    
+    if (!image.empty()) {
+        return image;
+    }
+    
+    // Если не получилось, попробуем через QImage (лучше работает с Unicode)
+    QImage qImage;
+    if (!qImage.load(imagePath)) {
+        LOG_ERROR("Не удалось загрузить изображение: " + imagePath);
+        return cv::Mat();
+    }
+    
+    // Конвертируем QImage в cv::Mat
+    QImage rgbImage = qImage.convertToFormat(QImage::Format_RGB888);
+    cv::Mat mat(rgbImage.height(), rgbImage.width(), CV_8UC3, (void*)rgbImage.constBits(), rgbImage.bytesPerLine());
+    cv::Mat result;
+    cv::cvtColor(mat, result, cv::COLOR_RGB2BGR);
+    
+    LOG_INFO("Изображение загружено через QImage: " + imagePath);
+    return result.clone();
 }

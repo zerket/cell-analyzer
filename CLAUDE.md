@@ -66,9 +66,28 @@ build\Release\CellAnalyzer.exe
   - maxRadius = 150 pixels
 
 **ParameterTuningWidget** (`parametertuningwidget.h/cpp`)
-- Interactive parameter tuning interface with real-time preview
-- Allows saving/loading parameter presets
-- Shows original image on left, processed result on right
+- Interactive parameter tuning interface with controlled preview workflow
+- **NEW**: Shows original image initially (no auto-detection)
+- **NEW**: Interactive cell selection by clicking on image (red dots)
+- **NEW**: "Применить параметры" button triggers detection preview
+- **NEW**: Automatic parameter optimization based on selected cells
+- **NEW**: Iterative optimization algorithm with 1-minute timeout
+- **NEW**: Fixed coordinate mapping for accurate cell selection
+- **NEW**: Stable image scaling (800x600 max) to prevent zoom issues
+- **NEW**: Separate "Продолжить" button enabled only after applying parameters
+- **NEW**: Overlap filtering with minDist parameter enforcement
+- **NEW**: Smart evaluation algorithm ensuring each user point matches only one circle
+- **NEW**: Complete reset functionality ("🔄 Сбросить всё" button)
+- **NEW**: Unicode path support for images with Cyrillic characters
+- **NEW**: Auto-apply parameters with 200ms delay when values change
+- **NEW**: Guaranteed coverage algorithm using multiple search strategies
+- **NEW**: Enhanced UI with bottom toolbar (Back, Reset All, Continue buttons)  
+- **NEW**: Strategy-based optimization covering aggressive detection, threshold variation, and small circles
+- **NEW**: Advanced preset system with coefficient storage and auto-application
+- **NEW**: Preset management with save/delete functionality and last-used memory
+- **NEW**: Workflow optimization for repeated use with template-based processing
+- Allows saving/loading parameter presets with coefficients
+- Uses sophisticated scoring system to evaluate parameter quality for selected cells
 
 **VerificationWidget** (`verificationwidget.h/cpp`)
 - Grid display of detected cells for manual verification
@@ -136,10 +155,15 @@ build\Release\CellAnalyzer.exe
 ## User Workflows
 
 ### Single Image Analysis
-1. User selects one image → Parameter tuning screen opens
-2. Real-time preview updates as parameters change
-3. User can save parameter preset with custom name
-4. "Apply parameters and continue" proceeds to analysis
+1. User selects one image → Parameter tuning screen opens (shows original image without detection)
+2. **NEW**: User can click on image to select target cells (red dots appear at click locations)
+3. User can either:
+   - Manually adjust parameters and click "Применить параметры" to see detection results
+   - Load a saved preset and apply it
+   - **NEW**: Select cells and use "🎯 Подобрать параметры" for automatic optimization
+4. Once parameters are applied, preview shows both detected circles and selected cells
+5. User can save parameter preset with custom name
+6. **NEW**: "Продолжить" button (bottom-right) is enabled only after parameters are applied
 
 ### Batch Processing
 1. User selects multiple images → Uses saved presets
@@ -152,6 +176,24 @@ build\Release\CellAnalyzer.exe
 2. Click to remove false positives
 3. Export to CSV with complete measurements
 4. Save individual cell images
+
+### **NEW: Optimized Template Workflow**
+**First-time setup (detailed configuration):**
+1. Load images → Parameter tuning page (shows original image)
+2. Click on target cells to mark them (red dots)
+3. Use "🎯 Подобрать параметры" for automatic optimization
+4. Save preset with meaningful name (includes coefficient)
+5. Continue to verification → Diameters auto-filled if coefficient available
+6. Manual verification and CSV export
+
+**Subsequent use (streamlined):**
+1. Load images → Parameter tuning page  
+2. Last-used preset auto-selected and applied
+3. Verify correct preset is chosen → Continue
+4. Verification page with pre-filled diameters
+5. Quick verification and export
+
+This workflow enables **one-time careful setup**, then **fast repeated processing** with the same image types.
 
 ## ToDo plan
 1. all todo plan in file ./todo.md

@@ -11,7 +11,8 @@
       "Bash(cmd:*)",
       "Bash(mkdir:*)",
       "Bash(copy build-releaseReleaseCellAnalyzer.exe portableCellAnalyzer)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(./build-release.bat)"
     ],
     "deny": []
   }

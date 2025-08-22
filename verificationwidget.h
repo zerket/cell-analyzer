@@ -44,6 +44,7 @@ private:
     
     // Helper methods
     void updateRecalcButtonState();
+    cv::Mat loadImageSafely(const QString& imagePath);
     void recalculateDiameters();
     void saveDebugImage(const QString& originalImagePath, 
                        const QVector<QPair<Cell, double>>& cells,
