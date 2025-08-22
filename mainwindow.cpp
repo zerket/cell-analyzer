@@ -32,6 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     verificationWidget = nullptr;
     parameterTuningWidget = nullptr;
+    statisticsWidget = nullptr;
+    
+    // Включаем поддержку drag-and-drop
+    setAcceptDrops(true);
     
     // Загружаем параметры из настроек
     currentHoughParams = SettingsManager::instance().getHoughParams();
@@ -145,7 +149,7 @@ void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams&
         return;
     }
 
-    LOG_INFO("Connecting analysisCompleted signal");
+    LOG_INFO("Connecting signals");
     connect(verificationWidget, &VerificationWidget::analysisCompleted, this, [this]() {
         LOG_INFO("Analysis completed, returning to main screen");
         // Возвращаемся к главному экрану после анализа
@@ -154,6 +158,8 @@ void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams&
         scrollArea->setWidget(createMainWidget());
         setCentralWidget(scrollArea);
     });
+    
+    connect(verificationWidget, &VerificationWidget::statisticsRequested, this, &MainWindow::showStatistics);
 
     LOG_INFO("Setting VerificationWidget as central widget");
     // НЕ оборачиваем в QScrollArea, т.к. он уже есть внутри VerificationWidget
@@ -375,13 +381,15 @@ void MainWindow::startAnalysis() {
 }
 
 void MainWindow::showVerification() {
-    if (!verificationWidget) return;
+    if (!verificationWidget) {
+        Logger::instance().log("showVerification: verificationWidget is null", LogLevel::ERROR);
+        return;
+    }
 
-    QScrollArea* scrollArea = new QScrollArea(this);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setWidget(verificationWidget);
-
-    setCentralWidget(scrollArea);
+    Logger::instance().log("Возврат к окну проверки результатов");
+    
+    // НЕ оборачиваем в QScrollArea, т.к. он уже есть внутри VerificationWidget
+    setCentralWidget(verificationWidget);
 }
 
 
@@ -437,4 +445,113 @@ void MainWindow::setupMenuBar() {
         ThemeManager::instance().setTheme(ThemeManager::Theme::Dark);
     });
     themeMenu->addAction(darkThemeAction);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
+    if (event->mimeData()->hasUrls()) {
+        // Проверяем, есть ли среди файлов изображения
+        bool hasImages = false;
+        for (const QUrl& url : event->mimeData()->urls()) {
+            if (url.isLocalFile() && isImageFile(url.toLocalFile())) {
+                hasImages = true;
+                break;
+            }
+        }
+        
+        if (hasImages) {
+            event->acceptProposedAction();
+            return;
+        }
+    }
+    event->ignore();
+}
+
+void MainWindow::dropEvent(QDropEvent* event) {
+    QStringList imagePaths;
+    
+    for (const QUrl& url : event->mimeData()->urls()) {
+        if (url.isLocalFile()) {
+            QString filePath = url.toLocalFile();
+            if (isImageFile(filePath)) {
+                imagePaths.append(filePath);
+            }
+        }
+    }
+    
+    if (!imagePaths.isEmpty()) {
+        processDroppedFiles(imagePaths);
+        event->acceptProposedAction();
+    } else {
+        event->ignore();
+    }
+}
+
+void MainWindow::processDroppedFiles(const QStringList& filePaths) {
+    // Добавляем новые файлы к существующим
+    for (const QString& path : filePaths) {
+        if (!selectedImagePaths.contains(path)) {
+            selectedImagePaths.append(path);
+        }
+    }
+    
+    // Обновляем интерфейс
+    if (!selectedImagePaths.isEmpty()) {
+        setupWithImagesState();
+        updateAnalysisButtonState();
+        
+        Logger::instance().log(QString("Добавлено %1 изображений через drag-and-drop. Всего: %2")
+                              .arg(filePaths.size())
+                              .arg(selectedImagePaths.size()));
+    }
+}
+
+bool MainWindow::isImageFile(const QString& filePath) const {
+    QStringList imageExtensions = {
+        ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", 
+        ".gif", ".webp", ".svg", ".ico"
+    };
+    
+    QString extension = QFileInfo(filePath).suffix().toLower();
+    return imageExtensions.contains("." + extension);
+}
+
+void MainWindow::showStatistics() {
+    if (!verificationWidget) {
+        Logger::instance().log("Нет данных для статистического анализа", LogLevel::WARNING);
+        return;
+    }
+    
+    QVector<Cell> cells = verificationWidget->getVerifiedCells();
+    if (cells.isEmpty()) {
+        QMessageBox::information(this, "Статистика", "Нет обнаруженных клеток для анализа");
+        return;
+    }
+    
+    if (!statisticsWidget) {
+        statisticsWidget = new StatisticsWidget(this);
+        connect(statisticsWidget, &StatisticsWidget::backToVerification, 
+                this, &MainWindow::onBackFromStatistics);
+    }
+    
+    statisticsWidget->showStatistics(cells);
+    
+    QScrollArea* scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(statisticsWidget);
+    setCentralWidget(scrollArea);
+    
+    Logger::instance().log("Открыт статистический анализ");
+}
+
+void MainWindow::onBackFromStatistics() {
+    Logger::instance().log("onBackFromStatistics: Обработка возврата из статистики");
+    
+    try {
+        showVerification();
+        Logger::instance().log("onBackFromStatistics: Успешно вернулись к проверке результатов");
+    } catch (const std::exception& e) {
+        Logger::instance().log(QString("onBackFromStatistics: Исключение: %1").arg(e.what()), LogLevel::ERROR);
+    } catch (...) {
+        Logger::instance().log("onBackFromStatistics: Неизвестное исключение", LogLevel::ERROR);
+    }
 }

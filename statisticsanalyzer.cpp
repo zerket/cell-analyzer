@@ -20,21 +20,23 @@ StatisticsAnalyzer::ComprehensiveAnalysis StatisticsAnalyzer::analyzeAllCells(co
     
     Logger::instance().log(QString("StatisticsAnalyzer: Начинаем анализ %1 клеток").arg(cells.size()));
     
-    // Извлекаем данные
-    QVector<double> diametersPixels = extractDiameters(cells, false);
-    QVector<double> diametersNm = extractDiameters(cells, true);
-    QVector<double> areas = extractAreas(cells);
-    QVector<double> radii = extractRadii(cells);
+    // Извлекаем данные только в микрометрах
+    QVector<double> diametersUm = extractDiameters(cells);
+    QVector<double> areasUm2 = extractAreas(cells);
     
-    // Основные статистики
-    analysis.diameterPixelsStats = calculateBasicStatistics(diametersPixels);
-    analysis.diameterNmStats = calculateBasicStatistics(diametersNm);
-    analysis.areaStats = calculateBasicStatistics(areas);
-    analysis.radiusStats = calculateBasicStatistics(radii);
+    // Проверяем что есть данные в микрометрах
+    if (diametersUm.isEmpty() || std::all_of(diametersUm.begin(), diametersUm.end(), [](double d) { return d <= 0.0; })) {
+        Logger::instance().log("StatisticsAnalyzer: Нет данных в микрометрах. Возможно не задан коэффициент масштаба.", LogLevel::WARNING);
+        analysis.summary = "Статистика недоступна: не определен масштаб (μм/пиксель). Задайте коэффициент для расчета размеров в микрометрах.";
+        return analysis;
+    }
+    
+    // Основные статистики (только микрометры)
+    analysis.diameterStats = calculateBasicStatistics(diametersUm);
+    analysis.areaStats = calculateBasicStatistics(areasUm2);
     
     // Распределения
-    analysis.diameterDistribution = createDistribution(diametersPixels);
-    analysis.areaDistribution = createDistribution(areas);
+    analysis.diameterDistribution = createDistribution(diametersUm);
     
     // Группировка по изображениям
     analysis.imageGroupCounts = QMap<QString, int>();
@@ -45,12 +47,8 @@ StatisticsAnalyzer::ComprehensiveAnalysis StatisticsAnalyzer::analyzeAllCells(co
         analysis.imageGroupCounts[it.key()] = it.value().size();
     }
     
-    // Обнаружение выбросов
-    analysis.diameterOutliers = detectOutliersIQR(diametersPixels);
-    analysis.areaOutliers = detectOutliersIQR(areas);
-    
-    // Корреляционный анализ
-    analysis.diameterAreaCorrelation = calculatePearsonCorrelation(diametersPixels, areas);
+    // Обнаружение выбросов (только по диаметрам в микрометрах)
+    analysis.diameterOutliers = detectOutliersIQR(diametersUm);
     
     // Создаем резюме
     analysis.summary = createSummary(analysis);
@@ -127,7 +125,22 @@ StatisticsAnalyzer::Distribution StatisticsAnalyzer::createDistribution(const QV
     double minVal = *std::min_element(values.begin(), values.end());
     double maxVal = *std::max_element(values.begin(), values.end());
     
+    
+    // Обработка случая, когда все значения одинаковые
+    if (maxVal == minVal) {
+        dist.binWidth = 1.0; // Устанавливаем разумную ширину
+        dist.binCount = 1;
+        dist.frequencies.resize(1);
+        dist.binCenters.resize(1);
+        dist.values.resize(1);
+        dist.frequencies[0] = values.size();
+        dist.binCenters[0] = minVal;
+        dist.values[0] = minVal;
+        return dist;
+    }
+    
     dist.binWidth = (maxVal - minVal) / binCount;
+    
     
     // Инициализируем массивы
     dist.frequencies.resize(binCount);
@@ -151,8 +164,8 @@ StatisticsAnalyzer::Distribution StatisticsAnalyzer::createDistribution(const QV
     return dist;
 }
 
-StatisticsAnalyzer::BasicStatistics StatisticsAnalyzer::analyzeDiameters(const QVector<Cell>& cells, bool useNanometers) {
-    QVector<double> diameters = extractDiameters(cells, useNanometers);
+StatisticsAnalyzer::BasicStatistics StatisticsAnalyzer::analyzeDiameters(const QVector<Cell>& cells) {
+    QVector<double> diameters = extractDiameters(cells);
     return calculateBasicStatistics(diameters);
 }
 
@@ -161,10 +174,6 @@ StatisticsAnalyzer::BasicStatistics StatisticsAnalyzer::analyzeAreas(const QVect
     return calculateBasicStatistics(areas);
 }
 
-StatisticsAnalyzer::BasicStatistics StatisticsAnalyzer::analyzeRadii(const QVector<Cell>& cells) {
-    QVector<double> radii = extractRadii(cells);
-    return calculateBasicStatistics(radii);
-}
 
 QMap<QString, QVector<Cell>> StatisticsAnalyzer::groupCellsByImage(const QVector<Cell>& cells) {
     QMap<QString, QVector<Cell>> groups;
@@ -182,7 +191,7 @@ QMap<QString, StatisticsAnalyzer::BasicStatistics> StatisticsAnalyzer::analyzeBy
     QMap<QString, QVector<Cell>> groups = groupCellsByImage(cells);
     
     for (auto it = groups.begin(); it != groups.end(); ++it) {
-        QVector<double> diameters = extractDiameters(it.value(), false);
+        QVector<double> diameters = extractDiameters(it.value());
         groupStats[it.key()] = calculateBasicStatistics(diameters);
     }
     
@@ -289,39 +298,27 @@ QString StatisticsAnalyzer::generateTextReport(const ComprehensiveAnalysis& anal
     report += "=== СТАТИСТИЧЕСКИЙ АНАЛИЗ КЛЕТОК ===\n\n";
     
     report += "ОБЩАЯ ИНФОРМАЦИЯ:\n";
-    report += QString("Общее количество клеток: %1\n").arg(analysis.diameterPixelsStats.count);
+    report += QString("Общее количество клеток: %1\n").arg(analysis.diameterStats.count);
     report += QString("Количество изображений: %1\n\n").arg(analysis.imageGroupCounts.size());
     
     report += "ДИАМЕТР (в пикселях):\n";
-    report += QString("Среднее: %1\n").arg(formatNumber(analysis.diameterPixelsStats.mean));
-    report += QString("Медиана: %1\n").arg(formatNumber(analysis.diameterPixelsStats.median));
-    report += QString("Стд. отклонение: %1\n").arg(formatNumber(analysis.diameterPixelsStats.standardDeviation));
-    report += QString("Минимум: %1\n").arg(formatNumber(analysis.diameterPixelsStats.minimum));
-    report += QString("Максимум: %1\n").arg(formatNumber(analysis.diameterPixelsStats.maximum));
-    report += QString("Коэф. вариации: %1%\n\n").arg(formatNumber(analysis.diameterPixelsStats.coefficientOfVariation));
-    
-    if (analysis.diameterNmStats.count > 0) {
-        report += "ДИАМЕТР (в нанометрах):\n";
-        report += QString("Среднее: %1 нм\n").arg(formatNumber(analysis.diameterNmStats.mean));
-        report += QString("Медиана: %1 нм\n").arg(formatNumber(analysis.diameterNmStats.median));
-        report += QString("Стд. отклонение: %1 нм\n\n").arg(formatNumber(analysis.diameterNmStats.standardDeviation));
-    }
+    report += QString("Среднее: %1\n").arg(formatNumber(analysis.diameterStats.mean));
+    report += QString("Медиана: %1\n").arg(formatNumber(analysis.diameterStats.median));
+    report += QString("Стд. отклонение: %1\n").arg(formatNumber(analysis.diameterStats.standardDeviation));
+    report += QString("Минимум: %1\n").arg(formatNumber(analysis.diameterStats.minimum));
+    report += QString("Максимум: %1\n").arg(formatNumber(analysis.diameterStats.maximum));
+    report += QString("Коэф. вариации: %1%\n\n").arg(formatNumber(analysis.diameterStats.coefficientOfVariation));
     
     report += "ПЛОЩАДЬ:\n";
-    report += QString("Среднее: %1 пикс²\n").arg(formatNumber(analysis.areaStats.mean));
-    report += QString("Медиана: %1 пикс²\n").arg(formatNumber(analysis.areaStats.median));
-    report += QString("Стд. отклонение: %1 пикс²\n\n").arg(formatNumber(analysis.areaStats.standardDeviation));
+    report += QString("Среднее: %1 мкм²\n").arg(formatNumber(analysis.areaStats.mean));
+    report += QString("Медиана: %1 мкм²\n").arg(formatNumber(analysis.areaStats.median));
+    report += QString("Стд. отклонение: %1 мкм²\n\n").arg(formatNumber(analysis.areaStats.standardDeviation));
     
     report += "ВЫБРОСЫ:\n";
-    report += QString("По диаметру: %1 клеток (%2%)\n")
+    report += QString("По диаметру: %1 клеток (%2%)\n\n")
               .arg(analysis.diameterOutliers.size())
-              .arg(formatPercentage(double(analysis.diameterOutliers.size()) / analysis.diameterPixelsStats.count * 100));
-    report += QString("По площади: %1 клеток (%2%)\n\n")
-              .arg(analysis.areaOutliers.size())
-              .arg(formatPercentage(double(analysis.areaOutliers.size()) / analysis.areaStats.count * 100));
+              .arg(formatPercentage(double(analysis.diameterOutliers.size()) / analysis.diameterStats.count * 100));
     
-    report += "КОРРЕЛЯЦИЯ:\n";
-    report += QString("Диаметр-Площадь: %1\n\n").arg(formatNumber(analysis.diameterAreaCorrelation, 3));
     
     report += "РЕЗЮМЕ:\n";
     report += analysis.summary;
@@ -334,22 +331,13 @@ QString StatisticsAnalyzer::generateCSVReport(const ComprehensiveAnalysis& analy
     
     csv += "Параметр,Среднее,Медиана,Стд_отклонение,Минимум,Максимум,Количество\n";
     csv += QString("Диаметр_пиксели,%1,%2,%3,%4,%5,%6\n")
-           .arg(analysis.diameterPixelsStats.mean)
-           .arg(analysis.diameterPixelsStats.median)
-           .arg(analysis.diameterPixelsStats.standardDeviation)
-           .arg(analysis.diameterPixelsStats.minimum)
-           .arg(analysis.diameterPixelsStats.maximum)
-           .arg(analysis.diameterPixelsStats.count);
+           .arg(analysis.diameterStats.mean)
+           .arg(analysis.diameterStats.median)
+           .arg(analysis.diameterStats.standardDeviation)
+           .arg(analysis.diameterStats.minimum)
+           .arg(analysis.diameterStats.maximum)
+           .arg(analysis.diameterStats.count);
     
-    if (analysis.diameterNmStats.count > 0) {
-        csv += QString("Диаметр_нанометры,%1,%2,%3,%4,%5,%6\n")
-               .arg(analysis.diameterNmStats.mean)
-               .arg(analysis.diameterNmStats.median)
-               .arg(analysis.diameterNmStats.standardDeviation)
-               .arg(analysis.diameterNmStats.minimum)
-               .arg(analysis.diameterNmStats.maximum)
-               .arg(analysis.diameterNmStats.count);
-    }
     
     csv += QString("Площадь,%1,%2,%3,%4,%5,%6\n")
            .arg(analysis.areaStats.mean)
@@ -368,29 +356,23 @@ QString StatisticsAnalyzer::generateMarkdownReport(const ComprehensiveAnalysis& 
     md += "# Статистический анализ клеток\n\n";
     
     md += "## Общая информация\n\n";
-    md += QString("- **Общее количество клеток:** %1\n").arg(analysis.diameterPixelsStats.count);
+    md += QString("- **Общее количество клеток:** %1\n").arg(analysis.diameterStats.count);
     md += QString("- **Количество изображений:** %1\n\n").arg(analysis.imageGroupCounts.size());
     
     md += "## Статистики диаметра (пиксели)\n\n";
     md += "| Параметр | Значение |\n";
     md += "|----------|----------|\n";
-    md += QString("| Среднее | %1 |\n").arg(formatNumber(analysis.diameterPixelsStats.mean));
-    md += QString("| Медиана | %1 |\n").arg(formatNumber(analysis.diameterPixelsStats.median));
-    md += QString("| Стандартное отклонение | %1 |\n").arg(formatNumber(analysis.diameterPixelsStats.standardDeviation));
-    md += QString("| Минимум | %1 |\n").arg(formatNumber(analysis.diameterPixelsStats.minimum));
-    md += QString("| Максимум | %1 |\n").arg(formatNumber(analysis.diameterPixelsStats.maximum));
-    md += QString("| Коэффициент вариации | %1% |\n\n").arg(formatNumber(analysis.diameterPixelsStats.coefficientOfVariation));
+    md += QString("| Среднее | %1 |\n").arg(formatNumber(analysis.diameterStats.mean));
+    md += QString("| Медиана | %1 |\n").arg(formatNumber(analysis.diameterStats.median));
+    md += QString("| Стандартное отклонение | %1 |\n").arg(formatNumber(analysis.diameterStats.standardDeviation));
+    md += QString("| Минимум | %1 |\n").arg(formatNumber(analysis.diameterStats.minimum));
+    md += QString("| Максимум | %1 |\n").arg(formatNumber(analysis.diameterStats.maximum));
+    md += QString("| Коэффициент вариации | %1% |\n\n").arg(formatNumber(analysis.diameterStats.coefficientOfVariation));
     
     md += "## Выбросы\n\n";
     md += QString("- **По диаметру:** %1 клеток (%2%)\n")
           .arg(analysis.diameterOutliers.size())
-          .arg(formatPercentage(double(analysis.diameterOutliers.size()) / analysis.diameterPixelsStats.count * 100));
-    md += QString("- **По площади:** %1 клеток (%2%)\n\n")
-          .arg(analysis.areaOutliers.size())
-          .arg(formatPercentage(double(analysis.areaOutliers.size()) / analysis.areaStats.count * 100));
-    
-    md += "## Корреляционный анализ\n\n";
-    md += QString("- **Корреляция диаметр-площадь:** %1\n\n").arg(formatNumber(analysis.diameterAreaCorrelation, 3));
+          .arg(formatPercentage(double(analysis.diameterOutliers.size()) / analysis.diameterStats.count * 100));
     
     md += "## Резюме\n\n";
     md += analysis.summary;
@@ -445,16 +427,21 @@ double StatisticsAnalyzer::calculatePercentile(const QVector<double>& sortedValu
     return sortedValues[lowerIndex] * (1.0 - weight) + sortedValues[upperIndex] * weight;
 }
 
-QVector<double> StatisticsAnalyzer::extractDiameters(const QVector<Cell>& cells, bool useNanometers) {
+QVector<double> StatisticsAnalyzer::extractDiameters(const QVector<Cell>& cells) {
     QVector<double> diameters;
+    int validCells = 0;
+    int zeroCells = 0;
     
     for (const Cell& cell : cells) {
-        if (useNanometers && cell.diameter_nm > 0) {
+        // Используем только diameter_nm (микрометры)
+        if (cell.diameter_nm > 0) {
             diameters.append(cell.diameter_nm);
+            validCells++;
         } else {
-            diameters.append(static_cast<double>(cell.diameter_pixels));
+            zeroCells++;
         }
     }
+    
     
     return diameters;
 }
@@ -463,53 +450,49 @@ QVector<double> StatisticsAnalyzer::extractAreas(const QVector<Cell>& cells) {
     QVector<double> areas;
     
     for (const Cell& cell : cells) {
-        areas.append(static_cast<double>(cell.area));
+        // Вычисляем площадь в мкм² на основе diameter_nm
+        if (cell.diameter_nm > 0) {
+            double radius_um = cell.diameter_nm / 2.0;
+            double area_um2 = M_PI * radius_um * radius_um;
+            areas.append(area_um2);
+        }
     }
     
     return areas;
 }
 
-QVector<double> StatisticsAnalyzer::extractRadii(const QVector<Cell>& cells) {
-    QVector<double> radii;
-    
-    for (const Cell& cell : cells) {
-        radii.append(static_cast<double>(cell.radius));
-    }
-    
-    return radii;
-}
 
 QString StatisticsAnalyzer::createSummary(const ComprehensiveAnalysis& analysis) {
     QString summary;
     
     summary += QString("Проанализировано %1 клеток из %2 изображений. ")
-               .arg(analysis.diameterPixelsStats.count)
+               .arg(analysis.diameterStats.count)
                .arg(analysis.imageGroupCounts.size());
     
-    summary += QString("Средний диаметр составляет %1 пикселей (σ = %2). ")
-               .arg(formatNumber(analysis.diameterPixelsStats.mean))
-               .arg(formatNumber(analysis.diameterPixelsStats.standardDeviation));
+    summary += QString("Средний диаметр составляет %1 мкм (σ = %2). ")
+               .arg(formatNumber(analysis.diameterStats.mean))
+               .arg(formatNumber(analysis.diameterStats.standardDeviation));
     
     // Анализ распределения
-    if (analysis.diameterPixelsStats.skewness > 0.5) {
+    if (analysis.diameterStats.skewness > 0.5) {
         summary += "Распределение диаметров смещено вправо (много мелких клеток). ";
-    } else if (analysis.diameterPixelsStats.skewness < -0.5) {
+    } else if (analysis.diameterStats.skewness < -0.5) {
         summary += "Распределение диаметров смещено влево (много крупных клеток). ";
     } else {
         summary += "Распределение диаметров близко к симметричному. ";
     }
     
     // Анализ вариабельности
-    if (analysis.diameterPixelsStats.coefficientOfVariation < 15) {
+    if (analysis.diameterStats.coefficientOfVariation < 15) {
         summary += "Клетки довольно однородны по размеру. ";
-    } else if (analysis.diameterPixelsStats.coefficientOfVariation > 30) {
+    } else if (analysis.diameterStats.coefficientOfVariation > 30) {
         summary += "Клетки сильно различаются по размеру. ";
     } else {
         summary += "Клетки умеренно различаются по размеру. ";
     }
     
     // Анализ выбросов
-    double outlierPercent = double(analysis.diameterOutliers.size()) / analysis.diameterPixelsStats.count * 100;
+    double outlierPercent = double(analysis.diameterOutliers.size()) / analysis.diameterStats.count * 100;
     if (outlierPercent > 10) {
         summary += QString("Обнаружено много выбросов (%1%), что может указывать на наличие артефактов или различных типов клеток. ")
                    .arg(formatNumber(outlierPercent, 1));
@@ -520,14 +503,10 @@ QString StatisticsAnalyzer::createSummary(const ComprehensiveAnalysis& analysis)
         summary += "Выбросов немного, данные качественные. ";
     }
     
-    // Анализ корреляции
-    if (analysis.diameterAreaCorrelation > 0.8) {
-        summary += "Диаметр и площадь сильно коррелируют, что указывает на преимущественно круглые клетки.";
-    } else if (analysis.diameterAreaCorrelation > 0.6) {
-        summary += "Диаметр и площадь умеренно коррелируют.";
-    } else {
-        summary += "Слабая корреляция между диаметром и площадью может указывать на неправильную форму клеток.";
-    }
+    // Анализ размеров
+    summary += QString("Размеры клеток варьируют от %1 до %2 мкм.")
+               .arg(formatNumber(analysis.diameterStats.minimum))
+               .arg(formatNumber(analysis.diameterStats.maximum));
     
     return summary;
 }

@@ -112,6 +112,14 @@ void VerificationWidget::setupUI()
     clearDiametersButton->setStyleSheet("QPushButton { border: 1px solid #ccc; border-radius: 5px; padding: 5px 15px; }");
     connect(clearDiametersButton, &QPushButton::clicked, this, &VerificationWidget::onClearDiametersClicked);
     bottomLayout->addWidget(clearDiametersButton);
+    
+    // Добавляем разделитель
+    bottomLayout->addStretch();
+    
+    statisticsButton = new QPushButton("📊 Статистика", this);
+    statisticsButton->setStyleSheet("QPushButton { background-color: #9C27B0; color: white; border-radius: 10px; padding: 8px 16px; font-weight: bold; }");
+    connect(statisticsButton, &QPushButton::clicked, this, &VerificationWidget::statisticsRequested);
+    bottomLayout->addWidget(statisticsButton);
 
     mainLayout->addLayout(bottomLayout);
     setLayout(mainLayout);

@@ -167,49 +167,22 @@ void StatisticsWidget::populateOverviewTab(const StatisticsAnalyzer::Comprehensi
     // Резюме
     summaryText->setPlainText(analysis.summary);
     
-    // Основная таблица статистик
+    // Основная таблица статистик (только микрометры)
     overviewTable->setColumnCount(4);
     overviewTable->setHorizontalHeaderLabels({"Параметр", "Среднее", "Медиана", "Стд. отклонение"});
-    overviewTable->setRowCount(3);
+    overviewTable->setRowCount(2);
     
-    // Диаметр в пикселях
-    overviewTable->setItem(0, 0, new QTableWidgetItem("Диаметр (пикс)"));
-    overviewTable->setItem(0, 1, new QTableWidgetItem(formatStatValue(analysis.diameterPixelsStats.mean)));
-    overviewTable->setItem(0, 2, new QTableWidgetItem(formatStatValue(analysis.diameterPixelsStats.median)));
-    overviewTable->setItem(0, 3, new QTableWidgetItem(formatStatValue(analysis.diameterPixelsStats.standardDeviation)));
+    // Диаметр в микрометрах
+    overviewTable->setItem(0, 0, new QTableWidgetItem("Диаметр (мкм)"));
+    overviewTable->setItem(0, 1, new QTableWidgetItem(formatStatValue(analysis.diameterStats.mean)));
+    overviewTable->setItem(0, 2, new QTableWidgetItem(formatStatValue(analysis.diameterStats.median)));
+    overviewTable->setItem(0, 3, new QTableWidgetItem(formatStatValue(analysis.diameterStats.standardDeviation)));
     
-    // Диаметр в нанометрах (если доступен)
-    if (analysis.diameterNmStats.count > 0) {
-        overviewTable->setRowCount(4);
-        overviewTable->setItem(1, 0, new QTableWidgetItem("Диаметр (нм)"));
-        overviewTable->setItem(1, 1, new QTableWidgetItem(formatStatValue(analysis.diameterNmStats.mean)));
-        overviewTable->setItem(1, 2, new QTableWidgetItem(formatStatValue(analysis.diameterNmStats.median)));
-        overviewTable->setItem(1, 3, new QTableWidgetItem(formatStatValue(analysis.diameterNmStats.standardDeviation)));
-        
-        // Площадь
-        overviewTable->setItem(2, 0, new QTableWidgetItem("Площадь (пикс²)"));
-        overviewTable->setItem(2, 1, new QTableWidgetItem(formatStatValue(analysis.areaStats.mean)));
-        overviewTable->setItem(2, 2, new QTableWidgetItem(formatStatValue(analysis.areaStats.median)));
-        overviewTable->setItem(2, 3, new QTableWidgetItem(formatStatValue(analysis.areaStats.standardDeviation)));
-        
-        // Радиус
-        overviewTable->setItem(3, 0, new QTableWidgetItem("Радиус (пикс)"));
-        overviewTable->setItem(3, 1, new QTableWidgetItem(formatStatValue(analysis.radiusStats.mean)));
-        overviewTable->setItem(3, 2, new QTableWidgetItem(formatStatValue(analysis.radiusStats.median)));
-        overviewTable->setItem(3, 3, new QTableWidgetItem(formatStatValue(analysis.radiusStats.standardDeviation)));
-    } else {
-        // Площадь
-        overviewTable->setItem(1, 0, new QTableWidgetItem("Площадь (пикс²)"));
-        overviewTable->setItem(1, 1, new QTableWidgetItem(formatStatValue(analysis.areaStats.mean)));
-        overviewTable->setItem(1, 2, new QTableWidgetItem(formatStatValue(analysis.areaStats.median)));
-        overviewTable->setItem(1, 3, new QTableWidgetItem(formatStatValue(analysis.areaStats.standardDeviation)));
-        
-        // Радиус
-        overviewTable->setItem(2, 0, new QTableWidgetItem("Радиус (пикс)"));
-        overviewTable->setItem(2, 1, new QTableWidgetItem(formatStatValue(analysis.radiusStats.mean)));
-        overviewTable->setItem(2, 2, new QTableWidgetItem(formatStatValue(analysis.radiusStats.median)));
-        overviewTable->setItem(2, 3, new QTableWidgetItem(formatStatValue(analysis.radiusStats.standardDeviation)));
-    }
+    // Площадь в мкм²
+    overviewTable->setItem(1, 0, new QTableWidgetItem("Площадь (мкм²)"));
+    overviewTable->setItem(1, 1, new QTableWidgetItem(formatStatValue(analysis.areaStats.mean)));
+    overviewTable->setItem(1, 2, new QTableWidgetItem(formatStatValue(analysis.areaStats.median)));
+    overviewTable->setItem(1, 3, new QTableWidgetItem(formatStatValue(analysis.areaStats.standardDeviation)));
     
     overviewTable->resizeColumnsToContents();
     overviewTable->horizontalHeader()->setStretchLastSection(true);
@@ -222,12 +195,9 @@ void StatisticsWidget::populateDetailsTab(const StatisticsAnalyzer::Comprehensiv
         "Параметр", "Среднее", "Медиана", "Стд. откл.", "Мин", "Макс", "Q1", "Q3"
     });
     
-    int rowCount = 3;
-    if (analysis.diameterNmStats.count > 0) rowCount = 4;
+    detailsTable->setRowCount(2);
     
-    detailsTable->setRowCount(rowCount);
-    
-    // Заполняем данные
+    // Заполняем данные (только микрометры)
     auto fillRow = [&](int row, const QString& name, const StatisticsAnalyzer::BasicStatistics& stats) {
         detailsTable->setItem(row, 0, new QTableWidgetItem(name));
         detailsTable->setItem(row, 1, new QTableWidgetItem(formatStatValue(stats.mean)));
@@ -239,15 +209,8 @@ void StatisticsWidget::populateDetailsTab(const StatisticsAnalyzer::Comprehensiv
         detailsTable->setItem(row, 7, new QTableWidgetItem(formatStatValue(stats.q3)));
     };
     
-    int currentRow = 0;
-    fillRow(currentRow++, "Диаметр (пикс)", analysis.diameterPixelsStats);
-    
-    if (analysis.diameterNmStats.count > 0) {
-        fillRow(currentRow++, "Диаметр (нм)", analysis.diameterNmStats);
-    }
-    
-    fillRow(currentRow++, "Площадь (пикс²)", analysis.areaStats);
-    fillRow(currentRow++, "Радиус (пикс)", analysis.radiusStats);
+    fillRow(0, "Диаметр (мкм)", analysis.diameterStats);
+    fillRow(1, "Площадь (мкм²)", analysis.areaStats);
     
     detailsTable->resizeColumnsToContents();
     
@@ -279,24 +242,24 @@ void StatisticsWidget::populateDistributionTab(const StatisticsAnalyzer::Compreh
     text += "=== АНАЛИЗ РАСПРЕДЕЛЕНИЙ ===\n\n";
     
     text += "РАСПРЕДЕЛЕНИЕ ДИАМЕТРОВ:\n";
-    text += QString("• Асимметрия (skewness): %1\n").arg(formatStatValue(analysis.diameterPixelsStats.skewness, 3));
-    text += QString("• Эксцесс (kurtosis): %1\n").arg(formatStatValue(analysis.diameterPixelsStats.kurtosis, 3));
-    text += QString("• Коэффициент вариации: %1%\n").arg(formatStatValue(analysis.diameterPixelsStats.coefficientOfVariation));
-    text += QString("• Межквартильный размах: %1\n\n").arg(formatStatValue(analysis.diameterPixelsStats.iqr));
+    text += QString("• Асимметрия (skewness): %1\n").arg(formatStatValue(analysis.diameterStats.skewness, 3));
+    text += QString("• Эксцесс (kurtosis): %1\n").arg(formatStatValue(analysis.diameterStats.kurtosis, 3));
+    text += QString("• Коэффициент вариации: %1%\n").arg(formatStatValue(analysis.diameterStats.coefficientOfVariation));
+    text += QString("• Межквартильный размах: %1\n\n").arg(formatStatValue(analysis.diameterStats.iqr));
     
     // Интерпретация асимметрии
-    if (analysis.diameterPixelsStats.skewness > 0.5) {
+    if (analysis.diameterStats.skewness > 0.5) {
         text += "Распределение смещено вправо - много мелких клеток, мало крупных.\n";
-    } else if (analysis.diameterPixelsStats.skewness < -0.5) {
+    } else if (analysis.diameterStats.skewness < -0.5) {
         text += "Распределение смещено влево - много крупных клеток, мало мелких.\n";
     } else {
         text += "Распределение близко к симметричному.\n";
     }
     
     // Интерпретация эксцесса
-    if (analysis.diameterPixelsStats.kurtosis > 1.0) {
+    if (analysis.diameterStats.kurtosis > 1.0) {
         text += "Распределение островершинное - значения сконцентрированы вокруг среднего.\n";
-    } else if (analysis.diameterPixelsStats.kurtosis < -1.0) {
+    } else if (analysis.diameterStats.kurtosis < -1.0) {
         text += "Распределение плосковершинное - значения рассеяны.\n";
     } else {
         text += "Распределение близко к нормальному по форме.\n";
@@ -310,18 +273,24 @@ void StatisticsWidget::populateDistributionTab(const StatisticsAnalyzer::Compreh
     // Гистограмма (текстовая)
     text += "\nГИСТОГРАММА ДИАМЕТРОВ (упрощенная):\n";
     const auto& dist = analysis.diameterDistribution;
-    if (!dist.frequencies.isEmpty()) {
+    if (!dist.frequencies.isEmpty() && dist.binWidth > 0) {
         int maxFreq = *std::max_element(dist.frequencies.begin(), dist.frequencies.end());
         
         for (int i = 0; i < dist.frequencies.size(); i++) {
-            int barLength = (dist.frequencies[i] * 30) / maxFreq; // Масштабируем до 30 символов
-            QString bar = QString(QChar(0x2588)).repeated(barLength);
-            text += QString("%1-%2: %3 (%4)\n")
-                    .arg(formatStatValue(dist.values[i] - dist.binWidth/2, 0))
-                    .arg(formatStatValue(dist.values[i] + dist.binWidth/2, 0))
-                    .arg(bar)
-                    .arg(dist.frequencies[i]);
+            if (dist.frequencies[i] > 0) { // Показываем только непустые бины
+                int barLength = (dist.frequencies[i] * 30) / maxFreq; // Масштабируем до 30 символов
+                QString bar = QString(QChar(0x2588)).repeated(barLength);
+                double binStart = dist.values[i] - dist.binWidth/2;
+                double binEnd = dist.values[i] + dist.binWidth/2;
+                text += QString("%1-%2 мкм: %3 (%4)\n")
+                        .arg(formatStatValue(binStart, 2))
+                        .arg(formatStatValue(binEnd, 2))
+                        .arg(bar)
+                        .arg(dist.frequencies[i]);
+            }
         }
+    } else {
+        text += "Нет данных для построения гистограммы (возможно, не задан масштаб)\n";
     }
     
     distributionText->setPlainText(text);
@@ -330,59 +299,53 @@ void StatisticsWidget::populateDistributionTab(const StatisticsAnalyzer::Compreh
 void StatisticsWidget::populateCorrelationTab(const StatisticsAnalyzer::ComprehensiveAnalysis& analysis) {
     QString text;
     
-    text += "=== КОРРЕЛЯЦИОННЫЙ АНАЛИЗ ===\n\n";
+    text += "=== АНАЛИЗ РАЗМЕРОВ ===\n\n";
     
-    text += "КОРРЕЛЯЦИЯ ДИАМЕТР-ПЛОЩАДЬ:\n";
-    text += QString("• Коэффициент корреляции Пирсона: %1\n\n")
-            .arg(formatStatValue(analysis.diameterAreaCorrelation, 3));
+    text += "СООТНОШЕНИЕ ДИАМЕТР-ПЛОЩАДЬ:\n";
+    text += "Площади рассчитаны на основе диаметров, предполагая круглую форму клеток:\n";
+    text += "Площадь = π × (диаметр/2)²\n\n";
     
-    // Интерпретация корреляции
-    double corr = std::abs(analysis.diameterAreaCorrelation);
-    if (corr > 0.9) {
-        text += "Очень сильная корреляция - диаметр и площадь тесно связаны.\n";
-        text += "Это указывает на то, что клетки имеют преимущественно круглую форму.\n";
-    } else if (corr > 0.7) {
-        text += "Сильная корреляция - диаметр и площадь хорошо связаны.\n";
-        text += "Большинство клеток близки к круглой форме.\n";
-    } else if (corr > 0.5) {
-        text += "Умеренная корреляция - диаметр и площадь связаны, но не очень тесно.\n";
-        text += "Клетки могут иметь различную форму.\n";
-    } else if (corr > 0.3) {
-        text += "Слабая корреляция - связь между диаметром и площадью слабая.\n";
-        text += "Клетки могут значительно отличаться по форме от круглой.\n";
-    } else {
-        text += "Очень слабая или отсутствующая корреляция.\n";
-        text += "Возможны проблемы с обнаружением или измерением клеток.\n";
+    text += QString("• Средний диаметр: %1 мкм\n").arg(formatStatValue(analysis.diameterStats.mean));
+    text += QString("• Средняя площадь: %2 мкм²\n").arg(formatStatValue(analysis.areaStats.mean));
+    
+    if (analysis.diameterStats.mean > 0) {
+        double expectedArea = M_PI * (analysis.diameterStats.mean / 2.0) * (analysis.diameterStats.mean / 2.0);
+        text += QString("• Ожидаемая площадь для среднего диаметра: %1 мкм²\n").arg(formatStatValue(expectedArea));
     }
     
-    text += "\nОЖИДАЕМАЯ КОРРЕЛЯЦИЯ:\n";
-    text += "Для идеально круглых клеток корреляция диаметр-площадь должна быть близка к 1.0,\n";
-    text += "поскольку площадь круга пропорциональна квадрату диаметра (S = π×(d/2)²).\n\n";
+    text += "\nВАРИАЦИИ РАЗМЕРОВ:\n";
+    text += QString("• Коэффициент вариации диаметров: %1%\n").arg(formatStatValue(analysis.diameterStats.coefficientOfVariation));
+    text += QString("• Коэффициент вариации площадей: %1%\n").arg(formatStatValue(analysis.areaStats.coefficientOfVariation));
     
-    text += "ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ:\n";
-    text += QString("• Количество точек для анализа: %1\n").arg(analysis.diameterPixelsStats.count);
-    
-    // Коэффициент детерминации
-    double r_squared = analysis.diameterAreaCorrelation * analysis.diameterAreaCorrelation;
-    text += QString("• Коэффициент детерминации (R²): %1\n").arg(formatStatValue(r_squared, 3));
-    text += QString("• Объясненная дисперсия: %1%\n").arg(formatStatValue(r_squared * 100, 1));
+    text += "\nДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ:\n";
+    text += QString("• Количество клеток: %1\n").arg(analysis.diameterStats.count);
+    text += QString("• Диапазон диаметров: %1 - %2 мкм\n")
+            .arg(formatStatValue(analysis.diameterStats.minimum))
+            .arg(formatStatValue(analysis.diameterStats.maximum));
+    text += QString("• Диапазон площадей: %1 - %2 мкм²\n")
+            .arg(formatStatValue(analysis.areaStats.minimum))
+            .arg(formatStatValue(analysis.areaStats.maximum));
     
     correlationText->setPlainText(text);
 }
 
 void StatisticsWidget::populateOutliersTab(const StatisticsAnalyzer::ComprehensiveAnalysis& analysis) {
-    // Объединяем выбросы по диаметру и площади
-    QSet<int> allOutliers;
-    for (int idx : analysis.diameterOutliers) {
-        allOutliers.insert(idx);
-    }
-    for (int idx : analysis.areaOutliers) {
-        allOutliers.insert(idx);
+    if (currentCells.isEmpty()) {
+        outliersTable->setRowCount(0);
+        return;
     }
     
-    outliersTable->setColumnCount(6);
+    // Используем только выбросы по диаметру
+    QSet<int> allOutliers;
+    for (int idx : analysis.diameterOutliers) {
+        if (idx >= 0 && idx < currentCells.size()) {
+            allOutliers.insert(idx);
+        }
+    }
+    
+    outliersTable->setColumnCount(5);
     outliersTable->setHorizontalHeaderLabels({
-        "№", "Диаметр", "Площадь", "Изображение", "Тип выброса", "Z-score"
+        "№", "Диаметр (мкм)", "Площадь (мкм²)", "Изображение", "Z-score"
     });
     
     QList<int> outliersList(allOutliers.begin(), allOutliers.end());
@@ -390,42 +353,40 @@ void StatisticsWidget::populateOutliersTab(const StatisticsAnalyzer::Comprehensi
     
     outliersTable->setRowCount(outliersList.size());
     
-    // Вычисляем Z-scores для определения степени отклонения
-    QVector<double> diameters;
-    for (const Cell& cell : currentCells) {
-        diameters.append(static_cast<double>(cell.diameter_pixels));
-    }
+    // Используем статистику диаметров из анализа
+    StatisticsAnalyzer::BasicStatistics diamStats = analysis.diameterStats;
     
-    StatisticsAnalyzer::BasicStatistics diamStats = analyzer.calculateBasicStatistics(diameters);
-    
+    int rowIndex = 0;
     for (int i = 0; i < outliersList.size(); i++) {
         int cellIndex = outliersList[i];
-        if (cellIndex >= currentCells.size()) continue;
+        if (cellIndex < 0 || cellIndex >= currentCells.size()) {
+            continue;
+        }
         
         const Cell& cell = currentCells[cellIndex];
         
-        outliersTable->setItem(i, 0, new QTableWidgetItem(QString::number(cellIndex + 1)));
-        outliersTable->setItem(i, 1, new QTableWidgetItem(QString::number(cell.diameter_pixels)));
-        outliersTable->setItem(i, 2, new QTableWidgetItem(QString::number(cell.area)));
+        outliersTable->setItem(rowIndex, 0, new QTableWidgetItem(QString::number(cellIndex + 1)));
+        outliersTable->setItem(rowIndex, 1, new QTableWidgetItem(formatStatValue(cell.diameter_nm)));
+        // Вычисляем площадь в мкм²
+        double area_um2 = M_PI * (cell.diameter_nm / 2.0) * (cell.diameter_nm / 2.0);
+        outliersTable->setItem(rowIndex, 2, new QTableWidgetItem(formatStatValue(area_um2)));
         
         QString imageName = QFileInfo(QString::fromStdString(cell.imagePath)).baseName();
-        outliersTable->setItem(i, 3, new QTableWidgetItem(imageName));
+        outliersTable->setItem(rowIndex, 3, new QTableWidgetItem(imageName));
         
-        // Определяем тип выброса
-        QString outlierType;
-        if (analysis.diameterOutliers.contains(cellIndex) && analysis.areaOutliers.contains(cellIndex)) {
-            outlierType = "Диаметр и площадь";
-        } else if (analysis.diameterOutliers.contains(cellIndex)) {
-            outlierType = "Диаметр";
+        // Z-score для диаметра (в микрометрах)
+        if (diamStats.standardDeviation > 0) {
+            double zScore = std::abs(cell.diameter_nm - diamStats.mean) / diamStats.standardDeviation;
+            outliersTable->setItem(rowIndex, 4, new QTableWidgetItem(formatStatValue(zScore, 2)));
         } else {
-            outlierType = "Площадь";
+            outliersTable->setItem(rowIndex, 4, new QTableWidgetItem("N/A"));
         }
-        outliersTable->setItem(i, 4, new QTableWidgetItem(outlierType));
         
-        // Z-score для диаметра
-        double zScore = std::abs(cell.diameter_pixels - diamStats.mean) / diamStats.standardDeviation;
-        outliersTable->setItem(i, 5, new QTableWidgetItem(formatStatValue(zScore, 2)));
+        rowIndex++;
     }
+    
+    // Корректируем размер таблицы до фактического количества строк
+    outliersTable->setRowCount(rowIndex);
     
     outliersTable->resizeColumnsToContents();
     outliersTable->horizontalHeader()->setStretchLastSection(true);

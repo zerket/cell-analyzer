@@ -20,9 +20,12 @@ class VerificationWidget : public QWidget {
 public:
     explicit VerificationWidget(const QVector<Cell>& cells, QWidget *parent = nullptr);
     ~VerificationWidget();
+    
+    QVector<Cell> getVerifiedCells() const { return m_cells; }
 
 signals:
     void analysisCompleted();
+    void statisticsRequested();
 
 private slots:
     void onDiameterNmChanged();
@@ -56,6 +59,7 @@ private:
     QPushButton* recalcButton;
     QPushButton* saveButton;
     QPushButton* clearDiametersButton;
+    QPushButton* statisticsButton;
     QRadioButton* gridViewButton;
     QRadioButton* listViewButton;
     QButtonGroup* viewModeGroup;

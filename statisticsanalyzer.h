@@ -38,23 +38,16 @@ public:
     };
     
     struct ComprehensiveAnalysis {
-        BasicStatistics diameterPixelsStats;
-        BasicStatistics diameterNmStats;
-        BasicStatistics areaStats;
-        BasicStatistics radiusStats;
+        BasicStatistics diameterStats;    // Только диаметры в микрометрах
+        BasicStatistics areaStats;       // Площади в мкм²
         
         Distribution diameterDistribution;
-        Distribution areaDistribution;
         
         QMap<QString, int> imageGroupCounts;  // Количество клеток по изображениям
         QMap<QString, BasicStatistics> imageGroupStats; // Статистики по изображениям
         
         // Выбросы
-        QVector<int> diameterOutliers;  // Индексы клеток-выбросов по диаметру
-        QVector<int> areaOutliers;      // Индексы клеток-выбросов по площади
-        
-        // Корреляции
-        double diameterAreaCorrelation = 0.0;
+        QVector<int> diameterOutliers;  // Индексы клеток-выбросов по диаметру (мкм)
         
         QString summary;  // Текстовое резюме анализа
     };
@@ -67,10 +60,9 @@ public:
     BasicStatistics calculateBasicStatistics(const QVector<double>& values);
     Distribution createDistribution(const QVector<double>& values, int binCount = 10);
     
-    // Статистики отдельных параметров
-    BasicStatistics analyzeDiameters(const QVector<Cell>& cells, bool useNanometers = false);
+    // Статистики отдельных параметров (только микрометры)
+    BasicStatistics analyzeDiameters(const QVector<Cell>& cells);
     BasicStatistics analyzeAreas(const QVector<Cell>& cells);
-    BasicStatistics analyzeRadii(const QVector<Cell>& cells);
     
     // Группировка по изображениям
     QMap<QString, QVector<Cell>> groupCellsByImage(const QVector<Cell>& cells);
@@ -102,9 +94,8 @@ public:
     
 private:
     // Вспомогательные функции
-    QVector<double> extractDiameters(const QVector<Cell>& cells, bool useNanometers);
+    QVector<double> extractDiameters(const QVector<Cell>& cells);
     QVector<double> extractAreas(const QVector<Cell>& cells);
-    QVector<double> extractRadii(const QVector<Cell>& cells);
     
     QString createSummary(const ComprehensiveAnalysis& analysis);
     QString analyzeDistributionShape(const BasicStatistics& stats);

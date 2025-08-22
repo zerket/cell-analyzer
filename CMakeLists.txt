@@ -51,6 +51,12 @@ add_executable(${PROJECT_NAME}
     statisticsanalyzer.cpp
     statisticswidget.h
     statisticswidget.cpp
+    algorithmselectionwidget.h
+    algorithmselectionwidget.cpp
+    zoomableimagewidget.h
+    zoomableimagewidget.cpp
+    progressdialog.h
+    progressdialog.cpp
 )
 
 # Подключение библиотек

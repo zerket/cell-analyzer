@@ -106,6 +106,7 @@ QVector<Cell> ImageProcessor::processSingleImageThreadSafe(const QString& path, 
         // Apply scale if detected
         if (umPerPixel > 0) {
             cell.diameterNm = cell.diameterPx * umPerPixel;
+            cell.diameter_nm = cell.diameter_pixels * umPerPixel;
         }
         
         localCells.append(cell);
@@ -171,6 +172,7 @@ void ImageProcessor::processSingleImage(const QString& path, const HoughParams& 
         // Apply scale if detected
         if (umPerPixel > 0) {
             cell.diameterNm = cell.diameterPx * umPerPixel;
+            cell.diameter_nm = cell.diameter_pixels * umPerPixel;
         }
         
         cells.append(cell);
@@ -221,6 +223,14 @@ Cell ImageProcessor::createCell(const cv::Mat& src, const cv::Vec3f& circle,
     cell.image = src(rectForCrop).clone();
     cell.diameterPx = 2 * r;
     cell.imagePath = imagePath;
+    
+    // Set new fields for statistics
+    cell.center_x = x;
+    cell.center_y = y;
+    cell.radius = r;
+    cell.diameter_pixels = 2 * r;
+    cell.area = static_cast<int>(M_PI * r * r);
+    cell.cellImage = cell.image.clone();
     
     return cell;
 }
@@ -546,6 +556,7 @@ void ImageProcessor::processImagesAdvanced(const QStringList& paths, const Advan
                 double scale = detectAndCalculateScale(image);
                 if (scale > 0) {
                     cell.diameter_nm = cell.diameter_pixels * scale;
+                    cell.diameterNm = cell.diameter_nm;  // Also set compatibility field
                 }
             }
             
