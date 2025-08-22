@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QJsonObject>
+#include <QVariant>
 #include "imageprocessor.h"
 
 class SettingsManager {
@@ -26,6 +27,10 @@ public:
     
     // Путь к файлу настроек
     QString getSettingsPath() const;
+    
+    // Общие методы для настроек
+    QVariant getValue(const QString& key, const QVariant& defaultValue = QVariant()) const;
+    void setValue(const QString& key, const QVariant& value);
 
 private:
     SettingsManager();
@@ -41,6 +46,7 @@ private:
     int m_previewSize = 150;
     double m_nmPerPixel = 0.0;
     QString m_settingsFile = "settings.json";
+    mutable QJsonObject m_settings;
 };
 
 #endif // SETTINGSMANAGER_H

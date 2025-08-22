@@ -17,6 +17,7 @@
 #include <QResizeEvent>
 #include <QTimer>
 #include <QSet>
+#include <QSettings>
 #include <memory>
 #include "utils.h"
 #include "logger.h"
@@ -89,13 +90,13 @@ void VerificationWidget::setupUI()
     coefficientEdit->setPlaceholderText("Не определен");
     bottomLayout->addWidget(coefficientEdit);
     
-    bottomLayout->addStretch();
-    
-    // Buttons
+    // Recalculate button next to coefficient
     recalcButton = new QPushButton("Пересчитать", this);
     recalcButton->setStyleSheet("QPushButton { border: 1px solid #ccc; border-radius: 5px; padding: 5px 15px; }");
     connect(recalcButton, &QPushButton::clicked, this, &VerificationWidget::onRecalculateClicked);
     bottomLayout->addWidget(recalcButton);
+    
+    bottomLayout->addStretch();
 
     finishButton = new QPushButton("Завершить", this);
     finishButton->setStyleSheet("QPushButton { border: 1px solid #ccc; border-radius: 5px; padding: 5px 15px; }");
@@ -166,9 +167,16 @@ void VerificationWidget::setupGridView()
     
     cleanupWidgets();
     
-    // Create new grid layout
-    QGridLayout* gridLayout = new QGridLayout(cellsContainer);
-    gridLayout->setSpacing(10);
+    // Create new vertical layout to accommodate file labels
+    QVBoxLayout* mainLayout = new QVBoxLayout(cellsContainer);
+    mainLayout->setSpacing(20);
+    
+    // Group cells by file path
+    QMap<QString, QVector<int>> cellsByFile;
+    for (int i = 0; i < m_cells.size(); ++i) {
+        QString imagePath = QString::fromStdString(m_cells[i].imagePath);
+        cellsByFile[imagePath].append(i);
+    }
     
     // Calculate columns dynamically
     int containerWidth = scrollArea->width() - 30;
@@ -176,44 +184,73 @@ void VerificationWidget::setupGridView()
     int spacing = 10;
     int maxCols = qMax(1, containerWidth / (cellWidgetWidth + spacing));
     
-    LOG_INFO(QString("Grid layout: width=%1, columns=%2").arg(containerWidth).arg(maxCols));
-    
-    int col = 0;
-    int row = 0;
+    LOG_INFO(QString("Grid layout: width=%1, columns=%2, files=%3").arg(containerWidth).arg(maxCols).arg(cellsByFile.size()));
     
     m_cellWidgets.clear();
     m_cellWidgets.reserve(m_cells.size());
     
-    for (int i = 0; i < m_cells.size(); ++i) {
-        try {
-            auto cellWidget = std::make_unique<CellItemWidget>(m_cells[i]);
-            
-            // Автоматически заполняем диаметр если есть коэффициент
-            double currentCoeff = SettingsManager::instance().getNmPerPixel();
-            if (currentCoeff > 0.0 && m_cells[i].diameterNm <= 0.0) {
-                double calculatedDiameter = m_cells[i].diameterPx * currentCoeff;
-                cellWidget->setDiameterNm(calculatedDiameter);
-                LOG_INFO(QString("Автоматически заполнен диаметр клетки %1: %2 нм (коэфф=%3)")
-                    .arg(i).arg(calculatedDiameter, 0, 'f', 2).arg(currentCoeff, 0, 'f', 4));
+    // Process each file group
+    for (auto it = cellsByFile.begin(); it != cellsByFile.end(); ++it) {
+        const QString& filePath = it.key();
+        const QVector<int>& cellIndices = it.value();
+        
+        // Add file label
+        QLabel* fileLabel = new QLabel(QFileInfo(filePath).fileName());
+        QFont font = fileLabel->font();
+        font.setBold(true);
+        font.setPointSize(font.pointSize() + 2);
+        fileLabel->setFont(font);
+        fileLabel->setStyleSheet("QLabel { color: #2196F3; padding: 10px 0px 5px 0px; }");
+        mainLayout->addWidget(fileLabel);
+        
+        // Create grid for this file's cells
+        QWidget* fileContainer = new QWidget();
+        QGridLayout* gridLayout = new QGridLayout(fileContainer);
+        gridLayout->setSpacing(10);
+        
+        int col = 0;
+        int row = 0;
+        
+        for (int cellIndex : cellIndices) {
+            try {
+                auto cellWidget = std::make_unique<CellItemWidget>(m_cells[cellIndex]);
+                
+                // Автоматически заполняем диаметр если есть коэффициент
+                double currentCoeff = SettingsManager::instance().getNmPerPixel();
+                LOG_INFO(QString("Клетка %1: diameterPx=%2, diameterNm=%3, коэфф=%4")
+                    .arg(cellIndex).arg(m_cells[cellIndex].diameterPx).arg(m_cells[cellIndex].diameterNm).arg(currentCoeff));
+                if (currentCoeff > 0.0) {
+                    double calculatedDiameter = m_cells[cellIndex].diameterPx * currentCoeff;
+                    cellWidget->setDiameterNm(calculatedDiameter);
+                    LOG_INFO(QString("Автоматически заполнен диаметр клетки %1: %2 нм (коэфф=%3)")
+                        .arg(cellIndex).arg(calculatedDiameter, 0, 'f', 2).arg(currentCoeff, 0, 'f', 4));
+                } else {
+                    LOG_INFO(QString("Коэффициент не найден или равен 0 для клетки %1").arg(cellIndex));
+                }
+                
+                connect(cellWidget.get(), &CellItemWidget::diameterNmChanged, 
+                        this, &VerificationWidget::onDiameterNmChanged);
+                connect(cellWidget.get(), &CellItemWidget::removeRequested, 
+                        this, &VerificationWidget::onRemoveCellRequested);
+                
+                gridLayout->addWidget(cellWidget.get(), row, col);
+                m_cellWidgets.append(cellWidget.release());
+                
+                col++;
+                if (col >= maxCols) {
+                    col = 0;
+                    row++;
+                }
+            } catch (const std::exception& e) {
+                LOG_ERROR(QString("Failed to create CellItemWidget %1: %2").arg(cellIndex).arg(e.what()));
             }
-            
-            connect(cellWidget.get(), &CellItemWidget::diameterNmChanged, 
-                    this, &VerificationWidget::onDiameterNmChanged);
-            connect(cellWidget.get(), &CellItemWidget::removeRequested, 
-                    this, &VerificationWidget::onRemoveCellRequested);
-            
-            gridLayout->addWidget(cellWidget.get(), row, col);
-            m_cellWidgets.append(cellWidget.release());
-            
-            col++;
-            if (col >= maxCols) {
-                col = 0;
-                row++;
-            }
-        } catch (const std::exception& e) {
-            LOG_ERROR(QString("Failed to create CellItemWidget %1: %2").arg(i).arg(e.what()));
         }
+        
+        mainLayout->addWidget(fileContainer);
     }
+    
+    // Add stretch to push everything to the top
+    mainLayout->addStretch();
     
     LOG_INFO(QString("setupGridView() completed. Created %1 widgets").arg(m_cellWidgets.size()));
 }
@@ -226,60 +263,84 @@ void VerificationWidget::setupListView()
     
     // Create vertical layout for list
     QVBoxLayout* listLayout = new QVBoxLayout(cellsContainer);
-    listLayout->setSpacing(10);
+    listLayout->setSpacing(20);
+    
+    // Group cells by file path
+    QMap<QString, QVector<int>> cellsByFile;
+    for (int i = 0; i < m_cells.size(); ++i) {
+        QString imagePath = QString::fromStdString(m_cells[i].imagePath);
+        cellsByFile[imagePath].append(i);
+    }
     
     listViewDiameterEdits.clear();
     listViewDiameterEdits.reserve(m_cells.size());
     
-    for (const Cell& cell : m_cells) {
-        QWidget* itemContainer = new QWidget();
-        QHBoxLayout* itemLayout = new QHBoxLayout(itemContainer);
-        itemLayout->setContentsMargins(10, 5, 10, 5);
+    // Process each file group
+    for (auto it = cellsByFile.begin(); it != cellsByFile.end(); ++it) {
+        const QString& filePath = it.key();
+        const QVector<int>& cellIndices = it.value();
         
-        // Image on the left
-        QLabel* imageLabel = new QLabel();
-        QImage img = matToQImage(cell.image);
-        if (!img.isNull()) {
-            imageLabel->setPixmap(QPixmap::fromImage(img).scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        // Add file label
+        QLabel* fileLabel = new QLabel(QFileInfo(filePath).fileName());
+        QFont font = fileLabel->font();
+        font.setBold(true);
+        font.setPointSize(font.pointSize() + 2);
+        fileLabel->setFont(font);
+        fileLabel->setStyleSheet("QLabel { color: #2196F3; padding: 10px 0px 5px 0px; }");
+        listLayout->addWidget(fileLabel);
+        
+        for (int cellIndex : cellIndices) {
+            const Cell& cell = m_cells[cellIndex];
+            
+            QWidget* itemContainer = new QWidget();
+            QHBoxLayout* itemLayout = new QHBoxLayout(itemContainer);
+            itemLayout->setContentsMargins(10, 5, 10, 5);
+            
+            // Image on the left
+            QLabel* imageLabel = new QLabel();
+            QImage img = matToQImage(cell.image);
+            if (!img.isNull()) {
+                imageLabel->setPixmap(QPixmap::fromImage(img).scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            }
+            imageLabel->setFixedSize(100, 100);
+            itemLayout->addWidget(imageLabel);
+            
+            // Info on the right
+            QWidget* infoWidget = new QWidget();
+            QVBoxLayout* infoLayout = new QVBoxLayout(infoWidget);
+            
+            QLabel* diameterPxLabel = new QLabel(QString("Диаметр (px): %1").arg(cell.diameterPx));
+            infoLayout->addWidget(diameterPxLabel);
+            
+            QHBoxLayout* nmLayout = new QHBoxLayout();
+            nmLayout->addWidget(new QLabel("Диаметр (мкм):"));
+            QLineEdit* diameterNmEdit = new QLineEdit();
+            diameterNmEdit->setPlaceholderText("Введите значение");
+            diameterNmEdit->setMaximumWidth(150);
+            nmLayout->addWidget(diameterNmEdit);
+            nmLayout->addStretch();
+            infoLayout->addLayout(nmLayout);
+            
+            listViewDiameterEdits.append(diameterNmEdit);
+            
+            QPushButton* removeButton = new QPushButton("Удалить");
+            removeButton->setMaximumWidth(100);
+            removeButton->setStyleSheet("QPushButton { border: 1px solid #ccc; border-radius: 5px; padding: 3px 10px; }");
+            infoLayout->addWidget(removeButton);
+            
+            itemLayout->addWidget(infoWidget);
+            itemLayout->addStretch();
+            
+            // Connect signals
+            connect(diameterNmEdit, &QLineEdit::textChanged, this, &VerificationWidget::onDiameterNmChanged);
+            
+            int currentIndex = cellIndex; // Capture the current cellIndex for the lambda
+            connect(removeButton, &QPushButton::clicked, [this, currentIndex]() {
+                onRemoveCellAtIndex(currentIndex);
+            });
+            
+            listLayout->addWidget(itemContainer);
         }
-        imageLabel->setFixedSize(100, 100);
-        itemLayout->addWidget(imageLabel);
-        
-        // Info on the right
-        QWidget* infoWidget = new QWidget();
-        QVBoxLayout* infoLayout = new QVBoxLayout(infoWidget);
-        
-        QLabel* diameterPxLabel = new QLabel(QString("Диаметр (px): %1").arg(cell.diameterPx));
-        infoLayout->addWidget(diameterPxLabel);
-        
-        QHBoxLayout* nmLayout = new QHBoxLayout();
-        nmLayout->addWidget(new QLabel("Диаметр (мкм):"));
-        QLineEdit* diameterNmEdit = new QLineEdit();
-        diameterNmEdit->setPlaceholderText("Введите значение");
-        diameterNmEdit->setMaximumWidth(150);
-        nmLayout->addWidget(diameterNmEdit);
-        nmLayout->addStretch();
-        infoLayout->addLayout(nmLayout);
-        
-        listViewDiameterEdits.append(diameterNmEdit);
-        
-        QPushButton* removeButton = new QPushButton("Удалить");
-        removeButton->setMaximumWidth(100);
-        removeButton->setStyleSheet("QPushButton { border: 1px solid #ccc; border-radius: 5px; padding: 3px 10px; }");
-        infoLayout->addWidget(removeButton);
-        
-        itemLayout->addWidget(infoWidget);
-        itemLayout->addStretch();
-        
-        // Connect signals
-        connect(diameterNmEdit, &QLineEdit::textChanged, this, &VerificationWidget::onDiameterNmChanged);
-        
-        int cellIndex = listViewDiameterEdits.size() - 1;
-        connect(removeButton, &QPushButton::clicked, [this, cellIndex]() {
-            onRemoveCellAtIndex(cellIndex);
-        });
-        
-        listLayout->addWidget(itemContainer);
     }
     
     listLayout->addStretch();
@@ -312,8 +373,35 @@ void VerificationWidget::onRemoveCellRequested(CellItemWidget* item)
 void VerificationWidget::loadSavedCoefficient()
 {
     double savedCoeff = SettingsManager::instance().getNmPerPixel();
+    LOG_INFO(QString("loadSavedCoefficient: savedCoeff=%1").arg(savedCoeff));
     if (savedCoeff > 0) {
         coefficientEdit->setText(QString::number(savedCoeff, 'f', 4));
+        
+        // Автоматически заполняем диаметры всех клеток
+        if (gridViewButton->isChecked()) {
+            // Grid view mode
+            LOG_INFO(QString("Grid view: %1 widgets, %2 cells").arg(m_cellWidgets.size()).arg(m_cells.size()));
+            for (int i = 0; i < m_cellWidgets.size() && i < m_cells.size(); ++i) {
+                if (m_cellWidgets[i]) {
+                    double calculatedDiameter = m_cells[i].diameterPx * savedCoeff;
+                    m_cellWidgets[i]->setDiameterNm(calculatedDiameter);
+                    LOG_INFO(QString("loadSavedCoefficient: заполнен диаметр клетки %1: %2 нм").arg(i).arg(calculatedDiameter, 0, 'f', 2));
+                }
+            }
+        } else {
+            // List view mode
+            LOG_INFO(QString("List view: %1 edits, %2 cells").arg(listViewDiameterEdits.size()).arg(m_cells.size()));
+            for (int i = 0; i < listViewDiameterEdits.size() && i < m_cells.size(); ++i) {
+                if (listViewDiameterEdits[i]) {
+                    double calculatedDiameter = m_cells[i].diameterPx * savedCoeff;
+                    listViewDiameterEdits[i]->setText(QString::number(calculatedDiameter, 'f', 2));
+                }
+            }
+        }
+        
+        LOG_INFO(QString("Автоматически заполнены диаметры с коэффициентом %1 нм/px").arg(savedCoeff, 0, 'f', 4));
+    } else {
+        LOG_INFO("loadSavedCoefficient: коэффициент не найден или равен 0");
     }
 }
 
@@ -551,6 +639,32 @@ void VerificationWidget::onSaveCellsClicked() {
             QString debugFileName = QFileInfo(imagePath).baseName() + "_highlighted.png";
             QString debugPath = resultsDir + "/" + debugFileName;
             saveDebugImage(imagePath, imageCells, debugPath);
+        }
+        
+        // Обновляем последний используемый пресет с текущим коэффициентом
+        double currentCoeff = SettingsManager::instance().getNmPerPixel();
+        if (currentCoeff > 0.0) {
+            QSettings settings("CellAnalyzer", "HoughParams");
+            QString lastPreset = settings.value("lastSelectedPreset", "").toString();
+            
+            if (!lastPreset.isEmpty() && lastPreset != "По умолчанию") {
+                // Загружаем существующие пресеты
+                QMap<QString, QPair<QString, double>> presetCoeffs; // name -> (params as json, coefficient)
+                int size = settings.beginReadArray("presets");
+                for (int i = 0; i < size; ++i) {
+                    settings.setArrayIndex(i);
+                    QString name = settings.value("name").toString();
+                    double coeff = settings.value("coefficient", 0.0).toDouble();
+                    if (name == lastPreset) {
+                        // Обновляем коэффициент для текущего пресета
+                        settings.setValue("coefficient", currentCoeff);
+                        LOG_INFO(QString("Обновлен коэффициент %1 нм/px в пресете '%2'")
+                            .arg(currentCoeff, 0, 'f', 4).arg(lastPreset));
+                        break;
+                    }
+                }
+                settings.endArray();
+            }
         }
         
         QMessageBox::information(this, "Успех", 

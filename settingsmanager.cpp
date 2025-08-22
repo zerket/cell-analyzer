@@ -84,6 +84,9 @@ void SettingsManager::loadSettings() {
                 m_nmPerPixel = root["nmPerPixel"].toDouble(0.0);
             }
             
+            // Сохраняем весь объект для общих настроек
+            m_settings = root;
+            
             qDebug() << "Settings loaded from:" << getSettingsPath();
         }
     } else {
@@ -126,4 +129,59 @@ ImageProcessor::HoughParams SettingsManager::jsonToHoughParams(const QJsonObject
     params.minRadius = json["minRadius"].toInt(30);
     params.maxRadius = json["maxRadius"].toInt(150);
     return params;
+}
+
+QVariant SettingsManager::getValue(const QString& key, const QVariant& defaultValue) const {
+    const_cast<SettingsManager*>(this)->loadSettings();
+    
+    QStringList keys = key.split('/');
+    QJsonObject current = m_settings;
+    
+    for (int i = 0; i < keys.size() - 1; i++) {
+        if (current.contains(keys[i]) && current[keys[i]].isObject()) {
+            current = current[keys[i]].toObject();
+        } else {
+            return defaultValue;
+        }
+    }
+    
+    QString lastKey = keys.last();
+    if (current.contains(lastKey)) {
+        QJsonValue value = current[lastKey];
+        if (value.isBool()) return value.toBool();
+        if (value.isDouble()) return value.toDouble();
+        if (value.isString()) return value.toString();
+        if (value.isNull()) return QVariant();
+    }
+    
+    return defaultValue;
+}
+
+void SettingsManager::setValue(const QString& key, const QVariant& value) {
+    loadSettings();
+    
+    QStringList keys = key.split('/');
+    QJsonObject* current = &m_settings;
+    
+    // Navigate to the correct location
+    for (int i = 0; i < keys.size() - 1; i++) {
+        if (!current->contains(keys[i]) || !(*current)[keys[i]].isObject()) {
+            (*current)[keys[i]] = QJsonObject();
+        }
+        QJsonObject temp = (*current)[keys[i]].toObject();
+        (*current)[keys[i]] = temp;
+        current = &temp;
+    }
+    
+    // Set the value
+    QString lastKey = keys.last();
+    if (value.type() == QVariant::Bool) {
+        (*current)[lastKey] = value.toBool();
+    } else if (value.type() == QVariant::Double || value.type() == QVariant::Int) {
+        (*current)[lastKey] = value.toDouble();
+    } else {
+        (*current)[lastKey] = value.toString();
+    }
+    
+    saveSettings();
 }

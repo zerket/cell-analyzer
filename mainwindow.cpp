@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "imageprocessor.h"
+#include "thememanager.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -7,6 +8,9 @@
 #include <QProgressBar>
 #include <QMessageBox>
 #include <QSettings>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
 #include "settingsmanager.h"
 #include "logger.h"
 
@@ -17,21 +21,14 @@ MainWindow::MainWindow(QWidget *parent)
     setMinimumSize(800, 600);
     resize(1024, 768);
     
-    // Общий стиль для всех кнопок
-    setStyleSheet(
-        "QPushButton {"
-        "    border-radius: 10px;"
-        "    padding: 8px 16px;"
-        "    font-size: 14px;"
-        "    font-weight: 500;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #e0e0e0;"
-        "}"
-        "QPushButton:pressed {"
-        "    background-color: #d0d0d0;"
-        "}"
-    );
+    // Создаем меню
+    setupMenuBar();
+    
+    // Инициализируем тему
+    ThemeManager& themeManager = ThemeManager::instance();
+    connect(&themeManager, &ThemeManager::themeChanged, this, [](ThemeManager::Theme theme) {
+        Logger::instance().log("Тема изменена на: " + QString(theme == ThemeManager::Theme::Dark ? "темную" : "светлую"));
+    });
 
     verificationWidget = nullptr;
     parameterTuningWidget = nullptr;
@@ -364,23 +361,17 @@ void MainWindow::startAnalysis() {
         return;
     }
 
-    // Если выбрано только одно изображение, показываем экран настройки параметров
-    if (selectedImagePaths.size() == 1) {
-        if (parameterTuningWidget) {
-            parameterTuningWidget->deleteLater();
-            parameterTuningWidget = nullptr;
-        }
-        
-        parameterTuningWidget = new ParameterTuningWidget(selectedImagePaths.first(), this);
-        connect(parameterTuningWidget, &ParameterTuningWidget::parametersConfirmed,
-                this, &MainWindow::onParametersConfirmed);
-        
-        setCentralWidget(parameterTuningWidget);
-        return;
+    // Всегда показываем экран настройки параметров, используя первое изображение для предпросмотра
+    if (parameterTuningWidget) {
+        parameterTuningWidget->deleteLater();
+        parameterTuningWidget = nullptr;
     }
     
-    // Для нескольких изображений используем параметры по умолчанию
-    onParametersConfirmed(currentHoughParams);
+    parameterTuningWidget = new ParameterTuningWidget(selectedImagePaths.first(), this);
+    connect(parameterTuningWidget, &ParameterTuningWidget::parametersConfirmed,
+            this, &MainWindow::onParametersConfirmed);
+    
+    setCentralWidget(parameterTuningWidget);
 }
 
 void MainWindow::showVerification() {
@@ -416,4 +407,34 @@ void MainWindow::resizeEvent(QResizeEvent* event) {
     if (maxColumns < 1) maxColumns = 1;
 
     previewGrid->setMaxColumns(maxColumns);
+}
+
+void MainWindow::setupMenuBar() {
+    QMenuBar* menuBar = this->menuBar();
+    
+    // Меню "Вид"
+    QMenu* viewMenu = menuBar->addMenu("Вид");
+    
+    // Действие переключения темы
+    QAction* toggleThemeAction = new QAction("Переключить тему", this);
+    toggleThemeAction->setShortcut(QKeySequence("Ctrl+T"));
+    connect(toggleThemeAction, &QAction::triggered, []() {
+        ThemeManager::instance().toggleTheme();
+    });
+    viewMenu->addAction(toggleThemeAction);
+    
+    // Подменю выбора темы
+    QMenu* themeMenu = viewMenu->addMenu("Выбрать тему");
+    
+    QAction* lightThemeAction = new QAction("Светлая тема", this);
+    connect(lightThemeAction, &QAction::triggered, []() {
+        ThemeManager::instance().setTheme(ThemeManager::Theme::Light);
+    });
+    themeMenu->addAction(lightThemeAction);
+    
+    QAction* darkThemeAction = new QAction("Темная тема", this);
+    connect(darkThemeAction, &QAction::triggered, []() {
+        ThemeManager::instance().setTheme(ThemeManager::Theme::Dark);
+    });
+    themeMenu->addAction(darkThemeAction);
 }

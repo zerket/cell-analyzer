@@ -6,6 +6,7 @@
 #include <QString>
 #include <QMutex>
 #include "cell.h"
+#include "advanceddetector.h"
 #include <opencv2/opencv.hpp>
 
 class ImageProcessor {
@@ -39,6 +40,10 @@ public:
     // Main processing function
     void processImages(const QStringList& paths, const HoughParams& params = HoughParams(), 
                       const PreprocessingParams& prepParams = PreprocessingParams());
+    
+    // Advanced processing with multiple algorithms
+    void processImagesAdvanced(const QStringList& paths, const AdvancedDetector::DetectionParams& params,
+                              const PreprocessingParams& prepParams = PreprocessingParams());
     
     // Getters
     QVector<Cell> getDetectedCells() const { return cells; }
@@ -81,6 +86,7 @@ private:
     bool m_debugMode;
     PreprocessingParams m_preprocessingParams;
     mutable QMutex m_mutex; // For thread safety
+    AdvancedDetector m_advancedDetector;
 };
 
 #endif // IMAGEPROCESSOR_H

@@ -506,3 +506,63 @@ cv::Mat ImageProcessor::loadImageSafely(const QString& imagePath) {
     LOG_INFO("Изображение загружено через QImage: " + imagePath);
     return result.clone();
 }
+
+void ImageProcessor::processImagesAdvanced(const QStringList& paths, const AdvancedDetector::DetectionParams& params,
+                                         const PreprocessingParams& prepParams) {
+    QMutexLocker locker(&m_mutex);
+    
+    cells.clear();
+    m_lastError.clear();
+    
+    if (paths.isEmpty()) {
+        m_lastError = "Список путей к изображениям пуст";
+        LOG_WARNING(m_lastError);
+        return;
+    }
+    
+    LOG_INFO(QString("Начало расширенной обработки %1 изображений алгоритмом %2")
+             .arg(paths.size())
+             .arg(AdvancedDetector::getAlgorithmDescription(params.algorithm)));
+    
+    try {
+        for (const QString& path : paths) {
+            cv::Mat image = loadImageSafely(path);
+            if (image.empty()) {
+                LOG_WARNING("Не удалось загрузить изображение: " + path);
+                continue;
+            }
+            
+            // Применяем предобработку
+            cv::Mat processedImage = applyPreprocessing(image, prepParams);
+            
+            // Обнаружение клеток с помощью продвинутых алгоритмов
+            QVector<Cell> detectedCells = m_advancedDetector.detectCells(processedImage, params);
+            
+            // Обновляем пути к изображениям для каждой клетки
+            for (Cell& cell : detectedCells) {
+                cell.imagePath = path.toStdString();
+                
+                // Вычисляем масштаб и диаметр в нанометрах
+                double scale = detectAndCalculateScale(image);
+                if (scale > 0) {
+                    cell.diameter_nm = cell.diameter_pixels * scale;
+                }
+            }
+            
+            cells.append(detectedCells);
+            
+            LOG_INFO(QString("Обнаружено %1 клеток в изображении %2")
+                     .arg(detectedCells.size())
+                     .arg(QFileInfo(path).baseName()));
+        }
+        
+        LOG_INFO(QString("Расширенная обработка завершена. Всего обнаружено %1 клеток").arg(cells.size()));
+        
+    } catch (const cv::Exception& e) {
+        m_lastError = QString("Ошибка OpenCV при расширенной обработке: %1").arg(e.what());
+        LOG_ERROR(m_lastError);
+    } catch (const std::exception& e) {
+        m_lastError = QString("Ошибка при расширенной обработке: %1").arg(e.what());
+        LOG_ERROR(m_lastError);
+    }
+}

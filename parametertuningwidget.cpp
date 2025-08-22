@@ -430,6 +430,52 @@ void ParameterTuningWidget::onConfirmClicked() {
 }
 
 void ParameterTuningWidget::onSavePreset() {
+    QString currentPresetName = m_presetCombo->currentText();
+    
+    // Проверяем, изменился ли текущий пресет (кроме "По умолчанию")
+    if (currentPresetName != "По умолчанию" && m_presets.contains(currentPresetName)) {
+        // Проверяем, отличаются ли текущие параметры от сохраненных в пресете
+        const PresetData& savedPreset = m_presets[currentPresetName];
+        bool parametersChanged = (
+            savedPreset.params.dp != m_currentParams.dp ||
+            savedPreset.params.minDist != m_currentParams.minDist ||
+            savedPreset.params.param1 != m_currentParams.param1 ||
+            savedPreset.params.param2 != m_currentParams.param2 ||
+            savedPreset.params.minRadius != m_currentParams.minRadius ||
+            savedPreset.params.maxRadius != m_currentParams.maxRadius ||
+            savedPreset.coefficient != SettingsManager::instance().getNmPerPixel()
+        );
+        
+        if (parametersChanged) {
+            // Показываем умный диалог
+            QMessageBox msgBox(this);
+            msgBox.setWindowTitle("Сохранение параметров");
+            msgBox.setText(QString("Вы изменили параметры набора '%1'.").arg(currentPresetName));
+            msgBox.setInformativeText("Что вы хотите сделать?");
+            
+            QPushButton* updateButton = msgBox.addButton("Да, обновить", QMessageBox::AcceptRole);
+            QPushButton* noButton = msgBox.addButton("Нет, не сохранять", QMessageBox::RejectRole);
+            QPushButton* newButton = msgBox.addButton("Создать новый", QMessageBox::ActionRole);
+            
+            msgBox.setDefaultButton(updateButton);
+            msgBox.exec();
+            
+            if (msgBox.clickedButton() == updateButton) {
+                // Обновляем текущий пресет
+                double currentCoeff = SettingsManager::instance().getNmPerPixel();
+                m_presets[currentPresetName] = PresetData(m_currentParams, currentCoeff);
+                savePresets();
+                LOG_INFO(QString("Пресет '%1' обновлен").arg(currentPresetName));
+                return;
+            } else if (msgBox.clickedButton() == noButton) {
+                // Не сохраняем
+                return;
+            }
+            // Если выбран "Создать новый", продолжаем с вводом имени
+        }
+    }
+    
+    // Диалог для ввода имени нового пресета
     bool ok;
     QString name = QInputDialog::getText(this, "Сохранить набор параметров",
                                        "Введите название:", QLineEdit::Normal,

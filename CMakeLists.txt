@@ -43,6 +43,14 @@ add_executable(${PROJECT_NAME}
     settingsmanager.h
     settingsmanager.cpp
     logger.h
+    thememanager.h
+    thememanager.cpp
+    advanceddetector.h
+    advanceddetector.cpp
+    statisticsanalyzer.h
+    statisticsanalyzer.cpp
+    statisticswidget.h
+    statisticswidget.cpp
 )
 
 # Подключение библиотек

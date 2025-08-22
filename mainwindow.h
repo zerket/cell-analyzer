@@ -53,6 +53,7 @@ private:
     QWidget* createMainWidget();
     void setupInitialState();
     void setupWithImagesState();
+    void setupMenuBar();
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
