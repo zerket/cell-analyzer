@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QFile>
 #include <QDebug>
+#include <QCoreApplication>
 
 SettingsManager& SettingsManager::instance() {
     static SettingsManager instance;
@@ -17,16 +18,18 @@ SettingsManager::SettingsManager() {
 }
 
 void SettingsManager::ensureSettingsDirectory() {
-    QString configPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    QDir dir(configPath);
+    // Настройки хранятся рядом с .exe файлом
+    QString appDir = QCoreApplication::applicationDirPath();
+    QDir dir(appDir);
     if (!dir.exists()) {
         dir.mkpath(".");
     }
 }
 
 QString SettingsManager::getSettingsPath() const {
-    QString configPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    return QDir(configPath).filePath(m_settingsFile);
+    // Настройки хранятся рядом с .exe файлом
+    QString appDir = QCoreApplication::applicationDirPath();
+    return QDir(appDir).filePath(m_settingsFile);
 }
 
 void SettingsManager::saveSettings() {
@@ -40,7 +43,11 @@ void SettingsManager::saveSettings() {
     
     // Сохраняем коэффициент μm/pixel
     root["nmPerPixel"] = m_nmPerPixel;
-    
+
+    // Сохраняем пороги статистики
+    root["statisticsMinThreshold"] = m_statisticsMinThreshold;
+    root["statisticsMaxThreshold"] = m_statisticsMaxThreshold;
+
     // Записываем в файл
     QJsonDocument doc(root);
     QFile file(getSettingsPath());
@@ -83,7 +90,15 @@ void SettingsManager::loadSettings() {
             if (root.contains("nmPerPixel")) {
                 m_nmPerPixel = root["nmPerPixel"].toDouble(0.0);
             }
-            
+
+            // Загружаем пороги статистики
+            if (root.contains("statisticsMinThreshold")) {
+                m_statisticsMinThreshold = root["statisticsMinThreshold"].toDouble(50.0);
+            }
+            if (root.contains("statisticsMaxThreshold")) {
+                m_statisticsMaxThreshold = root["statisticsMaxThreshold"].toDouble(100.0);
+            }
+
             // Сохраняем весь объект для общих настроек
             m_settings = root;
             
@@ -106,6 +121,16 @@ void SettingsManager::setPreviewSize(int size) {
 
 void SettingsManager::setNmPerPixel(double coefficient) {
     m_nmPerPixel = coefficient;
+    saveSettings();
+}
+
+void SettingsManager::setStatisticsMinThreshold(double threshold) {
+    m_statisticsMinThreshold = threshold;
+    saveSettings();
+}
+
+void SettingsManager::setStatisticsMaxThreshold(double threshold) {
+    m_statisticsMaxThreshold = threshold;
     saveSettings();
 }
 
@@ -182,6 +207,28 @@ void SettingsManager::setValue(const QString& key, const QVariant& value) {
     } else {
         (*current)[lastKey] = value.toString();
     }
-    
+
     saveSettings();
+}
+
+QJsonObject SettingsManager::getPresets() const {
+    loadSettings();
+    if (m_settings.contains("presets") && m_settings["presets"].isObject()) {
+        return m_settings["presets"].toObject();
+    }
+    return QJsonObject();
+}
+
+void SettingsManager::setPresets(const QJsonObject& presets) {
+    loadSettings();
+    m_settings["presets"] = presets;
+    saveSettings();
+}
+
+QString SettingsManager::getLastSelectedPreset() const {
+    return getValue("lastSelectedPreset", "По умолчанию").toString();
+}
+
+void SettingsManager::setLastSelectedPreset(const QString& presetName) {
+    setValue("lastSelectedPreset", presetName);
 }

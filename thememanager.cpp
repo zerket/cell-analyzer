@@ -7,7 +7,13 @@ ThemeManager& ThemeManager::instance() {
     return instance;
 }
 
-ThemeManager::ThemeManager(QObject* parent) : QObject(parent), m_currentTheme(Theme::Light) {
+ThemeManager::ThemeManager(QObject* parent) : QObject(parent), m_currentTheme(Theme::Dark) {
+    // Миграция: принудительно устанавливаем темную тему по умолчанию
+    SettingsManager& settings = SettingsManager::instance();
+    if (!settings.getValue("ui/theme_migrated", false).toBool()) {
+        settings.setValue("ui/theme", "dark");
+        settings.setValue("ui/theme_migrated", true);
+    }
     loadThemeFromSettings();
 }
 
@@ -27,7 +33,7 @@ void ThemeManager::toggleTheme() {
 
 void ThemeManager::loadThemeFromSettings() {
     SettingsManager& settings = SettingsManager::instance();
-    QString themeStr = settings.getValue("ui/theme", "light").toString();
+    QString themeStr = settings.getValue("ui/theme", "dark").toString();
     Theme theme = (themeStr == "dark") ? Theme::Dark : Theme::Light;
     setTheme(theme);
 }

@@ -38,6 +38,10 @@ add_executable(${PROJECT_NAME}
     utils.h
     cellitemwidget.h
     cellitemwidget.cpp
+    celllistitemwidget.h
+    celllistitemwidget.cpp
+    markupimagewidget.h
+    markupimagewidget.cpp
     parametertuningwidget.h
     parametertuningwidget.cpp
     settingsmanager.h

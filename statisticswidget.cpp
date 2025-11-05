@@ -1,5 +1,6 @@
 #include "statisticswidget.h"
 #include "logger.h"
+#include "settingsmanager.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QHeaderView>
@@ -166,24 +167,51 @@ void StatisticsWidget::clear() {
 void StatisticsWidget::populateOverviewTab(const StatisticsAnalyzer::ComprehensiveAnalysis& analysis) {
     // Резюме
     summaryText->setPlainText(analysis.summary);
-    
-    // Основная таблица статистик (только микрометры)
-    overviewTable->setColumnCount(4);
-    overviewTable->setHorizontalHeaderLabels({"Параметр", "Среднее", "Медиана", "Стд. отклонение"});
-    overviewTable->setRowCount(2);
-    
-    // Диаметр в микрометрах
-    overviewTable->setItem(0, 0, new QTableWidgetItem("Диаметр (мкм)"));
-    overviewTable->setItem(0, 1, new QTableWidgetItem(formatStatValue(analysis.diameterStats.mean)));
-    overviewTable->setItem(0, 2, new QTableWidgetItem(formatStatValue(analysis.diameterStats.median)));
-    overviewTable->setItem(0, 3, new QTableWidgetItem(formatStatValue(analysis.diameterStats.standardDeviation)));
-    
-    // Площадь в мкм²
-    overviewTable->setItem(1, 0, new QTableWidgetItem("Площадь (мкм²)"));
-    overviewTable->setItem(1, 1, new QTableWidgetItem(formatStatValue(analysis.areaStats.mean)));
-    overviewTable->setItem(1, 2, new QTableWidgetItem(formatStatValue(analysis.areaStats.median)));
-    overviewTable->setItem(1, 3, new QTableWidgetItem(formatStatValue(analysis.areaStats.standardDeviation)));
-    
+
+    // Получаем пороги из настроек
+    double minThreshold = SettingsManager::instance().getStatisticsMinThreshold();
+    double maxThreshold = SettingsManager::instance().getStatisticsMaxThreshold();
+
+    // Подсчитываем процентные доли для диаметров
+    int totalCells = currentCells.size();
+    int cellsBelowMin = 0;
+    int cellsAboveMax = 0;
+
+    for (const Cell& cell : currentCells) {
+        if (cell.diameter_nm > 0) { // Учитываем только клетки с заданным диаметром
+            if (cell.diameter_nm < minThreshold) {
+                cellsBelowMin++;
+            }
+            if (cell.diameter_nm > maxThreshold) {
+                cellsAboveMax++;
+            }
+        }
+    }
+
+    double percentBelowMin = totalCells > 0 ? (cellsBelowMin * 100.0 / totalCells) : 0.0;
+    double percentAboveMax = totalCells > 0 ? (cellsAboveMax * 100.0 / totalCells) : 0.0;
+
+    // Основная таблица статистик
+    overviewTable->setColumnCount(2);
+    overviewTable->setHorizontalHeaderLabels({"Параметр", "Значение"});
+    overviewTable->setRowCount(4);
+
+    // Медиана
+    overviewTable->setItem(0, 0, new QTableWidgetItem("Медиана (мкм)"));
+    overviewTable->setItem(0, 1, new QTableWidgetItem(formatStatValue(analysis.diameterStats.median)));
+
+    // Среднее
+    overviewTable->setItem(1, 0, new QTableWidgetItem("Среднее (мкм)"));
+    overviewTable->setItem(1, 1, new QTableWidgetItem(formatStatValue(analysis.diameterStats.mean)));
+
+    // Процент < minThreshold
+    overviewTable->setItem(2, 0, new QTableWidgetItem(QString("% < %1 мкм").arg(minThreshold)));
+    overviewTable->setItem(2, 1, new QTableWidgetItem(formatStatValue(percentBelowMin) + "%"));
+
+    // Процент > maxThreshold
+    overviewTable->setItem(3, 0, new QTableWidgetItem(QString("% > %1 мкм").arg(maxThreshold)));
+    overviewTable->setItem(3, 1, new QTableWidgetItem(formatStatValue(percentAboveMax) + "%"));
+
     overviewTable->resizeColumnsToContents();
     overviewTable->horizontalHeader()->setStretchLastSection(true);
 }

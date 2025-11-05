@@ -42,6 +42,8 @@ CellItemWidget::CellItemWidget(const Cell& cell, QWidget* parent)
     removeButton->setFixedWidth(150);  // Sync with image width
     removeButton->setStyleSheet("QPushButton { border: 1px solid #ccc; border-radius: 5px; padding: 3px 10px; }");
     connect(removeButton, &QPushButton::clicked, this, [this]() {
+        // Отключаем кнопку сразу после клика для предотвращения повторных кликов
+        removeButton->setEnabled(false);
         emit removeRequested(this);
     });
 
@@ -78,6 +80,16 @@ int CellItemWidget::diameterPx() const {
 
 void CellItemWidget::setDiameterNm(double nm) {
     diameterNmEdit->setText(QString::number(nm, 'f', 2));
+}
+
+void CellItemWidget::clearDiameterNm() {
+    diameterNmEdit->clear();
+}
+
+double CellItemWidget::getDiameterNm() const {
+    bool ok;
+    double value = diameterNmEdit->text().toDouble(&ok);
+    return ok ? value : 0.0;
 }
 
 QImage CellItemWidget::getImage() const {

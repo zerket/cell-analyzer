@@ -12,7 +12,9 @@
       "Bash(mkdir:*)",
       "Bash(copy build-releaseReleaseCellAnalyzer.exe portableCellAnalyzer)",
       "Bash(powershell:*)",
-      "Bash(./build-release.bat)"
+      "Bash(./build-release.bat)",
+      "Bash(copy \"D:\\opencv\\build\\x64\\vc16\\bin\\opencv_world4110.dll\" \"build-release\\Release\"\" && copy \"D:opencvbuildx64vc16binopencv_videoio_msmf4110_64.dll\" \"build-releaseRelease\"\")",
+      "Bash(copy \"D:\\opencv\\build\\x64\\vc16\\bin\\opencv_videoio_ffmpeg4110_64.dll\" \"build-release\\Release\"\")"
     ],
     "deny": []
   }

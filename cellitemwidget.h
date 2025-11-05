@@ -17,6 +17,8 @@ public:
     QString diameterNmText() const;
     int diameterPx() const;
     void setDiameterNm(double nm);
+    void clearDiameterNm();
+    double getDiameterNm() const;
     QImage getImage() const;
 
 signals:

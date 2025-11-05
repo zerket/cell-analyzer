@@ -7,15 +7,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 CellAnalyzer is a Qt6-based desktop application for automated cell detection and analysis in microscopic images. It uses OpenCV for image processing and provides an intuitive GUI for researchers to measure cell diameters automatically, replacing manual measurement work.
 
 ### Main Features
-- Automatic detection of circular cells in microscopic images
-- Interactive parameter tuning with real-time preview
-- Artifact filtering (water droplets and other interference)
-- Automatic scale bar detection on images
-- Cell diameter calculation in pixels and nanometers
-- Manual verification of detected cells
-- CSV export of results
-- Individual cell image extraction
-- Save/load parameter presets for different image types
+- **Multiple Detection Algorithms**: HoughCircles, ContourBased, Watershed, Morphological, Adaptive Threshold, Blob Detection
+- **Interactive Parameter Tuning**: Real-time preview with automatic parameter optimization
+- **Advanced Statistics**: Comprehensive statistical analysis with outlier detection, distribution analysis, and correlation
+- **Theme Support**: Light and dark themes with persistent settings
+- **Zoomable Image Viewer**: Pan and zoom functionality for detailed inspection
+- **Artifact Filtering**: Filter water droplets and other interference
+- **Automatic Scale Bar Detection**: Calculate measurements in micrometers
+- **Manual Verification**: Review and remove false positives
+- **CSV Export**: Complete measurement data export
+- **Individual Cell Image Extraction**: Save detected cells as separate images
+- **Preset Management**: Save/load parameter presets with coefficient storage
+- **Drag-and-Drop Support**: Easy image loading with improved preview grid
 
 ## Build Commands
 
@@ -100,11 +103,93 @@ build\Release\CellAnalyzer.exe
 - Saves to `AppData/Local/CellAnalyzer/settings.json`
 - Auto-saves on parameter changes
 
+**AdvancedDetector** (`advanceddetector.h/cpp`)
+- Multiple detection algorithms support:
+  - HoughCircles (circular cells detection)
+  - ContourBased (arbitrary shape detection)
+  - WatershedSegmentation (overlapping cells separation)
+  - MorphologicalOperations (shape-based detection)
+  - AdaptiveThreshold (contrast-adaptive detection)
+  - BlobDetection (keypoint-based detection)
+- Per-algorithm parameter configuration
+- Filtering by area, circularity, and other morphological properties
+- Overlap removal and quality filtering
+
+**AlgorithmSelectionWidget** (`algorithmselectionwidget.h/cpp`)
+- UI for selecting detection algorithm
+- Stacked parameter panels for each algorithm type
+- Real-time parameter adjustment with preview
+- Algorithm description tooltips
+- Preset management integration
+
+**StatisticsAnalyzer** (`statisticsanalyzer.h/cpp`)
+- Comprehensive statistical analysis:
+  - Basic statistics: mean, median, std deviation, variance, min, max, range
+  - Quartiles: Q1, Q3, IQR
+  - Advanced metrics: skewness, kurtosis, coefficient of variation
+  - Distribution analysis with histogram binning
+- Outlier detection:
+  - IQR method (Interquartile Range)
+  - Z-Score method (standard deviations)
+- Correlation analysis (Pearson and Spearman)
+- Grouping statistics by image
+- Report generation (Text, CSV, Markdown formats)
+
+**StatisticsWidget** (`statisticswidget.h/cpp`)
+- Multi-tab statistics display:
+  - Overview: Summary statistics and cell counts
+  - Details: Per-parameter detailed statistics
+  - Distribution: Histogram and distribution shape analysis
+  - Correlation: Parameter correlation matrix
+  - Outliers: Detected anomalies with filtering options
+- Export functionality for statistical reports
+- Table-based presentation with formatting
+- Image group comparison
+
+**ThemeManager** (`thememanager.h/cpp`)
+- Singleton theme management system
+- Two themes: Light and Dark
+- Dynamic stylesheet generation
+- Persistent theme settings
+- Application-wide theme switching
+- Custom styling for buttons, scrollbars, and widgets
+
+**ZoomableImageWidget** (`zoomableimagewidget.h/cpp`)
+- Advanced image viewing capabilities:
+  - Mouse wheel zoom (10%-500%)
+  - Pan with mouse drag
+  - Zoom controls: buttons, slider, spin box
+  - Fit to window function
+  - Reset zoom to 100%
+- Coordinate tracking and display
+- Image size information
+- Toolbar with zoom actions
+
+**Logger** (`logger.h`)
+- Thread-safe logging system with QMutex
+- Log levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+- Automatic log file rotation by size (default 10MB)
+- Backup file management (default 5 backups)
+- File and line number tracking in debug builds
+- Console output in debug mode
+- Convenient macros: LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_CRITICAL
+
+**ProgressDialog** (`progressdialog.h/cpp`)
+- Two modes: indeterminate and determinate progress
+- Animated loading indicator
+- Elapsed time display
+- Estimated time calculation
+- Log message accumulation
+- Cancel button with signal emission
+- Auto-update timer for smooth progress
+
 ### Supporting Components
 
-- **PreviewGrid**: Dynamic grid for image thumbnails with adjustable size (100-500px)
-- **CellItem/CellItemWidget**: Data structure and widget for individual cell display
-- **Utils**: Helper functions including circle visibility calculations
+- **Cell** (`cell.h`): Enhanced cell data structure with center coordinates, radius, diameter (pixels/micrometers), area, image data, and deep copy support
+- **ImprovedPreviewGrid** (`improvedpreviewgrid.h`): Advanced image grid with drag-and-drop, multi-selection, sorting (name/date/size), resizable thumbnails, context menus, and animations
+- **PreviewGrid** (`previewgrid.h`): Basic grid for image thumbnails with adjustable size (100-500px)
+- **CellItem/CellItemWidget** (`cellitem.h/cellitemwidget.h`): Data structure and widget for individual cell display
+- **Utils** (`utils.h/cpp`): Helper functions including circle visibility calculations
 
 ### Key Design Patterns
 
@@ -125,32 +210,55 @@ build\Release\CellAnalyzer.exe
 
 1. **Image Processing Pipeline**:
    - Median blur preprocessing (`cv::medianBlur`)
-   - HoughCircles for circle detection
+   - Multiple detection algorithms (HoughCircles, Contours, Watershed, etc.)
    - Visibility filtering (minimum 60% of circle must be visible)
    - Scale detection using HoughLinesP
-   - Scale text recognition (OCR placeholder for future implementation)
+   - Morphological filtering and overlap removal
+   - Unicode path support for international characters
 
 2. **Responsive UI**:
    - QScrollArea for content overflow
    - Dynamic grid layouts that adjust to window size
    - Minimum window size: 800x600
-   - Progress bar during batch processing
+   - Progress dialog with time estimation
+   - Drag-and-drop support for images
+   - Zoomable image preview with pan controls
 
 3. **File Output**:
-   - CSV export with columns: filename, cell_number, center_x, center_y, diameter_pixels, diameter_nm
+   - CSV export with columns: filename, cell_number, center_x, center_y, diameter_pixels, diameter_nm (micrometers)
    - Individual cell images saved separately
+   - Statistical reports in Text/CSV/Markdown formats
    - Debug images with highlighted cells (when logging enabled)
 
 4. **Error Handling**:
    - OpenCV exception catching
    - Boundary validation for drawing operations
    - User warnings for no detected cells
+   - Thread-safe logging system with rotation
+   - Comprehensive error logging with file/line info
 
-5. **Styling**:
+5. **Styling and Theming**:
+   - Light and Dark theme support
    - All buttons use border-radius: 10px
-   - Color scheme: Primary (#2196F3), Clear (#f44336), Add (#4CAF50), Analyze (#03A9F4)
+   - Light theme colors: Primary (#2196F3), Clear (#f44336), Add (#4CAF50), Analyze (#03A9F4)
+   - Dark theme colors: adjusted for visibility and contrast
    - Hover effects on interactive elements
    - Adaptive button hover states
+   - Custom scrollbar styling
+
+6. **Performance Optimization**:
+   - Lazy loading for image previews
+   - Efficient cv::Mat deep copying in Cell structure
+   - Log file rotation to prevent excessive disk usage
+   - Configurable preview size for performance tuning
+   - Batch processing with progress tracking
+
+7. **Data Persistence**:
+   - Settings saved to JSON format
+   - Last-used preset auto-loading
+   - Theme preference persistence
+   - Window size and position memory
+   - Parameter history tracking
 
 ## User Workflows
 
@@ -174,8 +282,21 @@ build\Release\CellAnalyzer.exe
 ### Verification and Export
 1. Grid view shows all detected cells
 2. Click to remove false positives
-3. Export to CSV with complete measurements
-4. Save individual cell images
+3. View comprehensive statistics (optional)
+4. Export to CSV with complete measurements
+5. Save individual cell images
+6. Export statistical reports (Text/CSV/Markdown)
+
+### Statistics Analysis Workflow
+1. After verification, access statistics widget
+2. Review multi-tab analysis:
+   - **Overview**: Summary statistics and counts
+   - **Details**: Per-image group statistics
+   - **Distribution**: Histogram and shape analysis
+   - **Correlation**: Parameter relationships
+   - **Outliers**: Anomaly detection and filtering
+3. Export statistical reports in preferred format
+4. Return to verification for additional cell filtering if needed
 
 ### **NEW: Optimized Template Workflow**
 **First-time setup (detailed configuration):**

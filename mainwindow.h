@@ -33,7 +33,6 @@ private slots:
     void showStatistics();
     void updateAnalysisButtonState();
     void onParametersConfirmed(const ParameterTuningWidget::HoughParams& params);
-    void onPreviewSizeChanged(int value);
     void clearImages();
     void onBackFromStatistics();
 
@@ -45,8 +44,6 @@ private:
     QPushButton* analyzeButton;
     QPushButton* selectButton;
     QProgressBar* progressBar;
-    QSlider* previewSizeSlider;
-    QLabel* previewSizeLabel;
     QStringList selectedImagePaths;
     ParameterTuningWidget::HoughParams currentHoughParams;
 

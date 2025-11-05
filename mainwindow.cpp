@@ -11,6 +11,11 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
+#include <QDialog>
+#include <QTextEdit>
+#include <QFile>
+#include <QTextStream>
+#include <QCoreApplication>
 #include "settingsmanager.h"
 #include "logger.h"
 
@@ -18,8 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
 
     setWindowTitle("Cell Analyzer - Анализатор клеток");
-    setMinimumSize(800, 600);
-    resize(1024, 768);
+    setMinimumSize(1200, 800);
+    resize(1200, 800);
     
     // Создаем меню
     setupMenuBar();
@@ -47,24 +52,6 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(scrollArea);
 }
 
-void MainWindow::onPreviewSizeChanged(int value) {
-    previewSizeLabel->setText(QString::number(value));
-    previewGrid->setPreviewSize(value);
-    
-    // Сохраняем значение
-    SettingsManager::instance().setPreviewSize(value);
-    
-    // Обновляем количество колонок
-    QScrollArea* scrollArea = qobject_cast<QScrollArea*>(centralWidget());
-    if (scrollArea && scrollArea->widget() && 
-        scrollArea->widget()->findChild<PreviewGrid*>() == previewGrid) {
-        int width = this->width() - 60;
-        int previewItemWidth = value + 10;
-        int maxColumns = width / previewItemWidth;
-        if (maxColumns < 1) maxColumns = 1;
-        previewGrid->setMaxColumns(maxColumns);
-    }
-}
 
 void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams& params) {
     LOG_INFO("MainWindow::onParametersConfirmed() called");
@@ -199,9 +186,7 @@ QWidget* MainWindow::createMainWidget() {
     
     // Область для превью
     previewGrid = new PreviewGrid(this);
-    int savedSize = SettingsManager::instance().getPreviewSize();
-    int actualSize = savedSize > 300 ? 300 : savedSize;
-    previewGrid->setPreviewSize(actualSize);
+    previewGrid->setPreviewSize(200);
     connect(previewGrid, &PreviewGrid::pathsChanged, this, &MainWindow::updateAnalysisButtonState);
     
     // Прогресс бар
@@ -215,24 +200,7 @@ QWidget* MainWindow::createMainWidget() {
     toolbarWidget->setMaximumHeight(80);
     QHBoxLayout* toolbarLayout = new QHBoxLayout(toolbarWidget);
     toolbarLayout->setContentsMargins(0, 5, 0, 5);
-    
-    // Ползунок размера превью
-    QLabel* sizeLabel = new QLabel("Размер превью:");
-    toolbarLayout->addWidget(sizeLabel);
-    
-    previewSizeSlider = new QSlider(Qt::Horizontal);
-    previewSizeSlider->setRange(100, 300);
-    previewSizeSlider->setValue(savedSize > 300 ? 300 : savedSize);
-    previewSizeSlider->setMaximumWidth(200);
-    connect(previewSizeSlider, &QSlider::valueChanged, this, &MainWindow::onPreviewSizeChanged);
-    toolbarLayout->addWidget(previewSizeSlider);
-    
-    previewSizeLabel = new QLabel(QString::number(savedSize > 300 ? 300 : savedSize));
-    previewSizeLabel->setMinimumWidth(30);
-    toolbarLayout->addWidget(previewSizeLabel);
-    
-    toolbarLayout->addSpacing(20);
-    
+
     // Кнопка очистки
     clearButton = new QPushButton("Очистить");
     clearButton->setStyleSheet(
@@ -419,10 +387,10 @@ void MainWindow::resizeEvent(QResizeEvent* event) {
 
 void MainWindow::setupMenuBar() {
     QMenuBar* menuBar = this->menuBar();
-    
+
     // Меню "Вид"
     QMenu* viewMenu = menuBar->addMenu("Вид");
-    
+
     // Действие переключения темы
     QAction* toggleThemeAction = new QAction("Переключить тему", this);
     toggleThemeAction->setShortcut(QKeySequence("Ctrl+T"));
@@ -430,21 +398,102 @@ void MainWindow::setupMenuBar() {
         ThemeManager::instance().toggleTheme();
     });
     viewMenu->addAction(toggleThemeAction);
-    
+
     // Подменю выбора темы
     QMenu* themeMenu = viewMenu->addMenu("Выбрать тему");
-    
+
     QAction* lightThemeAction = new QAction("Светлая тема", this);
     connect(lightThemeAction, &QAction::triggered, []() {
         ThemeManager::instance().setTheme(ThemeManager::Theme::Light);
     });
     themeMenu->addAction(lightThemeAction);
-    
+
     QAction* darkThemeAction = new QAction("Темная тема", this);
     connect(darkThemeAction, &QAction::triggered, []() {
         ThemeManager::instance().setTheme(ThemeManager::Theme::Dark);
     });
     themeMenu->addAction(darkThemeAction);
+
+    // Меню "Справка"
+    QMenu* helpMenu = menuBar->addMenu("Справка");
+
+    // Действие "О программе"
+    QAction* aboutAction = new QAction("О программе", this);
+    aboutAction->setShortcut(QKeySequence("F1"));
+    connect(aboutAction, &QAction::triggered, this, [this]() {
+        // Читаем содержимое README.md
+        // Ищем файл в нескольких возможных местах
+        QStringList possiblePaths = {
+            QCoreApplication::applicationDirPath() + "/README.md",
+            QCoreApplication::applicationDirPath() + "/../README.md",
+            QCoreApplication::applicationDirPath() + "/../../README.md",
+            QCoreApplication::applicationDirPath() + "/../../../README.md"
+        };
+
+        QString readmeContent;
+        bool found = false;
+
+        for (const QString& path : possiblePaths) {
+            QFile readmeFile(path);
+            if (readmeFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream in(&readmeFile);
+                in.setEncoding(QStringConverter::Utf8);
+                readmeContent = in.readAll();
+                readmeFile.close();
+                found = true;
+                LOG_INFO(QString("README.md загружен из: %1").arg(path));
+                break;
+            }
+        }
+
+        if (!found) {
+            readmeContent = "# CellAnalyzer\n\nНе удалось загрузить файл README.md\n\n"
+                          "Приложение для автоматического обнаружения и анализа клеток на микроскопических изображениях.\n\n"
+                          "Попробованные пути:\n";
+            for (const QString& path : possiblePaths) {
+                readmeContent += "- " + path + "\n";
+            }
+            LOG_WARNING("README.md не найден ни в одном из стандартных путей");
+        }
+
+        // Создаем диалог
+        QDialog* aboutDialog = new QDialog(this);
+        aboutDialog->setWindowTitle("О программе CellAnalyzer");
+        aboutDialog->resize(800, 600);
+
+        QVBoxLayout* layout = new QVBoxLayout(aboutDialog);
+
+        // Текстовый виджет с содержимым README
+        QTextEdit* textEdit = new QTextEdit(aboutDialog);
+        textEdit->setReadOnly(true);
+        textEdit->setMarkdown(readmeContent);
+        layout->addWidget(textEdit);
+
+        // Кнопка закрытия
+        QPushButton* closeButton = new QPushButton("Закрыть", aboutDialog);
+        closeButton->setStyleSheet(
+            "QPushButton {"
+            "    background-color: #2196F3;"
+            "    color: white;"
+            "    border-radius: 10px;"
+            "    padding: 8px 20px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: #1976D2;"
+            "}"
+        );
+        connect(closeButton, &QPushButton::clicked, aboutDialog, &QDialog::accept);
+
+        QHBoxLayout* buttonLayout = new QHBoxLayout();
+        buttonLayout->addStretch();
+        buttonLayout->addWidget(closeButton);
+        buttonLayout->addStretch();
+        layout->addLayout(buttonLayout);
+
+        aboutDialog->exec();
+        aboutDialog->deleteLater();
+    });
+    helpMenu->addAction(aboutAction);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
