@@ -52,7 +52,7 @@ try {
         "opencv_videoio_msmf4110_64.dll",
         "opencv_videoio_ffmpeg4110_64.dll"
     )
-    
+
     foreach ($dll in $opencvDlls) {
         $sourcePath = Join-Path $OpenCVBin $dll
         $destPath = Join-Path "Release" $dll
@@ -61,6 +61,27 @@ try {
             Write-Host "  - Copied $dll" -ForegroundColor Gray
         } else {
             Write-Host "  - Warning: $dll not found!" -ForegroundColor Red
+        }
+    }
+
+    # Copy documentation and settings
+    Write-Host "`nCopying documentation and settings files..." -ForegroundColor Yellow
+    $docFiles = @(
+        "CHANGELOG.md",
+        "CLAUDE.md",
+        "README.md",
+        "todo.md",
+        "settings.json"
+    )
+
+    foreach ($file in $docFiles) {
+        $sourcePath = Join-Path ".." $file
+        $destPath = Join-Path "Release" $file
+        if (Test-Path $sourcePath) {
+            Copy-Item $sourcePath $destPath -Force
+            Write-Host "  - Copied $file" -ForegroundColor Gray
+        } else {
+            Write-Host "  - Warning: $file not found!" -ForegroundColor Red
         }
     }
 

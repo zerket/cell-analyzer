@@ -10,10 +10,6 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QLabel>
-#include <QDragEnterEvent>
-#include <QDropEvent>
-#include <QMimeData>
-#include <QUrl>
 #include "previewgrid.h"
 #include "verificationwidget.h"
 #include "parametertuningwidget.h"
@@ -49,7 +45,8 @@ private:
 
     QWidget* centralWidgetContainer;
     QVBoxLayout* centralLayout;
-    
+    QScrollArea* previewScrollArea;
+
     QPushButton* clearButton;
     QPushButton* addImagesButton;
     QWidget* toolbarWidget;
@@ -62,12 +59,6 @@ private:
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
-    void dragEnterEvent(QDragEnterEvent* event) override;
-    void dropEvent(QDropEvent* event) override;
-
-private:
-    void processDroppedFiles(const QStringList& filePaths);
-    bool isImageFile(const QString& filePath) const;
 };
 
 #endif // MAINWINDOW_H

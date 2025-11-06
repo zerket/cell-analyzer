@@ -74,14 +74,6 @@ class ParameterTuningWidget : public QWidget {
 
 public:
     using HoughParams = ImageProcessor::HoughParams;
-    
-    struct PresetData {
-        HoughParams params;
-        double coefficient; // нм/пиксель
-        
-        PresetData() : coefficient(0.0) {}
-        PresetData(const HoughParams& p, double coeff = 0.0) : params(p), coefficient(coeff) {}
-    };
 
     explicit ParameterTuningWidget(const QString& imagePath, QWidget *parent = nullptr);
 
@@ -144,7 +136,6 @@ private:
     void updatePreview();
     void showOriginalImage();
     void loadPresets();
-    void savePresets();
     void drawSelectedCells(cv::Mat& image);
     void drawNegativeCells(cv::Mat& image);
     void optimizeParametersForSelectedCells();
@@ -209,7 +200,6 @@ private:
     QLabel* m_selectionInfoLabel;
     
     HoughParams m_currentParams;
-    QMap<QString, PresetData> m_presets;
 
     std::vector<cv::Point> m_selectedCells;      // Позитивные маркеры (ЛКМ) - клетки для обнаружения
     std::vector<cv::Point> m_negativeCells;      // Негативные маркеры (ПКМ) - объекты для исключения

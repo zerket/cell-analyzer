@@ -37,6 +37,7 @@ public:
 signals:
     void zoomChanged(double factor);
     void cellClicked(int cellIndex);
+    void cellRightClicked(int cellIndex);
 
 protected:
     void wheelEvent(QWheelEvent* event) override;
@@ -90,6 +91,7 @@ public slots:
 signals:
     void zoomChanged(double factor);
     void cellClicked(int cellIndex);
+    void cellRightClicked(int cellIndex);
 
 private slots:
     void onZoomSliderChanged(int value);

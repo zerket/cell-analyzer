@@ -49,6 +49,14 @@ copy "%OPENCV_BIN%\opencv_world4110.dll" "Release\" >nul
 copy "%OPENCV_BIN%\opencv_videoio_msmf4110_64.dll" "Release\" >nul
 copy "%OPENCV_BIN%\opencv_videoio_ffmpeg4110_64.dll" "Release\" >nul
 
+:: Copy documentation and settings
+echo Copying documentation and settings files...
+copy "..\CHANGELOG.md" "Release\" >nul
+copy "..\CLAUDE.md" "Release\" >nul
+copy "..\README.md" "Release\" >nul
+copy "..\todo.md" "Release\" >nul
+copy "..\settings.json" "Release\" >nul
+
 :: Return to original directory
 cd ..
 

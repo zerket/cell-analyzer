@@ -128,6 +128,12 @@ void MarkupImageLabel::mousePressEvent(QMouseEvent* event)
             m_lastPanPoint = event->pos();
             setCursor(Qt::ClosedHandCursor);
         }
+    } else if (event->button() == Qt::RightButton) {
+        // Обработка правой кнопки мыши для удаления клетки
+        int cellIndex = findCellAtPosition(event->pos());
+        if (cellIndex >= 0) {
+            emit cellRightClicked(cellIndex);
+        }
     }
     QLabel::mousePressEvent(event);
 }
@@ -279,6 +285,7 @@ void MarkupImageWidget::setupUI()
 
     connect(m_imageLabel, &MarkupImageLabel::zoomChanged, this, &MarkupImageWidget::onImageZoomChanged);
     connect(m_imageLabel, &MarkupImageLabel::cellClicked, this, &MarkupImageWidget::cellClicked);
+    connect(m_imageLabel, &MarkupImageLabel::cellRightClicked, this, &MarkupImageWidget::cellRightClicked);
 
     mainLayout->addWidget(m_scrollArea);
 

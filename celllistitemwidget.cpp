@@ -143,17 +143,11 @@ void CellListItemWidget::updateStyle()
     QString style;
 
     if (m_selected) {
-        // Яркая подсветка для выделенной клетки
+        // Серая подсветка для выделенной клетки, текст не меняется
         style = "CellListItemWidget { "
-                "background-color: #2196F3; "  // Синий фон
-                "border: 3px solid #1976D2; "   // Темно-синяя рамка
+                "background-color: #BDBDBD; "  // Серый фон
+                "border: 2px solid #9E9E9E; "   // Темно-серая рамка
                 "border-radius: 5px; "
-                "} "
-                "QLabel { color: white; } "  // Белый текст для лучшей видимости
-                "QLineEdit { "
-                "  background-color: white; "
-                "  color: black; "
-                "  border: 2px solid #1976D2; "
                 "}";
     } else if (m_hovered) {
         // Светлая подсветка при наведении

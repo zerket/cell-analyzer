@@ -147,6 +147,7 @@ void VerificationWidget::setupUI()
     LOG_INFO("setupUI: Creating preview widget");
     m_previewWidget = new MarkupImageWidget(this);
     connect(m_previewWidget, &MarkupImageWidget::cellClicked, this, &VerificationWidget::onImageCellClicked);
+    connect(m_previewWidget, &MarkupImageWidget::cellRightClicked, this, &VerificationWidget::onImageCellRightClicked);
     rightLayout->addWidget(m_previewWidget, 1);
 
     // Cell info panel
@@ -290,7 +291,9 @@ void VerificationWidget::updateCellList()
         CellListItemWidget* cellWidget = new CellListItemWidget(i + 1, cell, this);
 
         // Автоматически заполняем диаметр, если коэффициент существует
-        double currentCoeff = SettingsManager::instance().getNmPerPixel();
+        QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
+        ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
+        double currentCoeff = preset.umPerPixel;
         if (currentCoeff > 0.0) {
             double calculatedDiameter = cell.diameterPx * currentCoeff;
             cellWidget->setDiameterNm(calculatedDiameter);
@@ -412,6 +415,47 @@ void VerificationWidget::onImageCellClicked(int localCellIndex)
     }
 }
 
+void VerificationWidget::onImageCellRightClicked(int localCellIndex)
+{
+    // Удаление клетки по правому клику на изображении
+    QVector<int> cellIndices = m_cellsByFile[m_currentFilePath];
+    if (localCellIndex >= 0 && localCellIndex < cellIndices.size()) {
+        int globalIndex = cellIndices[localCellIndex];
+
+        // Remove cell from data
+        m_cells.removeAt(globalIndex);
+
+        // Regroup cells
+        groupCellsByFile();
+
+        // Update current tab label
+        int currentTabIndex = m_fileTabWidget->currentIndex();
+        QStringList filePaths = m_cellsByFile.keys();
+        if (currentTabIndex < filePaths.size()) {
+            QString filePath = filePaths[currentTabIndex];
+            QString fileName = QFileInfo(filePath).fileName();
+            int count = m_cellsByFile[filePath].size();
+            m_fileTabWidget->setTabText(currentTabIndex, QString("%1 (%2)").arg(fileName).arg(count));
+        }
+
+        // Refresh UI
+        updateCellList();
+        updatePreviewImage();
+
+        // Select next cell if available
+        cellIndices = m_cellsByFile[m_currentFilePath];
+        if (!cellIndices.isEmpty()) {
+            int nextIndex = qMin(localCellIndex, cellIndices.size() - 1);
+            selectCell(cellIndices[nextIndex]);
+        } else {
+            m_selectedCellIndex = -1;
+            updateCellInfoPanel();
+        }
+
+        LOG_INFO(QString("Cell removed by right-click on image: local index %1").arg(localCellIndex));
+    }
+}
+
 void VerificationWidget::onCellItemRemoved(CellListItemWidget* item)
 {
     if (!item) return;
@@ -524,16 +568,23 @@ void VerificationWidget::recalculateDiameters()
         }
     }
 
-    // Update coefficient
+    // Update coefficient в текущем пресете
     m_coefficientEdit->setText(QString::number(avgScale, 'f', 4));
-    SettingsManager::instance().setNmPerPixel(avgScale);
+
+    // Обновляем коэффициент в последнем выбранном пресете
+    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
+    ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
+    preset.umPerPixel = avgScale;
+    SettingsManager::instance().savePreset(preset);
 
     LOG_INFO(QString("Recalculated with coefficient: %1 μm/px").arg(avgScale));
 }
 
 void VerificationWidget::loadSavedCoefficient()
 {
-    double savedCoeff = SettingsManager::instance().getNmPerPixel();
+    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
+    ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
+    double savedCoeff = preset.umPerPixel;
     LOG_INFO(QString("loadSavedCoefficient: savedCoeff=%1").arg(savedCoeff));
 
     if (savedCoeff > 0) {
@@ -546,8 +597,10 @@ QVector<Cell> VerificationWidget::getVerifiedCells() const
 {
     QVector<Cell> updatedCells = m_cells;
 
-    // Получаем коэффициент из настроек
-    double currentCoeff = SettingsManager::instance().getNmPerPixel();
+    // Получаем коэффициент из последнего выбранного пресета
+    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
+    ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
+    double currentCoeff = preset.umPerPixel;
 
     // Обновляем диаметры для текущего отображаемого файла из виджетов
     QVector<int> currentIndices = m_cellsByFile[m_currentFilePath];
@@ -587,8 +640,10 @@ void VerificationWidget::onSaveCellsClicked()
 {
     LOG_INFO("Save cells button clicked");
 
-    // Получаем коэффициент из настроек
-    double currentCoeff = SettingsManager::instance().getNmPerPixel();
+    // Получаем коэффициент из последнего выбранного пресета
+    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
+    ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
+    double currentCoeff = preset.umPerPixel;
 
     // Collect verified cells data for export
     QVector<QPair<Cell, double>> verifiedCells;
@@ -682,23 +737,13 @@ void VerificationWidget::onSaveCellsClicked()
         }
 
         // Update preset coefficient
-        double currentCoeff = SettingsManager::instance().getNmPerPixel();
-        if (currentCoeff > 0.0) {
-            QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
+        QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
+        ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
+        double currentCoeff = preset.umPerPixel;
 
-            if (!lastPreset.isEmpty() && lastPreset != "По умолчанию") {
-                QJsonObject presets = SettingsManager::instance().getPresets();
-
-                if (presets.contains(lastPreset)) {
-                    QJsonObject presetData = presets[lastPreset].toObject();
-                    presetData["coefficient"] = currentCoeff;
-                    presets[lastPreset] = presetData;
-
-                    SettingsManager::instance().setPresets(presets);
-                    LOG_INFO(QString("Updated coefficient %1 μm/px in preset '%2'")
-                        .arg(currentCoeff, 0, 'f', 4).arg(lastPreset));
-                }
-            }
+        if (currentCoeff > 0.0 && !lastPreset.isEmpty() && lastPreset != "По умолчанию") {
+            LOG_INFO(QString("Coefficient %1 μm/px already in preset '%2'")
+                .arg(currentCoeff, 0, 'f', 4).arg(lastPreset));
         }
 
         QMessageBox::information(this, "Успех",

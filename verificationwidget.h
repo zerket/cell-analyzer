@@ -33,6 +33,7 @@ private slots:
     void onCellItemClicked(CellListItemWidget* item);
     void onCellItemRemoved(CellListItemWidget* item);
     void onImageCellClicked(int cellIndex);
+    void onImageCellRightClicked(int cellIndex);
     void onDiameterNmChanged();
     void onRecalculateClicked();
     void onClearDiametersClicked();

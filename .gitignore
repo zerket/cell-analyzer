@@ -72,7 +72,7 @@ CMakeLists.txt.user*
 # --------
 *.dll
 *.exe
-
+nul
 # Directories with generated files
 .moc/
 .obj/
@@ -81,6 +81,7 @@ CMakeLists.txt.user*
 .uic/
 /build*/
 .cache/
-/results
+.claude/
 /results
 /logs
+CellAnalyzer-Release*.zip

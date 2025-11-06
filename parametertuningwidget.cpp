@@ -36,8 +36,9 @@ ParameterTuningWidget::ParameterTuningWidget(const QString& imagePath, QWidget *
     cv::cvtColor(m_originalImage, m_grayImage, cv::COLOR_BGR2GRAY);
     cv::medianBlur(m_grayImage, m_blurredImage, 5);
     
-    // Загружаем параметры из настроек
-    m_currentParams = SettingsManager::instance().getHoughParams();
+    // Загружаем параметры из настроек (последний выбранный пресет)
+    QString lastPresetName = SettingsManager::instance().getLastSelectedPreset();
+    m_currentParams = SettingsManager::instance().getPresetByName(lastPresetName);
     
     // Инициализируем коэффициенты масштабирования и состояние
     m_scaleFactorX = 1.0;
@@ -422,40 +423,40 @@ void ParameterTuningWidget::onConfirmClicked() {
 
 void ParameterTuningWidget::onSavePreset() {
     QString currentPresetName = m_presetCombo->currentText();
-    
+
     // Проверяем, изменился ли текущий пресет (кроме "По умолчанию")
-    if (currentPresetName != "По умолчанию" && m_presets.contains(currentPresetName)) {
+    if (currentPresetName != "По умолчанию") {
+        HoughParams savedPreset = SettingsManager::instance().getPresetByName(currentPresetName);
+
         // Проверяем, отличаются ли текущие параметры от сохраненных в пресете
-        const PresetData& savedPreset = m_presets[currentPresetName];
         bool parametersChanged = (
-            savedPreset.params.dp != m_currentParams.dp ||
-            savedPreset.params.minDist != m_currentParams.minDist ||
-            savedPreset.params.param1 != m_currentParams.param1 ||
-            savedPreset.params.param2 != m_currentParams.param2 ||
-            savedPreset.params.minRadius != m_currentParams.minRadius ||
-            savedPreset.params.maxRadius != m_currentParams.maxRadius ||
-            savedPreset.coefficient != SettingsManager::instance().getNmPerPixel()
+            savedPreset.dp != m_currentParams.dp ||
+            savedPreset.minDist != m_currentParams.minDist ||
+            savedPreset.param1 != m_currentParams.param1 ||
+            savedPreset.param2 != m_currentParams.param2 ||
+            savedPreset.minRadius != m_currentParams.minRadius ||
+            savedPreset.maxRadius != m_currentParams.maxRadius ||
+            savedPreset.umPerPixel != m_currentParams.umPerPixel
         );
-        
-        if (parametersChanged) {
+
+        if (parametersChanged && !savedPreset.name.isEmpty()) {
             // Показываем умный диалог
             QMessageBox msgBox(this);
             msgBox.setWindowTitle("Сохранение параметров");
             msgBox.setText(QString("Вы изменили параметры набора '%1'.").arg(currentPresetName));
             msgBox.setInformativeText("Что вы хотите сделать?");
-            
+
             QPushButton* updateButton = msgBox.addButton("Да, обновить", QMessageBox::AcceptRole);
             QPushButton* noButton = msgBox.addButton("Нет, не сохранять", QMessageBox::RejectRole);
             QPushButton* newButton = msgBox.addButton("Создать новый", QMessageBox::ActionRole);
-            
+
             msgBox.setDefaultButton(updateButton);
             msgBox.exec();
-            
+
             if (msgBox.clickedButton() == updateButton) {
                 // Обновляем текущий пресет
-                double currentCoeff = SettingsManager::instance().getNmPerPixel();
-                m_presets[currentPresetName] = PresetData(m_currentParams, currentCoeff);
-                savePresets();
+                m_currentParams.name = currentPresetName;
+                SettingsManager::instance().savePreset(m_currentParams);
                 LOG_INFO(QString("Пресет '%1' обновлен").arg(currentPresetName));
                 return;
             } else if (msgBox.clickedButton() == noButton) {
@@ -465,7 +466,7 @@ void ParameterTuningWidget::onSavePreset() {
             // Если выбран "Создать новый", продолжаем с вводом имени
         }
     }
-    
+
     // Диалог для ввода имени нового пресета
     bool ok;
     QString name = QInputDialog::getText(this, "Сохранить набор параметров",
@@ -473,8 +474,17 @@ void ParameterTuningWidget::onSavePreset() {
                                        "", &ok);
     if (ok && !name.isEmpty()) {
         // Проверяем, существует ли уже пресет с таким именем
-        if (m_presets.contains(name)) {
-            int ret = QMessageBox::question(this, "Подтверждение", 
+        QVector<HoughParams> allPresets = SettingsManager::instance().getAllPresets();
+        bool exists = false;
+        for (const auto& preset : allPresets) {
+            if (preset.name == name) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (exists) {
+            int ret = QMessageBox::question(this, "Подтверждение",
                 QString("Набор параметров '%1' уже существует. Заменить?").arg(name),
                 QMessageBox::Yes | QMessageBox::No);
             if (ret != QMessageBox::Yes) {
@@ -486,37 +496,36 @@ void ParameterTuningWidget::onSavePreset() {
                 m_presetCombo->removeItem(index);
             }
         }
-        
-        // Получаем текущий коэффициент из SettingsManager
-        double currentCoeff = SettingsManager::instance().getNmPerPixel();
-        m_presets[name] = PresetData(m_currentParams, currentCoeff);
-        m_presetCombo->addItem(name);
+
+        // Сохраняем пресет
+        m_currentParams.name = name;
+        SettingsManager::instance().savePreset(m_currentParams);
+
+        // Добавляем в комбобокс если не существует
+        if (!exists) {
+            m_presetCombo->addItem(name);
+        }
         m_presetCombo->setCurrentText(name);
-        savePresets();
-        
-        LOG_INFO(QString("Сохранен пресет '%1' с коэффициентом %2 нм/px").arg(name).arg(currentCoeff));
+        SettingsManager::instance().setLastSelectedPreset(name);
+
+        LOG_INFO(QString("Сохранен пресет '%1' с коэффициентом %2 мкм/px").arg(name).arg(m_currentParams.umPerPixel));
     }
 }
 
 void ParameterTuningWidget::onLoadPreset() {
     QString currentText = m_presetCombo->currentText();
-    double presetCoeff = 0.0;
-    
+
     if (currentText == "По умолчанию") {
         m_currentParams = HoughParams();
-        presetCoeff = 0.0;
-    } else if (m_presets.contains(currentText)) {
-        const PresetData& presetData = m_presets[currentText];
-        m_currentParams = presetData.params;
-        presetCoeff = presetData.coefficient;
-        
-        // Если в пресете есть коэффициент, применяем его
-        if (presetCoeff > 0.0) {
-            SettingsManager::instance().setNmPerPixel(presetCoeff);
-            LOG_INFO(QString("Загружен пресет '%1' с коэффициентом %2 нм/px").arg(currentText).arg(presetCoeff));
+    } else {
+        m_currentParams = SettingsManager::instance().getPresetByName(currentText);
+
+        // Если в пресете есть коэффициент, логируем его
+        if (m_currentParams.umPerPixel > 0.0) {
+            LOG_INFO(QString("Загружен пресет '%1' с коэффициентом %2 мкм/px").arg(currentText).arg(m_currentParams.umPerPixel));
         }
     }
-    
+
     // Обновляем значения в спинбоксах
     m_dpSpinBox->setValue(m_currentParams.dp);
     m_minDistSpinBox->setValue(m_currentParams.minDist);
@@ -524,68 +533,60 @@ void ParameterTuningWidget::onLoadPreset() {
     m_param2SpinBox->setValue(m_currentParams.param2);
     m_minRadiusSpinBox->setValue(m_currentParams.minRadius);
     m_maxRadiusSpinBox->setValue(m_currentParams.maxRadius);
-    
+
     // АВТОМАТИЧЕСКИ применяем параметры при загрузке пресета
     m_parametersApplied = true;
     m_confirmButton->setEnabled(true);
     updatePreview(); // Применяем параметры сразу
-    
+
+    // Сохраняем последний выбранный пресет
+    SettingsManager::instance().setLastSelectedPreset(currentText);
+
     LOG_INFO(QString("Пресет '%1' применен автоматически").arg(currentText));
 }
 
 void ParameterTuningWidget::onDeletePreset() {
     QString currentText = m_presetCombo->currentText();
-    
+
     // Нельзя удалить "По умолчанию"
     if (currentText == "По умолчанию") {
         QMessageBox::information(this, "Информация", "Нельзя удалить встроенный набор параметров 'По умолчанию'");
         return;
     }
-    
-    if (!m_presets.contains(currentText)) {
+
+    // Проверяем, существует ли пресет
+    HoughParams preset = SettingsManager::instance().getPresetByName(currentText);
+    if (preset.name.isEmpty()) {
         return;
     }
-    
+
     // Подтверждение удаления
     int ret = QMessageBox::question(this, "Подтверждение удаления",
         QString("Вы уверены что хотите удалить набор параметров '%1'?").arg(currentText),
         QMessageBox::Yes | QMessageBox::No);
-        
+
     if (ret == QMessageBox::Yes) {
-        // Удаляем из карты и комбобокса
-        m_presets.remove(currentText);
+        // Удаляем из SettingsManager и комбобокса
+        SettingsManager::instance().deletePreset(currentText);
         int index = m_presetCombo->findText(currentText);
         if (index != -1) {
             m_presetCombo->removeItem(index);
         }
-        
+
         // Переключаемся на "По умолчанию"
         m_presetCombo->setCurrentText("По умолчанию");
         onLoadPreset(); // Загружаем параметры по умолчанию
-        
-        savePresets();
+
         LOG_INFO(QString("Пресет '%1' удален").arg(currentText));
     }
 }
 
 void ParameterTuningWidget::loadPresets() {
-    QJsonObject presets = SettingsManager::instance().getPresets();
+    // Загружаем все пресеты из SettingsManager
+    QVector<HoughParams> allPresets = SettingsManager::instance().getAllPresets();
 
-    for (auto it = presets.begin(); it != presets.end(); ++it) {
-        QString name = it.key();
-        QJsonObject presetData = it.value().toObject();
-
-        HoughParams params;
-        params.dp = presetData.value("dp").toDouble(1.0);
-        params.minDist = presetData.value("minDist").toDouble(30.0);
-        params.param1 = presetData.value("param1").toDouble(80.0);
-        params.param2 = presetData.value("param2").toDouble(40.0);
-        params.minRadius = presetData.value("minRadius").toInt(30);
-        params.maxRadius = presetData.value("maxRadius").toInt(130);
-
-        double coefficient = presetData.value("coefficient").toDouble(0.0);
-        m_presets[name] = PresetData(params, coefficient);
-        m_presetCombo->addItem(name);
+    for (const auto& preset : allPresets) {
+        m_presetCombo->addItem(preset.name);
     }
 
     // Загружаем последний выбранный пресет (БЕЗ автоматического применения)
@@ -600,14 +601,8 @@ void ParameterTuningWidget::loadPresets() {
         // Загружаем параметры в UI без применения
         if (lastPreset == "По умолчанию") {
             m_currentParams = HoughParams();
-        } else if (m_presets.contains(lastPreset)) {
-            const PresetData& presetData = m_presets[lastPreset];
-            m_currentParams = presetData.params;
-
-            // Если в пресете есть коэффициент, применяем его
-            if (presetData.coefficient > 0.0) {
-                SettingsManager::instance().setNmPerPixel(presetData.coefficient);
-            }
+        } else {
+            m_currentParams = SettingsManager::instance().getPresetByName(lastPreset);
         }
 
         // Обновляем значения в спинбоксах (без применения)
@@ -634,28 +629,6 @@ void ParameterTuningWidget::loadPresets() {
 
         LOG_INFO(QString("Пресет '%1' загружен (без автоматического применения)").arg(lastPreset));
     }
-}
-
-void ParameterTuningWidget::savePresets() {
-    QJsonObject presets;
-
-    for (auto it = m_presets.begin(); it != m_presets.end(); ++it) {
-        QJsonObject presetData;
-        presetData["dp"] = it.value().params.dp;
-        presetData["minDist"] = it.value().params.minDist;
-        presetData["param1"] = it.value().params.param1;
-        presetData["param2"] = it.value().params.param2;
-        presetData["minRadius"] = it.value().params.minRadius;
-        presetData["maxRadius"] = it.value().params.maxRadius;
-        presetData["coefficient"] = it.value().coefficient;
-
-        presets[it.key()] = presetData;
-    }
-
-    SettingsManager::instance().setPresets(presets);
-
-    // Сохраняем последний выбранный пресет
-    SettingsManager::instance().setLastSelectedPreset(m_presetCombo->currentText());
 }
 
 void ParameterTuningWidget::onImageClicked(QPoint position) {

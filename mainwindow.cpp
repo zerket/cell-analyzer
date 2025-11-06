@@ -25,10 +25,10 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("Cell Analyzer - Анализатор клеток");
     setMinimumSize(1200, 800);
     resize(1200, 800);
-    
+
     // Создаем меню
     setupMenuBar();
-    
+
     // Инициализируем тему
     ThemeManager& themeManager = ThemeManager::instance();
     connect(&themeManager, &ThemeManager::themeChanged, this, [](ThemeManager::Theme theme) {
@@ -38,18 +38,13 @@ MainWindow::MainWindow(QWidget *parent)
     verificationWidget = nullptr;
     parameterTuningWidget = nullptr;
     statisticsWidget = nullptr;
-    
-    // Включаем поддержку drag-and-drop
-    setAcceptDrops(true);
-    
-    // Загружаем параметры из настроек
-    currentHoughParams = SettingsManager::instance().getHoughParams();
-    
-    // Создаем главный виджет
-    QScrollArea* scrollArea = new QScrollArea(this);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setWidget(createMainWidget());
-    setCentralWidget(scrollArea);
+
+    // Загружаем параметры из настроек (последний выбранный пресет)
+    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
+    currentHoughParams = SettingsManager::instance().getPresetByName(lastPreset);
+
+    // Создаем главный виджет напрямую без внешнего QScrollArea
+    setCentralWidget(createMainWidget());
 }
 
 
@@ -57,15 +52,7 @@ void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams&
     LOG_INFO("MainWindow::onParametersConfirmed() called");
     
     currentHoughParams = params;
-    LOG_INFO("Saving parameters to settings");
-    
-    // Сохраняем параметры
-    try {
-        SettingsManager::instance().setHoughParams(params);
-        LOG_INFO("Parameters saved successfully");
-    } catch (const std::exception& e) {
-        LOG_ERROR(QString("Failed to save parameters: %1").arg(e.what()));
-    }
+    LOG_INFO("Parameters confirmed and saved in preset");
     
     LOG_INFO("Cleaning up parameter tuning widget");
     // Удаляем виджет настройки параметров
@@ -106,10 +93,7 @@ void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams&
         
         // Возвращаемся к главному экрану
         LOG_INFO("Returning to main screen");
-        QScrollArea* scrollArea = new QScrollArea(this);
-        scrollArea->setWidgetResizable(true);
-        scrollArea->setWidget(createMainWidget());
-        setCentralWidget(scrollArea);
+        setCentralWidget(createMainWidget());
         return;
     }
 
@@ -140,10 +124,7 @@ void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams&
     connect(verificationWidget, &VerificationWidget::analysisCompleted, this, [this]() {
         LOG_INFO("Analysis completed, returning to main screen");
         // Возвращаемся к главному экрану после анализа
-        QScrollArea* scrollArea = new QScrollArea(this);
-        scrollArea->setWidgetResizable(true);
-        scrollArea->setWidget(createMainWidget());
-        setCentralWidget(scrollArea);
+        setCentralWidget(createMainWidget());
     });
     
     connect(verificationWidget, &VerificationWidget::statisticsRequested, this, &MainWindow::showStatistics);
@@ -183,10 +164,17 @@ QWidget* MainWindow::createMainWidget() {
         "}"
     );
     connect(selectButton, &QPushButton::clicked, this, &MainWindow::selectImages);
-    
+
+    // Создаем scroll area для превью (будет добавлена позже в setupWithImagesState)
+    previewScrollArea = new QScrollArea(this);
+    previewScrollArea->setWidgetResizable(true);
+    previewScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    previewScrollArea->setVisible(false);
+
     // Область для превью
     previewGrid = new PreviewGrid(this);
     previewGrid->setPreviewSize(200);
+    previewScrollArea->setWidget(previewGrid);
     connect(previewGrid, &PreviewGrid::pathsChanged, this, &MainWindow::updateAnalysisButtonState);
     
     // Прогресс бар
@@ -265,16 +253,16 @@ QWidget* MainWindow::createMainWidget() {
 void MainWindow::setupInitialState() {
     // Начальное состояние: только кнопка выбора по центру
     centralLayout->addStretch();
-    
+
     QHBoxLayout* centerLayout = new QHBoxLayout();
     centerLayout->addStretch();
     centerLayout->addWidget(selectButton);
     centerLayout->addStretch();
     centralLayout->addLayout(centerLayout);
-    
+
     centralLayout->addStretch();
-    
-    selectButton->show(); // Убедимся, что кнопка видна
+
+    selectButton->show();
     previewGrid->hide();
     toolbarWidget->hide();
     progressBar->hide();
@@ -285,28 +273,32 @@ void MainWindow::setupWithImagesState() {
     // Очищаем layout
     QLayoutItem* item;
     while ((item = centralLayout->takeAt(0)) != nullptr) {
-        if (item->widget() && item->widget() != selectButton && 
-            item->widget() != previewGrid && item->widget() != progressBar && 
+        if (item->widget() && item->widget() != selectButton &&
+            item->widget() != previewScrollArea && item->widget() != progressBar &&
             item->widget() != toolbarWidget) {
             delete item->widget();
         }
         delete item;
     }
-    
+
     selectButton->hide();
-    
-    // Добавляем виджеты только если их нет в layout
-    if (centralLayout->indexOf(previewGrid) == -1) {
-        centralLayout->addWidget(previewGrid);
+
+    // Добавляем scroll area с previewGrid (растягивается на все доступное пространство)
+    if (centralLayout->indexOf(previewScrollArea) == -1) {
+        centralLayout->addWidget(previewScrollArea, 1); // stretch factor = 1
     }
+
+    // Прогресс бар
     if (centralLayout->indexOf(progressBar) == -1) {
         centralLayout->addWidget(progressBar);
     }
-    centralLayout->addStretch();
+
+    // Toolbar всегда внизу без stretch (фиксированная позиция)
     if (centralLayout->indexOf(toolbarWidget) == -1) {
         centralLayout->addWidget(toolbarWidget);
     }
-    
+
+    previewScrollArea->show();
     previewGrid->show();
     toolbarWidget->show();
 }
@@ -355,9 +347,17 @@ void MainWindow::showVerification() {
     }
 
     Logger::instance().log("Возврат к окну проверки результатов");
-    
+
+    // Извлекаем текущий центральный виджет БЕЗ удаления (QScrollArea со статистикой)
+    QWidget* oldCentral = takeCentralWidget();
+    if (oldCentral) {
+        Logger::instance().log("Удаляем QScrollArea со статистикой");
+        oldCentral->deleteLater();
+    }
+
     // НЕ оборачиваем в QScrollArea, т.к. он уже есть внутри VerificationWidget
     setCentralWidget(verificationWidget);
+    Logger::instance().log("VerificationWidget установлен как центральный виджет");
 }
 
 
@@ -368,16 +368,19 @@ MainWindow::~MainWindow() {
 void MainWindow::resizeEvent(QResizeEvent* event) {
     QMainWindow::resizeEvent(event);
 
-    if (!previewGrid) return;
-    
-    // Проверяем, что мы на главном экране
-    QScrollArea* scrollArea = qobject_cast<QScrollArea*>(centralWidget());
-    if (!scrollArea || !scrollArea->widget() || 
-        scrollArea->widget()->findChild<PreviewGrid*>() != previewGrid) {
+    if (!previewGrid || !previewScrollArea) return;
+
+    // Проверяем, что мы на главном экране (centralWidget == centralWidgetContainer)
+    if (centralWidget() != centralWidgetContainer) {
         return;
     }
 
-    int width = this->width() - 60; // учитываем отступы и скроллбар
+    // Проверяем, что previewScrollArea видим (значит мы в режиме с изображениями)
+    if (!previewScrollArea->isVisible()) {
+        return;
+    }
+
+    int width = previewScrollArea->viewport()->width() - 20; // учитываем отступы
     int previewItemWidth = previewGrid->getPreviewSize() + 10; // размер превью + отступы
     int maxColumns = width / previewItemWidth;
     if (maxColumns < 1) maxColumns = 1;
@@ -496,99 +499,40 @@ void MainWindow::setupMenuBar() {
     helpMenu->addAction(aboutAction);
 }
 
-void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
-    if (event->mimeData()->hasUrls()) {
-        // Проверяем, есть ли среди файлов изображения
-        bool hasImages = false;
-        for (const QUrl& url : event->mimeData()->urls()) {
-            if (url.isLocalFile() && isImageFile(url.toLocalFile())) {
-                hasImages = true;
-                break;
-            }
-        }
-        
-        if (hasImages) {
-            event->acceptProposedAction();
-            return;
-        }
-    }
-    event->ignore();
-}
-
-void MainWindow::dropEvent(QDropEvent* event) {
-    QStringList imagePaths;
-    
-    for (const QUrl& url : event->mimeData()->urls()) {
-        if (url.isLocalFile()) {
-            QString filePath = url.toLocalFile();
-            if (isImageFile(filePath)) {
-                imagePaths.append(filePath);
-            }
-        }
-    }
-    
-    if (!imagePaths.isEmpty()) {
-        processDroppedFiles(imagePaths);
-        event->acceptProposedAction();
-    } else {
-        event->ignore();
-    }
-}
-
-void MainWindow::processDroppedFiles(const QStringList& filePaths) {
-    // Добавляем новые файлы к существующим
-    for (const QString& path : filePaths) {
-        if (!selectedImagePaths.contains(path)) {
-            selectedImagePaths.append(path);
-        }
-    }
-    
-    // Обновляем интерфейс
-    if (!selectedImagePaths.isEmpty()) {
-        setupWithImagesState();
-        updateAnalysisButtonState();
-        
-        Logger::instance().log(QString("Добавлено %1 изображений через drag-and-drop. Всего: %2")
-                              .arg(filePaths.size())
-                              .arg(selectedImagePaths.size()));
-    }
-}
-
-bool MainWindow::isImageFile(const QString& filePath) const {
-    QStringList imageExtensions = {
-        ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", 
-        ".gif", ".webp", ".svg", ".ico"
-    };
-    
-    QString extension = QFileInfo(filePath).suffix().toLower();
-    return imageExtensions.contains("." + extension);
-}
-
 void MainWindow::showStatistics() {
     if (!verificationWidget) {
         Logger::instance().log("Нет данных для статистического анализа", LogLevel::WARNING);
         return;
     }
-    
+
     QVector<Cell> cells = verificationWidget->getVerifiedCells();
     if (cells.isEmpty()) {
         QMessageBox::information(this, "Статистика", "Нет обнаруженных клеток для анализа");
         return;
     }
-    
+
+    // Извлекаем текущий центральный виджет БЕЗ удаления
+    QWidget* oldCentral = takeCentralWidget();
+    Logger::instance().log(QString("Извлечен центральный виджет: %1").arg(oldCentral ? "да" : "нет"));
+
     if (!statisticsWidget) {
         statisticsWidget = new StatisticsWidget(this);
-        connect(statisticsWidget, &StatisticsWidget::backToVerification, 
+        connect(statisticsWidget, &StatisticsWidget::backToVerification,
                 this, &MainWindow::onBackFromStatistics);
+        // Обнуляем указатель при удалении виджета
+        connect(statisticsWidget, &QObject::destroyed, this, [this]() {
+            statisticsWidget = nullptr;
+            Logger::instance().log("StatisticsWidget удален, указатель обнулен");
+        });
     }
-    
+
     statisticsWidget->showStatistics(cells);
-    
+
     QScrollArea* scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(statisticsWidget);
     setCentralWidget(scrollArea);
-    
+
     Logger::instance().log("Открыт статистический анализ");
 }
 

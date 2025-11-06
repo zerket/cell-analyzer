@@ -12,12 +12,14 @@
 class ImageProcessor {
 public:
     struct HoughParams {
+        QString name = "default";
         double dp = 1.0;
         double minDist = 30.0;
         double param1 = 90.0;
         double param2 = 50.0;
         int minRadius = 30;
         int maxRadius = 150;
+        double umPerPixel = 0.0;
     };
 
     struct PreprocessingParams {

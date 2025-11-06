@@ -3,6 +3,7 @@
 #include <QStandardPaths>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QFile>
 #include <QDebug>
 #include <QCoreApplication>
@@ -34,25 +35,34 @@ QString SettingsManager::getSettingsPath() const {
 
 void SettingsManager::saveSettings() {
     QJsonObject root;
-    
-    // Сохраняем параметры HoughCircles
-    root["houghParams"] = houghParamsToJson(m_houghParams);
-    
+
+    // Сохраняем пресеты как массив
+    QJsonArray presetsArray;
+    for (const auto& preset : m_presets) {
+        presetsArray.append(houghParamsToJson(preset));
+    }
+    root["houghParams"] = presetsArray;
+
     // Сохраняем размер превью
     root["previewSize"] = m_previewSize;
-    
-    // Сохраняем коэффициент μm/pixel
-    root["nmPerPixel"] = m_nmPerPixel;
 
     // Сохраняем пороги статистики
     root["statisticsMinThreshold"] = m_statisticsMinThreshold;
     root["statisticsMaxThreshold"] = m_statisticsMaxThreshold;
 
+    // Сохраняем тему
+    root["Theme"] = m_theme;
+
+    // Сохраняем последний выбранный пресет
+    if (m_settings.contains("lastSelectedPreset")) {
+        root["lastSelectedPreset"] = m_settings["lastSelectedPreset"];
+    }
+
     // Записываем в файл
     QJsonDocument doc(root);
     QFile file(getSettingsPath());
     if (file.open(QIODevice::WriteOnly)) {
-        file.write(doc.toJson());
+        file.write(doc.toJson(QJsonDocument::Indented));
         file.close();
         qDebug() << "Settings saved to:" << getSettingsPath();
     } else {
@@ -64,31 +74,43 @@ void SettingsManager::loadSettings() {
     QFile file(getSettingsPath());
     if (!file.exists()) {
         qDebug() << "Settings file not found, using defaults";
+        // Создаем дефолтный пресет
+        ImageProcessor::HoughParams defaultPreset;
+        defaultPreset.name = "default";
+        defaultPreset.dp = 0.5;
+        defaultPreset.minDist = 35.0;
+        defaultPreset.param1 = 80.0;
+        defaultPreset.param2 = 40.0;
+        defaultPreset.minRadius = 20;
+        defaultPreset.maxRadius = 80;
+        defaultPreset.umPerPixel = 0.99878;
+        m_presets.append(defaultPreset);
         saveSettings(); // Создаем файл с настройками по умолчанию
         return;
     }
-    
+
     if (file.open(QIODevice::ReadOnly)) {
         QByteArray data = file.readAll();
         file.close();
-        
+
         QJsonDocument doc = QJsonDocument::fromJson(data);
         if (!doc.isNull() && doc.isObject()) {
             QJsonObject root = doc.object();
-            
-            // Загружаем параметры HoughCircles
-            if (root.contains("houghParams") && root["houghParams"].isObject()) {
-                m_houghParams = jsonToHoughParams(root["houghParams"].toObject());
+
+            // Загружаем пресеты из массива
+            if (root.contains("houghParams") && root["houghParams"].isArray()) {
+                QJsonArray presetsArray = root["houghParams"].toArray();
+                m_presets.clear();
+                for (const QJsonValue& value : presetsArray) {
+                    if (value.isObject()) {
+                        m_presets.append(jsonToHoughParams(value.toObject()));
+                    }
+                }
             }
-            
+
             // Загружаем размер превью
             if (root.contains("previewSize")) {
                 m_previewSize = root["previewSize"].toInt(150);
-            }
-            
-            // Загружаем коэффициент μm/pixel
-            if (root.contains("nmPerPixel")) {
-                m_nmPerPixel = root["nmPerPixel"].toDouble(0.0);
             }
 
             // Загружаем пороги статистики
@@ -99,9 +121,14 @@ void SettingsManager::loadSettings() {
                 m_statisticsMaxThreshold = root["statisticsMaxThreshold"].toDouble(100.0);
             }
 
+            // Загружаем тему
+            if (root.contains("Theme")) {
+                m_theme = root["Theme"].toString("Dark");
+            }
+
             // Сохраняем весь объект для общих настроек
             m_settings = root;
-            
+
             qDebug() << "Settings loaded from:" << getSettingsPath();
         }
     } else {
@@ -109,18 +136,8 @@ void SettingsManager::loadSettings() {
     }
 }
 
-void SettingsManager::setHoughParams(const ImageProcessor::HoughParams& params) {
-    m_houghParams = params;
-    saveSettings();
-}
-
 void SettingsManager::setPreviewSize(int size) {
     m_previewSize = size;
-    saveSettings();
-}
-
-void SettingsManager::setNmPerPixel(double coefficient) {
-    m_nmPerPixel = coefficient;
     saveSettings();
 }
 
@@ -134,34 +151,43 @@ void SettingsManager::setStatisticsMaxThreshold(double threshold) {
     saveSettings();
 }
 
+void SettingsManager::setTheme(const QString& theme) {
+    m_theme = theme;
+    saveSettings();
+}
+
 QJsonObject SettingsManager::houghParamsToJson(const ImageProcessor::HoughParams& params) const {
     QJsonObject json;
+    json["name"] = params.name;
     json["dp"] = params.dp;
     json["minDist"] = params.minDist;
     json["param1"] = params.param1;
     json["param2"] = params.param2;
     json["minRadius"] = params.minRadius;
     json["maxRadius"] = params.maxRadius;
+    json["umPerPixel"] = params.umPerPixel;
     return json;
 }
 
 ImageProcessor::HoughParams SettingsManager::jsonToHoughParams(const QJsonObject& json) const {
     ImageProcessor::HoughParams params;
+    params.name = json["name"].toString("default");
     params.dp = json["dp"].toDouble(1.0);
     params.minDist = json["minDist"].toDouble(30.0);
     params.param1 = json["param1"].toDouble(90.0);
     params.param2 = json["param2"].toDouble(50.0);
     params.minRadius = json["minRadius"].toInt(30);
     params.maxRadius = json["maxRadius"].toInt(150);
+    params.umPerPixel = json["umPerPixel"].toDouble(0.0);
     return params;
 }
 
 QVariant SettingsManager::getValue(const QString& key, const QVariant& defaultValue) const {
     const_cast<SettingsManager*>(this)->loadSettings();
-    
+
     QStringList keys = key.split('/');
     QJsonObject current = m_settings;
-    
+
     for (int i = 0; i < keys.size() - 1; i++) {
         if (current.contains(keys[i]) && current[keys[i]].isObject()) {
             current = current[keys[i]].toObject();
@@ -169,7 +195,7 @@ QVariant SettingsManager::getValue(const QString& key, const QVariant& defaultVa
             return defaultValue;
         }
     }
-    
+
     QString lastKey = keys.last();
     if (current.contains(lastKey)) {
         QJsonValue value = current[lastKey];
@@ -178,16 +204,16 @@ QVariant SettingsManager::getValue(const QString& key, const QVariant& defaultVa
         if (value.isString()) return value.toString();
         if (value.isNull()) return QVariant();
     }
-    
+
     return defaultValue;
 }
 
 void SettingsManager::setValue(const QString& key, const QVariant& value) {
     loadSettings();
-    
+
     QStringList keys = key.split('/');
     QJsonObject* current = &m_settings;
-    
+
     // Navigate to the correct location
     for (int i = 0; i < keys.size() - 1; i++) {
         if (!current->contains(keys[i]) || !(*current)[keys[i]].isObject()) {
@@ -197,7 +223,7 @@ void SettingsManager::setValue(const QString& key, const QVariant& value) {
         (*current)[keys[i]] = temp;
         current = &temp;
     }
-    
+
     // Set the value
     QString lastKey = keys.last();
     if (value.type() == QVariant::Bool) {
@@ -211,22 +237,56 @@ void SettingsManager::setValue(const QString& key, const QVariant& value) {
     saveSettings();
 }
 
-QJsonObject SettingsManager::getPresets() const {
-    loadSettings();
-    if (m_settings.contains("presets") && m_settings["presets"].isObject()) {
-        return m_settings["presets"].toObject();
-    }
-    return QJsonObject();
+// Методы для работы с пресетами
+QVector<ImageProcessor::HoughParams> SettingsManager::getAllPresets() const {
+    return m_presets;
 }
 
-void SettingsManager::setPresets(const QJsonObject& presets) {
-    loadSettings();
-    m_settings["presets"] = presets;
+void SettingsManager::setAllPresets(const QVector<ImageProcessor::HoughParams>& presets) {
+    m_presets = presets;
     saveSettings();
 }
 
+ImageProcessor::HoughParams SettingsManager::getPresetByName(const QString& name) const {
+    for (const auto& preset : m_presets) {
+        if (preset.name == name) {
+            return preset;
+        }
+    }
+    // Возвращаем первый пресет, если не найден
+    if (!m_presets.isEmpty()) {
+        return m_presets.first();
+    }
+    // Возвращаем дефолтный
+    return ImageProcessor::HoughParams();
+}
+
+void SettingsManager::savePreset(const ImageProcessor::HoughParams& preset) {
+    // Ищем существующий пресет с таким же именем
+    for (int i = 0; i < m_presets.size(); ++i) {
+        if (m_presets[i].name == preset.name) {
+            m_presets[i] = preset;
+            saveSettings();
+            return;
+        }
+    }
+    // Если не найден, добавляем новый
+    m_presets.append(preset);
+    saveSettings();
+}
+
+void SettingsManager::deletePreset(const QString& name) {
+    for (int i = 0; i < m_presets.size(); ++i) {
+        if (m_presets[i].name == name) {
+            m_presets.removeAt(i);
+            saveSettings();
+            return;
+        }
+    }
+}
+
 QString SettingsManager::getLastSelectedPreset() const {
-    return getValue("lastSelectedPreset", "По умолчанию").toString();
+    return getValue("lastSelectedPreset", "default").toString();
 }
 
 void SettingsManager::setLastSelectedPreset(const QString& presetName) {

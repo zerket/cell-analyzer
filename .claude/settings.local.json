@@ -2,20 +2,12 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
-      "Bash(cmake:*)",
-      "Bash(cp:*)",
-      "Bash(ls:*)",
-      "Bash(rg:*)",
-      "Bash(build-release.bat)",
-      "Bash(windeployqt:*)",
-      "Bash(cmd:*)",
-      "Bash(mkdir:*)",
-      "Bash(copy build-releaseReleaseCellAnalyzer.exe portableCellAnalyzer)",
-      "Bash(powershell:*)",
       "Bash(./build-release.bat)",
-      "Bash(copy \"D:\\opencv\\build\\x64\\vc16\\bin\\opencv_world4110.dll\" \"build-release\\Release\"\" && copy \"D:opencvbuildx64vc16binopencv_videoio_msmf4110_64.dll\" \"build-releaseRelease\"\")",
-      "Bash(copy \"D:\\opencv\\build\\x64\\vc16\\bin\\opencv_videoio_ffmpeg4110_64.dll\" \"build-release\\Release\"\")"
+      "Bash(dir:*)",
+      "Bash(nul)",
+      "Bash(cmd /c \"dir /s /b logs 2>nul\")"
     ],
-    "deny": []
+    "deny": [],
+    "ask": []
   }
 }
