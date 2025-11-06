@@ -1,12 +1,16 @@
 #include "advanceddetector.h"
+#include "neuralnetdetector.h"
 #include "logger.h"
 #include <algorithm>
 #include <cmath>
 
-AdvancedDetector::AdvancedDetector() {
+AdvancedDetector::AdvancedDetector()
+    : m_neuralDetector(new NeuralNetDetector())
+{
 }
 
 AdvancedDetector::~AdvancedDetector() {
+    delete m_neuralDetector;
 }
 
 QVector<Cell> AdvancedDetector::detectCells(const cv::Mat& image, const DetectionParams& params) {
@@ -33,6 +37,9 @@ QVector<Cell> AdvancedDetector::detectCells(const cv::Mat& image, const Detectio
                 break;
             case DetectionAlgorithm::BlobDetection:
                 detectedCells = detectWithBlobDetector(image, params);
+                break;
+            case DetectionAlgorithm::NeuralNetwork:
+                detectedCells = detectWithNeuralNetwork(image, params);
                 break;
             default:
                 Logger::instance().log("AdvancedDetector: Неподдерживаемый алгоритм", LogLevel::WARNING);
@@ -443,6 +450,41 @@ QVector<Cell> AdvancedDetector::filterCellsByParams(const QVector<Cell>& cells, 
     return filteredCells;
 }
 
+QVector<Cell> AdvancedDetector::detectWithNeuralNetwork(const cv::Mat& image, const DetectionParams& params) {
+    LOG_INFO("Запуск нейросетевой детекции");
+
+    if (!params.neuralNetParams) {
+        LOG_ERROR("Neural network parameters are null");
+        return QVector<Cell>();
+    }
+
+    // Извлечение параметров нейросети
+    NeuralNetDetector::NeuralNetParams* nnParams =
+        static_cast<NeuralNetDetector::NeuralNetParams*>(params.neuralNetParams);
+
+    // Проверка загруженности модели
+    if (!m_neuralDetector->isModelLoaded()) {
+        // Попытка загрузить модель
+        if (!nnParams->modelPath.empty()) {
+            bool success = m_neuralDetector->loadModel(nnParams->modelPath, nnParams->useGPU);
+            if (!success) {
+                LOG_ERROR("Failed to load neural network model");
+                return QVector<Cell>();
+            }
+        } else {
+            LOG_ERROR("Model path is empty");
+            return QVector<Cell>();
+        }
+    }
+
+    // Детекция клеток
+    QVector<Cell> cells = m_neuralDetector->detectCells(image, *nnParams);
+
+    LOG_INFO(QString("Нейросетевая детекция завершена: обнаружено %1 клеток").arg(cells.size()));
+
+    return cells;
+}
+
 QString AdvancedDetector::getAlgorithmDescription(DetectionAlgorithm algorithm) {
     switch (algorithm) {
         case DetectionAlgorithm::HoughCircles:
@@ -457,6 +499,8 @@ QString AdvancedDetector::getAlgorithmDescription(DetectionAlgorithm algorithm) 
             return "Адаптивное пороговое значение";
         case DetectionAlgorithm::BlobDetection:
             return "Детектор блобов";
+        case DetectionAlgorithm::NeuralNetwork:
+            return "Нейросетевая детекция (U-Net)";
         default:
             return "Неизвестный алгоритм";
     }

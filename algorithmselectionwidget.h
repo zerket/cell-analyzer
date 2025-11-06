@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QStackedWidget>
 #include "advanceddetector.h"
+#include "neuralnetparameterswidget.h"
 
 class AlgorithmSelectionWidget : public QWidget {
     Q_OBJECT
@@ -46,6 +47,7 @@ private:
     void setupMorphologyParams();
     void setupAdaptiveParams();
     void setupBlobParams();
+    void setupNeuralNetParams();
     
     void updateParameterPanel();
     void resetToDefaults();
@@ -68,6 +70,7 @@ private:
     QWidget* morphologyParamsPanel;
     QWidget* adaptiveParamsPanel;
     QWidget* blobParamsPanel;
+    NeuralNetParametersWidget* neuralNetParamsPanel;
     
     // General parameters
     QSpinBox* minCellAreaSpin;

@@ -13,7 +13,8 @@ public:
         WatershedSegmentation, // Водораздельная сегментация
         MorphologicalOperations, // Морфологические операции
         AdaptiveThreshold,  // Адаптивное пороговое значение
-        BlobDetection      // Детектор блобов
+        BlobDetection,      // Детектор блобов
+        NeuralNetwork       // Нейросетевая детекция (U-Net, ONNX)
     };
 
     struct DetectionParams {
@@ -49,6 +50,9 @@ public:
         float blobMaxThreshold = 220.0f;
         float blobThresholdStep = 10.0f;
         size_t blobMinRepeatability = 2;
+
+        // Параметры для NeuralNetwork (хранится указатель для передачи в NeuralNetDetector)
+        void* neuralNetParams = nullptr; // Указатель на NeuralNetDetector::NeuralNetParams
     };
 
     AdvancedDetector();
@@ -63,6 +67,7 @@ public:
     QVector<Cell> detectWithMorphology(const cv::Mat& image, const DetectionParams& params);
     QVector<Cell> detectWithAdaptiveThreshold(const cv::Mat& image, const DetectionParams& params);
     QVector<Cell> detectWithBlobDetector(const cv::Mat& image, const DetectionParams& params);
+    QVector<Cell> detectWithNeuralNetwork(const cv::Mat& image, const DetectionParams& params);
     
     // Вспомогательные функции
     static double calculateCircularity(const std::vector<cv::Point>& contour);
@@ -92,6 +97,9 @@ private:
     
     // Блоб детектор
     cv::Ptr<cv::SimpleBlobDetector> createBlobDetector(const DetectionParams& params);
+
+    // Нейросетевой детектор
+    class NeuralNetDetector* m_neuralDetector;
 };
 
 #endif // ADVANCEDDETECTOR_H

@@ -65,6 +65,7 @@ void AlgorithmSelectionWidget::setupAlgorithmSelection() {
     algorithmCombo->addItem("🔀 Морфологические операции", static_cast<int>(AdvancedDetector::DetectionAlgorithm::MorphologicalOperations));
     algorithmCombo->addItem("⚡ Адаптивное пороговое значение", static_cast<int>(AdvancedDetector::DetectionAlgorithm::AdaptiveThreshold));
     algorithmCombo->addItem("🎯 Детектор блобов", static_cast<int>(AdvancedDetector::DetectionAlgorithm::BlobDetection));
+    algorithmCombo->addItem("🧠 Нейросетевая детекция (U-Net)", static_cast<int>(AdvancedDetector::DetectionAlgorithm::NeuralNetwork));
     
     algorithmCombo->setStyleSheet("QComboBox { padding: 8px; border: 2px solid #ddd; border-radius: 8px; }");
     connect(algorithmCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AlgorithmSelectionWidget::onAlgorithmChanged);
@@ -80,12 +81,13 @@ void AlgorithmSelectionWidget::setupParameterPanels() {
     parameterStack = new QStackedWidget();
     
     setupGeneralParams();
-    setupContourParams(); 
+    setupContourParams();
     setupWatershedParams();
     setupMorphologyParams();
     setupAdaptiveParams();
     setupBlobParams();
-    
+    setupNeuralNetParams();
+
     // Добавляем панели в стек
     parameterStack->addWidget(generalParamsPanel);
     parameterStack->addWidget(contourParamsPanel);
@@ -93,6 +95,7 @@ void AlgorithmSelectionWidget::setupParameterPanels() {
     parameterStack->addWidget(morphologyParamsPanel);
     parameterStack->addWidget(adaptiveParamsPanel);
     parameterStack->addWidget(blobParamsPanel);
+    parameterStack->addWidget(neuralNetParamsPanel);
 }
 
 void AlgorithmSelectionWidget::setupGeneralParams() {
@@ -317,6 +320,16 @@ void AlgorithmSelectionWidget::setupBlobParams() {
     layout->addStretch();
 }
 
+void AlgorithmSelectionWidget::setupNeuralNetParams() {
+    neuralNetParamsPanel = new NeuralNetParametersWidget();
+
+    // Подключение сигналов
+    connect(neuralNetParamsPanel, &NeuralNetParametersWidget::parametersChanged,
+            this, &AlgorithmSelectionWidget::onParameterChanged);
+
+    LOG_INFO("Neural Network parameters panel initialized");
+}
+
 QWidget* AlgorithmSelectionWidget::createParameterRow(const QString& label, QWidget* control, const QString& tooltip) {
     QWidget* row = new QWidget();
     QHBoxLayout* layout = new QHBoxLayout(row);
@@ -368,8 +381,12 @@ void AlgorithmSelectionWidget::onAlgorithmChanged(int index) {
         case AdvancedDetector::DetectionAlgorithm::BlobDetection:
             description += "\n\nОптимально для: компактных объектов, высокого контраста";
             break;
+        case AdvancedDetector::DetectionAlgorithm::NeuralNetwork:
+            description += "\n\nОптимально для: мультиклассовой детекции, сложных паттернов, высокой точности";
+            description += "\nТребует: обученную ONNX модель";
+            break;
     }
-    
+
     descriptionLabel->setText(description);
     
     // Обновляем панель параметров
@@ -403,6 +420,9 @@ void AlgorithmSelectionWidget::updateParameterPanel() {
             break;
         case AdvancedDetector::DetectionAlgorithm::BlobDetection:
             parameterStack->setCurrentWidget(blobParamsPanel);
+            break;
+        case AdvancedDetector::DetectionAlgorithm::NeuralNetwork:
+            parameterStack->setCurrentWidget(neuralNetParamsPanel);
             break;
     }
 }
@@ -440,7 +460,16 @@ AdvancedDetector::DetectionParams AlgorithmSelectionWidget::getDetectionParams()
     params.blobMaxThreshold = static_cast<float>(blobMaxThresholdSpin->value());
     params.blobThresholdStep = static_cast<float>(blobThresholdStepSpin->value());
     params.blobMinRepeatability = static_cast<size_t>(blobMinRepeatabilitySpina->value());
-    
+
+    // Параметры нейросети (создаем новый объект в куче для передачи)
+    if (params.algorithm == AdvancedDetector::DetectionAlgorithm::NeuralNetwork) {
+        static NeuralNetDetector::NeuralNetParams nnParams;
+        nnParams = neuralNetParamsPanel->getParameters();
+        params.neuralNetParams = &nnParams;
+    } else {
+        params.neuralNetParams = nullptr;
+    }
+
     return params;
 }
 
@@ -493,6 +522,13 @@ void AlgorithmSelectionWidget::setDetectionParams(const AdvancedDetector::Detect
     blobMaxThresholdSpin->setValue(params.blobMaxThreshold);
     blobThresholdStepSpin->setValue(params.blobThresholdStep);
     blobMinRepeatabilitySpina->setValue(static_cast<int>(params.blobMinRepeatability));
+
+    // Устанавливаем параметры нейросети если есть
+    if (params.neuralNetParams != nullptr) {
+        NeuralNetDetector::NeuralNetParams* nnParams =
+            static_cast<NeuralNetDetector::NeuralNetParams*>(params.neuralNetParams);
+        neuralNetParamsPanel->setParameters(*nnParams);
+    }
 }
 
 AdvancedDetector::DetectionAlgorithm AlgorithmSelectionWidget::getCurrentAlgorithm() const {

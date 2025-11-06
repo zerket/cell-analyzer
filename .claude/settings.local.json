@@ -5,7 +5,8 @@
       "Bash(./build-release.bat)",
       "Bash(dir:*)",
       "Bash(nul)",
-      "Bash(cmd /c \"dir /s /b logs 2>nul\")"
+      "Bash(cmd /c \"dir /s /b logs 2>nul\")",
+      "Bash(cmd /c \"type D:\\github\\cell-analyzer\\advanceddetector.cpp | find /c /v \"\"\")"
     ],
     "deny": [],
     "ask": []

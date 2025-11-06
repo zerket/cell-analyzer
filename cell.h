@@ -11,7 +11,12 @@ struct Cell {
     int diameter_pixels = 0;  // Диаметр в пикселях
     double diameter_nm = 0.0; // Диаметр в нанометрах
     int area = 0;             // Площадь в пикселях
-    
+
+    // Параметры для нейросетевой детекции
+    int cellType = 0;         // Тип клетки (0 = unknown/not classified, 1+ = class ID)
+    std::string cellTypeName = ""; // Название типа клетки (например, "Type A", "Type B")
+    float confidence = 1.0f;  // Уверенность детекции (0.0-1.0), для традиционных алгоритмов = 1.0
+
     // Изображение и путь
     cv::Mat cellImage;        // Изображение клетки (вырезанный фрагмент)
     std::string imagePath = "";
@@ -27,13 +32,16 @@ struct Cell {
     Cell() = default;
     
     // Copy constructor with deep copy of cv::Mat
-    Cell(const Cell& other) 
+    Cell(const Cell& other)
         : center_x(other.center_x)
         , center_y(other.center_y)
         , radius(other.radius)
         , diameter_pixels(other.diameter_pixels)
         , diameter_nm(other.diameter_nm)
         , area(other.area)
+        , cellType(other.cellType)
+        , cellTypeName(other.cellTypeName)
+        , confidence(other.confidence)
         , imagePath(other.imagePath)
         , circle(other.circle)
         , diameterPx(other.diameterPx)
@@ -57,6 +65,9 @@ struct Cell {
             diameter_pixels = other.diameter_pixels;
             diameter_nm = other.diameter_nm;
             area = other.area;
+            cellType = other.cellType;
+            cellTypeName = other.cellTypeName;
+            confidence = other.confidence;
             imagePath = other.imagePath;
             circle = other.circle;
             diameterPx = other.diameterPx;
