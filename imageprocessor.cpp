@@ -206,84 +206,155 @@ QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::M
                                                const QString& imagePath, const YoloParams& params) {
     QVector<Cell> detectedCells;
 
-    // YOLOv8 output format: [1, 84, 8400] for detection or [1, 116, 8400] for segmentation
-    // Dimensions: [batch, features, predictions]
-    // Features: [x, y, w, h, class0_score, class1_score, ..., classN_score, mask_coeffs...]
-
     // Check output dimensions
-    if (output.dims < 3) {
+    if (output.dims != 3) {
         LOG_ERROR(QString("Invalid output dimensions: %1").arg(output.dims));
         return detectedCells;
     }
 
-    int batchSize = output.size[0];    // Should be 1
-    int numFeatures = output.size[1];  // 84 for detection, 116 for segmentation
-    int numDetections = output.size[2]; // 8400
+    int batchSize = output.size[0];
+    int dim1 = output.size[1];
+    int dim2 = output.size[2];
 
-    LOG_DEBUG(QString("Output shape: [%1, %2, %3]").arg(batchSize).arg(numFeatures).arg(numDetections));
+    LOG_INFO(QString("Output shape: [%1, %2, %3]").arg(batchSize).arg(dim1).arg(dim2));
+    LOG_INFO(QString("Image size: %1x%2").arg(originalImage.cols).arg(originalImage.rows));
 
-    // YOLOv8 uses transposed format, need to reshape
-    // Transpose from [1, 84, 8400] to [1, 8400, 84]
-    cv::Mat transposed = output.reshape(1, numDetections);  // Flatten to 2D: [8400, 84]
+    // Determine output format
+    // YOLOv8 can be: [1, 84, 8400] or [1, 8400, 84] or [1, 38, 8400] for custom models
+    int numFeatures, numDetections;
 
+    if (dim2 == 8400) {
+        // Format: [1, features, 8400] - NON-transposed (old format)
+        numFeatures = dim1;
+        numDetections = dim2;
+        LOG_INFO(QString("Detected NON-transposed format: [1, %1, %2]").arg(numFeatures).arg(numDetections));
+    } else if (dim1 == 8400) {
+        // Format: [1, 8400, features] - transposed (new format)
+        numDetections = dim1;
+        numFeatures = dim2;
+        LOG_INFO(QString("Detected transposed format: [1, %1, %2]").arg(numDetections).arg(numFeatures));
+    } else {
+        LOG_ERROR(QString("Unknown output format: [%1, %2, %3]").arg(batchSize).arg(dim1).arg(dim2));
+        return detectedCells;
+    }
+
+    // Calculate scale factors from 640x640 to original image size
     float scaleX = (float)originalImage.cols / 640.0f;
     float scaleY = (float)originalImage.rows / 640.0f;
+
+    LOG_INFO(QString("Scale factors: scaleX=%1, scaleY=%2").arg(scaleX).arg(scaleY));
 
     std::vector<cv::Rect> boxes;
     std::vector<float> confidences;
 
-    // Parse detections - each row is one detection
-    for (int i = 0; i < numDetections; i++) {
-        const float* detection = transposed.ptr<float>(i);
+    // Parse detections based on format
+    int loggedCount = 0;
+    if (dim2 == 8400) {
+        // NON-transposed: [1, features, 8400]
+        // Need to access as [0, feature_idx, detection_idx]
+        for (int i = 0; i < numDetections; i++) {
+            // Get bbox coordinates
+            float xCenter = output.at<float>(0, 0, i);
+            float yCenter = output.at<float>(0, 1, i);
+            float w = output.at<float>(0, 2, i);
+            float h = output.at<float>(0, 3, i);
 
-        // First 4 values: x_center, y_center, width, height (in 640x640 space)
-        float xCenter = detection[0];
-        float yCenter = detection[1];
-        float w = detection[2];
-        float h = detection[3];
+            // Get class score(s)
+            // For single-class model: typically index 4
+            // For multi-class: indices 4 to numFeatures-1
+            float maxScore = 0.0f;
+            int numClasses = numFeatures - 4;  // Remaining features after bbox
 
-        // Next values are class scores (typically 1 class for cell detection)
-        // Find max confidence across all classes
-        float maxScore = 0.0f;
-        int numClasses = std::min(numFeatures - 4, 80);  // Usually 80 classes or less
+            for (int j = 0; j < numClasses; j++) {
+                float score = output.at<float>(0, 4 + j, i);
+                if (score > maxScore) {
+                    maxScore = score;
+                }
+            }
 
-        for (int j = 0; j < numClasses; j++) {
-            float score = detection[4 + j];
-            if (score > maxScore) {
-                maxScore = score;
+            // Log first few detections for debugging
+            if (loggedCount < 5 && maxScore > 0.01) {
+                LOG_INFO(QString("Detection %1: x=%2, y=%3, w=%4, h=%5, score=%6")
+                    .arg(i).arg(xCenter).arg(yCenter).arg(w).arg(h).arg(maxScore));
+                loggedCount++;
+            }
+
+            // Filter by confidence threshold
+            if (maxScore < params.confThreshold) {
+                continue;
+            }
+
+            // Convert from center format to corner format and scale to original image
+            float x1 = (xCenter - w / 2.0f) * scaleX;
+            float y1 = (yCenter - h / 2.0f) * scaleY;
+            float x2 = (xCenter + w / 2.0f) * scaleX;
+            float y2 = (yCenter + h / 2.0f) * scaleY;
+
+            // Clamp to image boundaries
+            x1 = std::max(0.0f, std::min(x1, (float)originalImage.cols - 1));
+            y1 = std::max(0.0f, std::min(y1, (float)originalImage.rows - 1));
+            x2 = std::max(0.0f, std::min(x2, (float)originalImage.cols));
+            y2 = std::max(0.0f, std::min(y2, (float)originalImage.rows));
+
+            int width = static_cast<int>(x2 - x1);
+            int height = static_cast<int>(y2 - y1);
+
+            if (width > 0 && height > 0) {
+                boxes.push_back(cv::Rect(static_cast<int>(x1), static_cast<int>(y1), width, height));
+                confidences.push_back(maxScore);
             }
         }
+    } else {
+        // Transposed: [1, 8400, features]
+        for (int i = 0; i < numDetections; i++) {
+            const float* detection = output.ptr<float>(0, i);
 
-        // Filter by confidence threshold
-        if (maxScore < params.confThreshold) {
-            continue;
-        }
+            float xCenter = detection[0];
+            float yCenter = detection[1];
+            float w = detection[2];
+            float h = detection[3];
 
-        // Convert from center format to corner format and scale to original image
-        int left = static_cast<int>((xCenter - w / 2.0f) * scaleX);
-        int top = static_cast<int>((yCenter - h / 2.0f) * scaleY);
-        int width = static_cast<int>(w * scaleX);
-        int height = static_cast<int>(h * scaleY);
+            float maxScore = 0.0f;
+            int numClasses = numFeatures - 4;
 
-        // Clamp to image boundaries
-        left = std::max(0, std::min(left, originalImage.cols - 1));
-        top = std::max(0, std::min(top, originalImage.rows - 1));
-        width = std::min(width, originalImage.cols - left);
-        height = std::min(height, originalImage.rows - top);
+            for (int j = 0; j < numClasses; j++) {
+                float score = detection[4 + j];
+                if (score > maxScore) {
+                    maxScore = score;
+                }
+            }
 
-        if (width > 0 && height > 0) {
-            boxes.push_back(cv::Rect(left, top, width, height));
-            confidences.push_back(maxScore);
+            if (maxScore < params.confThreshold) {
+                continue;
+            }
+
+            float x1 = (xCenter - w / 2.0f) * scaleX;
+            float y1 = (yCenter - h / 2.0f) * scaleY;
+            float x2 = (xCenter + w / 2.0f) * scaleX;
+            float y2 = (yCenter + h / 2.0f) * scaleY;
+
+            x1 = std::max(0.0f, std::min(x1, (float)originalImage.cols - 1));
+            y1 = std::max(0.0f, std::min(y1, (float)originalImage.rows - 1));
+            x2 = std::max(0.0f, std::min(x2, (float)originalImage.cols));
+            y2 = std::max(0.0f, std::min(y2, (float)originalImage.rows));
+
+            int width = static_cast<int>(x2 - x1);
+            int height = static_cast<int>(y2 - y1);
+
+            if (width > 0 && height > 0) {
+                boxes.push_back(cv::Rect(static_cast<int>(x1), static_cast<int>(y1), width, height));
+                confidences.push_back(maxScore);
+            }
         }
     }
 
-    LOG_DEBUG(QString("Before NMS: %1 detections").arg(boxes.size()));
+    LOG_INFO(QString("Before NMS: %1 detections").arg(boxes.size()));
 
     // Apply Non-Maximum Suppression
     std::vector<int> indices;
     cv::dnn::NMSBoxes(boxes, confidences, params.confThreshold, params.iouThreshold, indices);
 
-    LOG_DEBUG(QString("After NMS: %1 detections").arg(indices.size()));
+    LOG_INFO(QString("After NMS: %1 detections").arg(indices.size()));
 
     // Create Cell objects
     for (int idx : indices) {

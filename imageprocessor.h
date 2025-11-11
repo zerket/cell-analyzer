@@ -13,7 +13,7 @@ class ImageProcessor {
 public:
     struct YoloParams {
         QString modelPath = "ml-data/models/yolov8s_cells_v1.0.onnx";
-        double confThreshold = 0.25;
+        double confThreshold = 0.1;  // Lowered from 0.25 to test
         double iouThreshold = 0.7;
         int minCellArea = 500;
         bool useCUDA = false;  // Use CUDA backend if available

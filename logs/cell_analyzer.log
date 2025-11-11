@@ -1,0 +1,169 @@
+2025-11-11 22:56:57.112 [INFO] ==================================================
+2025-11-11 22:56:57.112 [INFO] CellAnalyzer application started
+2025-11-11 22:56:57.112 [INFO] ==================================================
+2025-11-11 22:56:57.115 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-11 22:57:04.363 [INFO] Starting YOLO analysis for 1 images
+2025-11-11 22:57:04.363 [INFO] ImageProcessor created (ONNX-based)
+2025-11-11 22:57:04.363 [INFO] ImageProcessor created successfully
+2025-11-11 22:57:04.363 [INFO] Processing 1 images with YOLO
+2025-11-11 22:57:04.363 [INFO] Processing 1 images with YOLO model
+2025-11-11 22:57:04.363 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-11 22:57:04.363 [INFO] Confidence threshold: 0.25
+2025-11-11 22:57:04.382 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-11 22:57:04.505 [INFO] Using CPU backend
+2025-11-11 22:57:04.794 [INFO] ONNX detected 142 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-11 22:57:04.936 [INFO] Processing complete. Detected 142 cells total
+2025-11-11 22:57:04.936 [INFO] Images processed successfully
+2025-11-11 22:57:04.936 [INFO] Detected 142 cells
+2025-11-11 22:57:04.936 [INFO] Creating copy of detected cells
+2025-11-11 22:57:04.936 [INFO] Copied 142 cells
+2025-11-11 22:57:04.936 [INFO] ImageProcessor destroyed
+2025-11-11 22:57:04.936 [INFO] ImageProcessor deleted
+2025-11-11 22:57:04.936 [INFO] Creating VerificationWidget
+2025-11-11 22:57:04.936 [INFO] VerificationWidget constructor called (New Design)
+2025-11-11 22:57:04.936 [INFO] Received 142 cells
+2025-11-11 22:57:04.957 [INFO] Cells grouped into 1 files
+2025-11-11 22:57:04.957 [INFO] groupCellsByFile completed
+2025-11-11 22:57:04.957 [INFO] setupUI: Creating main layout
+2025-11-11 22:57:04.957 [INFO] setupUI: Creating file tabs
+2025-11-11 22:57:04.957 [INFO] setupUI: Added tab for ТИМ1.jpg with 142 cells
+2025-11-11 22:57:04.957 [INFO] setupUI: File tabs created
+2025-11-11 22:57:04.957 [INFO] setupUI: Creating main splitter
+2025-11-11 22:57:04.957 [INFO] setupUI: Creating cell list panel
+2025-11-11 22:57:04.957 [INFO] setupUI: Creating right panel
+2025-11-11 22:57:04.957 [INFO] setupUI: Creating preview widget
+2025-11-11 22:57:04.957 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-11 22:57:05.111 [INFO] Updated cell list with 142 cells
+2025-11-11 22:57:05.234 [INFO] Auto-scrolled to cell at local index 0
+2025-11-11 22:57:05.254 [INFO] Selected cell: global=0, local=0
+2025-11-11 22:57:05.254 [INFO] VerificationWidget UI setup completed
+2025-11-11 22:57:05.254 [INFO] setupUI completed
+2025-11-11 22:57:05.254 [INFO] loadSavedCoefficient: savedCoeff=0
+2025-11-11 22:57:05.254 [INFO] loadSavedCoefficient completed
+2025-11-11 22:57:05.255 [INFO] Auto-scrolled to cell at local index 0
+2025-11-11 22:57:05.264 [INFO] Selected cell: global=0, local=0
+2025-11-11 22:57:05.264 [INFO] First cell selected
+2025-11-11 22:57:05.264 [INFO] VerificationWidget created successfully
+2025-11-11 22:57:05.264 [INFO] Connecting signals
+2025-11-11 22:57:05.264 [INFO] Setting VerificationWidget as central widget
+2025-11-11 22:57:05.264 [INFO] Analysis started successfully
+2025-11-11 23:03:38.486 [INFO] VerificationWidget destructor called
+2025-11-11 23:13:14.905 [INFO] ==================================================
+2025-11-11 23:13:14.906 [INFO] CellAnalyzer application started
+2025-11-11 23:13:14.906 [INFO] ==================================================
+2025-11-11 23:13:15.051 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-11 23:13:21.453 [INFO] Starting YOLO analysis for 1 images
+2025-11-11 23:13:21.453 [INFO] ImageProcessor created (ONNX-based)
+2025-11-11 23:13:21.453 [INFO] ImageProcessor created successfully
+2025-11-11 23:13:21.453 [INFO] Processing 1 images with YOLO
+2025-11-11 23:13:21.453 [INFO] Processing 1 images with YOLO model
+2025-11-11 23:13:21.453 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-11 23:13:21.453 [INFO] Confidence threshold: 0.25
+2025-11-11 23:13:21.476 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-11 23:13:21.581 [INFO] Using CPU backend
+2025-11-11 23:13:21.888 [INFO] Output shape: [1, 38, 8400]
+2025-11-11 23:13:21.888 [INFO] Image size: 1388x1040
+2025-11-11 23:13:21.888 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-11 23:13:21.888 [INFO] Before NMS: 6 detections
+2025-11-11 23:13:21.888 [INFO] After NMS: 5 detections
+2025-11-11 23:13:21.888 [INFO] ONNX detected 2 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-11 23:13:21.923 [INFO] Processing complete. Detected 2 cells total
+2025-11-11 23:13:21.923 [INFO] Images processed successfully
+2025-11-11 23:13:21.923 [INFO] Detected 2 cells
+2025-11-11 23:13:21.923 [INFO] Creating copy of detected cells
+2025-11-11 23:13:21.923 [INFO] Copied 2 cells
+2025-11-11 23:13:21.923 [INFO] ImageProcessor destroyed
+2025-11-11 23:13:21.923 [INFO] ImageProcessor deleted
+2025-11-11 23:13:21.923 [INFO] Creating VerificationWidget
+2025-11-11 23:13:21.923 [INFO] VerificationWidget constructor called (New Design)
+2025-11-11 23:13:21.923 [INFO] Received 2 cells
+2025-11-11 23:13:21.923 [INFO] Cells grouped into 1 files
+2025-11-11 23:13:21.923 [INFO] groupCellsByFile completed
+2025-11-11 23:13:21.923 [INFO] setupUI: Creating main layout
+2025-11-11 23:13:21.923 [INFO] setupUI: Creating file tabs
+2025-11-11 23:13:21.923 [INFO] setupUI: Added tab for ТИМ1.jpg with 2 cells
+2025-11-11 23:13:21.923 [INFO] setupUI: File tabs created
+2025-11-11 23:13:21.923 [INFO] setupUI: Creating main splitter
+2025-11-11 23:13:21.923 [INFO] setupUI: Creating cell list panel
+2025-11-11 23:13:21.924 [INFO] setupUI: Creating right panel
+2025-11-11 23:13:21.924 [INFO] setupUI: Creating preview widget
+2025-11-11 23:13:21.926 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-11 23:13:21.928 [INFO] Updated cell list with 2 cells
+2025-11-11 23:13:21.931 [INFO] Auto-scrolled to cell at local index 0
+2025-11-11 23:13:21.935 [INFO] Selected cell: global=0, local=0
+2025-11-11 23:13:21.935 [INFO] VerificationWidget UI setup completed
+2025-11-11 23:13:21.935 [INFO] setupUI completed
+2025-11-11 23:13:21.935 [INFO] loadSavedCoefficient: savedCoeff=0
+2025-11-11 23:13:21.935 [INFO] loadSavedCoefficient completed
+2025-11-11 23:13:21.935 [INFO] Auto-scrolled to cell at local index 0
+2025-11-11 23:13:21.937 [INFO] Selected cell: global=0, local=0
+2025-11-11 23:13:21.937 [INFO] First cell selected
+2025-11-11 23:13:21.937 [INFO] VerificationWidget created successfully
+2025-11-11 23:13:21.937 [INFO] Connecting signals
+2025-11-11 23:13:21.937 [INFO] Setting VerificationWidget as central widget
+2025-11-11 23:13:21.937 [INFO] Analysis started successfully
+2025-11-11 23:13:24.787 [INFO] Auto-scrolled to cell at local index 1
+2025-11-11 23:13:24.788 [INFO] Selected cell: global=1, local=1
+2025-11-11 23:13:25.637 [INFO] Auto-scrolled to cell at local index 0
+2025-11-11 23:13:25.638 [INFO] Selected cell: global=0, local=0
+2025-11-11 23:13:29.915 [INFO] VerificationWidget destructor called
+2025-11-11 23:20:28.081 [INFO] ==================================================
+2025-11-11 23:20:28.083 [INFO] CellAnalyzer application started
+2025-11-11 23:20:28.083 [INFO] ==================================================
+2025-11-11 23:20:28.209 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-11 23:20:34.883 [INFO] Starting YOLO analysis for 1 images
+2025-11-11 23:20:34.883 [INFO] ImageProcessor created (ONNX-based)
+2025-11-11 23:20:34.883 [INFO] ImageProcessor created successfully
+2025-11-11 23:20:34.883 [INFO] Processing 1 images with YOLO
+2025-11-11 23:20:34.883 [INFO] Processing 1 images with YOLO model
+2025-11-11 23:20:34.883 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-11 23:20:34.883 [INFO] Confidence threshold: 0.1
+2025-11-11 23:20:34.906 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-11 23:20:35.012 [INFO] Using CPU backend
+2025-11-11 23:20:35.323 [INFO] Output shape: [1, 38, 8400]
+2025-11-11 23:20:35.323 [INFO] Image size: 1388x1040
+2025-11-11 23:20:35.323 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-11 23:20:35.323 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-11 23:20:35.323 [INFO] Detection 0: x=8.22595, y=6.13378, w=16.959, h=13.0373, score=0.736212
+2025-11-11 23:20:35.323 [INFO] Detection 1: x=21.1453, y=4.69234, w=42.8524, h=9.53608, score=0.831866
+2025-11-11 23:20:35.323 [INFO] Detection 2: x=29.3811, y=5.15382, w=61.0137, h=10.5538, score=0.846646
+2025-11-11 23:20:35.323 [INFO] Detection 3: x=35.2074, y=4.78273, w=70.1191, h=9.86243, score=0.849589
+2025-11-11 23:20:35.323 [INFO] Detection 4: x=41.7599, y=4.39618, w=75.0233, h=9.15349, score=0.864006
+2025-11-11 23:20:35.324 [INFO] Before NMS: 8400 detections
+2025-11-11 23:20:35.531 [INFO] After NMS: 4740 detections
+2025-11-11 23:20:35.534 [INFO] ONNX detected 4739 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-11 23:20:36.960 [INFO] Processing complete. Detected 4739 cells total
+2025-11-11 23:20:36.960 [INFO] Images processed successfully
+2025-11-11 23:20:36.960 [INFO] Detected 4739 cells
+2025-11-11 23:20:36.960 [INFO] Creating copy of detected cells
+2025-11-11 23:20:36.960 [INFO] Copied 4739 cells
+2025-11-11 23:20:36.960 [INFO] ImageProcessor destroyed
+2025-11-11 23:20:36.960 [INFO] ImageProcessor deleted
+2025-11-11 23:20:36.960 [INFO] Creating VerificationWidget
+2025-11-11 23:20:36.960 [INFO] VerificationWidget constructor called (New Design)
+2025-11-11 23:20:36.960 [INFO] Received 4739 cells
+2025-11-11 23:20:37.395 [INFO] Cells grouped into 1 files
+2025-11-11 23:20:37.395 [INFO] groupCellsByFile completed
+2025-11-11 23:20:37.395 [INFO] setupUI: Creating main layout
+2025-11-11 23:20:37.395 [INFO] setupUI: Creating file tabs
+2025-11-11 23:20:37.395 [INFO] setupUI: Added tab for ТИМ1.jpg with 4739 cells
+2025-11-11 23:20:37.396 [INFO] setupUI: File tabs created
+2025-11-11 23:20:37.396 [INFO] setupUI: Creating main splitter
+2025-11-11 23:20:37.396 [INFO] setupUI: Creating cell list panel
+2025-11-11 23:20:37.396 [INFO] setupUI: Creating right panel
+2025-11-11 23:20:37.396 [INFO] setupUI: Creating preview widget
+2025-11-11 23:20:37.398 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-11 23:20:42.736 [INFO] Updated cell list with 4739 cells
+2025-11-11 23:20:44.649 [INFO] Auto-scrolled to cell at local index 0
+2025-11-11 23:20:45.008 [INFO] Selected cell: global=0, local=0
+2025-11-11 23:20:45.009 [INFO] VerificationWidget UI setup completed
+2025-11-11 23:20:45.009 [INFO] setupUI completed
+2025-11-11 23:20:45.009 [INFO] loadSavedCoefficient: savedCoeff=0
+2025-11-11 23:20:45.009 [INFO] loadSavedCoefficient completed
+2025-11-11 23:20:45.018 [INFO] Auto-scrolled to cell at local index 0
+2025-11-11 23:20:45.366 [INFO] Selected cell: global=0, local=0
+2025-11-11 23:20:45.366 [INFO] First cell selected
+2025-11-11 23:20:45.366 [INFO] VerificationWidget created successfully
+2025-11-11 23:20:45.366 [INFO] Connecting signals
+2025-11-11 23:20:45.366 [INFO] Setting VerificationWidget as central widget
+2025-11-11 23:20:45.381 [INFO] Analysis started successfully
