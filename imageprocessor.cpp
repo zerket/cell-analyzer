@@ -64,7 +64,7 @@ void ImageProcessor::processSingleImage(const QString& path, const YoloParams& p
         // Apply scale if detected
         if (umPerPixel > 0) {
             cell.diameterNm = cell.diameterPx * umPerPixel;
-            cell.diameter_nm = cell.diameter_pixels * umPerPixel;
+            cell.diameter_um = cell.diameter_pixels * umPerPixel;
         }
 
         // Create cell image (crop from original with padding)
@@ -104,28 +104,58 @@ void ImageProcessor::processSingleImage(const QString& path, const YoloParams& p
 QVector<Cell> ImageProcessor::detectCellsWithYolo(const QString& imagePath, const YoloParams& params) {
     QVector<Cell> detectedCells;
 
-    // Find Python script path
+    // Find Python script path - try multiple locations
     QString appDir = QCoreApplication::applicationDirPath();
-    QString scriptPath = QDir(appDir).filePath("ml-data/scripts/detect_cells.py");
+    QString scriptPath;
 
-    // If not found relative to app, try absolute path from project root
-    if (!QFile::exists(scriptPath)) {
-        scriptPath = "cell-analyzer/ml-data/scripts/detect_cells.py";
+    QStringList scriptSearchPaths = {
+        QDir(appDir).filePath("ml-data/scripts/detect_cells.py"),
+        QDir(appDir).filePath("../ml-data/scripts/detect_cells.py"),
+        QDir(appDir).filePath("../../ml-data/scripts/detect_cells.py"),
+        "ml-data/scripts/detect_cells.py",
+        "cell-analyzer/ml-data/scripts/detect_cells.py"
+    };
+
+    for (const QString& path : scriptSearchPaths) {
+        if (QFile::exists(path)) {
+            scriptPath = QFileInfo(path).absoluteFilePath();
+            LOG_DEBUG(QString("Found detection script at: %1").arg(scriptPath));
+            break;
+        }
     }
 
-    if (!QFile::exists(scriptPath)) {
-        LOG_ERROR(QString("Detection script not found: %1").arg(scriptPath));
+    if (scriptPath.isEmpty() || !QFile::exists(scriptPath)) {
+        LOG_ERROR(QString("Detection script not found. Searched in:"));
+        for (const QString& path : scriptSearchPaths) {
+            LOG_ERROR(QString("  - %1").arg(path));
+        }
         throw std::runtime_error("YOLO detection script not found");
     }
 
-    // Find model path
-    QString modelPath = QDir(appDir).filePath(params.modelPath);
-    if (!QFile::exists(modelPath)) {
-        modelPath = QString("cell-analyzer/%1").arg(params.modelPath);
+    // Find model path - try multiple locations
+    QString modelPath;
+
+    QStringList modelSearchPaths = {
+        QDir(appDir).filePath(params.modelPath),
+        QDir(appDir).filePath("../" + params.modelPath),
+        QDir(appDir).filePath("../../" + params.modelPath),
+        params.modelPath,
+        QString("cell-analyzer/%1").arg(params.modelPath)
+    };
+
+    for (const QString& path : modelSearchPaths) {
+        if (QFile::exists(path)) {
+            modelPath = QFileInfo(path).absoluteFilePath();
+            LOG_DEBUG(QString("Found YOLO model at: %1").arg(modelPath));
+            break;
+        }
     }
 
-    if (!QFile::exists(modelPath)) {
-        LOG_ERROR(QString("YOLO model not found: %1").arg(modelPath));
+    if (modelPath.isEmpty() || !QFile::exists(modelPath)) {
+        LOG_ERROR(QString("YOLO model not found. Searched in:"));
+        for (const QString& path : modelSearchPaths) {
+            LOG_ERROR(QString("  - %1").arg(path));
+        }
         throw std::runtime_error("YOLO model not found");
     }
 
@@ -139,11 +169,30 @@ QVector<Cell> ImageProcessor::detectCellsWithYolo(const QString& imagePath, cons
               << "--min-area" << QString::number(params.minCellArea)
               << "--device" << params.device;
 
-    LOG_DEBUG(QString("Running: python3 %1").arg(arguments.join(" ")));
+    // Try different Python commands (python3, python, py)
+    QStringList pythonCommands = {"python", "python3", "py"};
+    QString pythonCmd;
+    QProcess testProcess;
+
+    for (const QString& cmd : pythonCommands) {
+        testProcess.start(cmd, QStringList() << "--version");
+        if (testProcess.waitForFinished(3000) && testProcess.exitCode() == 0) {
+            pythonCmd = cmd;
+            LOG_DEBUG(QString("Found Python command: %1").arg(cmd));
+            break;
+        }
+    }
+
+    if (pythonCmd.isEmpty()) {
+        LOG_ERROR("Python not found. Tried: python, python3, py");
+        throw std::runtime_error("Python not found in system PATH");
+    }
+
+    LOG_INFO(QString("Running: %1 %2").arg(pythonCmd).arg(arguments.join(" ")));
 
     // Execute Python script
     QProcess process;
-    process.start("python3", arguments);
+    process.start(pythonCmd, arguments);
 
     if (!process.waitForFinished(30000)) { // 30 second timeout
         LOG_ERROR("YOLO detection process timeout");
@@ -210,36 +259,63 @@ Cell ImageProcessor::createCellFromYoloDetection(const cv::Mat& srcImage,
     // Create cv::Vec3f for compatibility (center_x, center_y, radius)
     cell.circle = cv::Vec3f(cell.center_x, cell.center_y, cell.radius);
 
-    // Initialize diameter_nm (will be filled by scale detection)
-    cell.diameter_nm = 0.0;
+    // Initialize diameter_um (will be filled by scale detection)
+    cell.diameter_um = 0.0;
     cell.diameterNm = 0.0;
 
     return cell;
 }
 
 cv::Mat ImageProcessor::loadImageSafely(const QString& imagePath) {
-    // Try loading standard way
+    // Check if path contains non-ASCII characters (Cyrillic, etc.)
+    bool hasUnicode = false;
+    for (QChar c : imagePath) {
+        if (c.unicode() > 127) {
+            hasUnicode = true;
+            break;
+        }
+    }
+
+    // For Unicode paths, use QImage directly to avoid OpenCV warnings
+    if (hasUnicode) {
+        QImage qImage;
+        if (!qImage.load(imagePath)) {
+            LOG_ERROR("Failed to load image: " + imagePath);
+            return cv::Mat();
+        }
+
+        // Convert QImage to cv::Mat
+        QImage rgbImage = qImage.convertToFormat(QImage::Format_RGB888);
+        cv::Mat mat(rgbImage.height(), rgbImage.width(), CV_8UC3,
+                   (void*)rgbImage.constBits(), rgbImage.bytesPerLine());
+        cv::Mat result;
+        cv::cvtColor(mat, result, cv::COLOR_RGB2BGR);
+
+        LOG_DEBUG("Image loaded through QImage (Unicode path): " + imagePath);
+        return result.clone();
+    }
+
+    // For ASCII paths, try OpenCV directly (faster)
     cv::Mat image = cv::imread(imagePath.toStdString());
 
     if (!image.empty()) {
         return image;
     }
 
-    // If failed, try through QImage (better Unicode support)
+    // Fallback to QImage if OpenCV failed
     QImage qImage;
     if (!qImage.load(imagePath)) {
         LOG_ERROR("Failed to load image: " + imagePath);
         return cv::Mat();
     }
 
-    // Convert QImage to cv::Mat
     QImage rgbImage = qImage.convertToFormat(QImage::Format_RGB888);
     cv::Mat mat(rgbImage.height(), rgbImage.width(), CV_8UC3,
                (void*)rgbImage.constBits(), rgbImage.bytesPerLine());
     cv::Mat result;
     cv::cvtColor(mat, result, cv::COLOR_RGB2BGR);
 
-    LOG_INFO("Image loaded through QImage: " + imagePath);
+    LOG_INFO("Image loaded through QImage (fallback): " + imagePath);
     return result.clone();
 }
 

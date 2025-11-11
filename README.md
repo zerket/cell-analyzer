@@ -255,7 +255,7 @@ build\Release\CellAnalyzer.exe
 - **Экспортировать CSV**: Сохранить результаты в файл CSV
   - Диалог сохранения файла
   - Включает все оставшиеся клетки
-  - Формат: filename, cell_number, center_x, center_y, diameter_pixels, diameter_nm
+  - Формат: filename, cell_number, center_x, center_y, diameter_pixels, diameter_um
 - **Сохранить клетки как изображения**: Экспорт отдельных изображений клеток
   - Выбор папки для сохранения
   - Формат имени: `{исходный_файл}_cell_{номер}.png`
@@ -805,7 +805,7 @@ SimpleBlobDetector анализирует изображение на разны
 
 13. **Структура CSV файла**:
     ```csv
-    filename,cell_number,center_x,center_y,diameter_pixels,diameter_nm,area
+    filename,cell_number,center_x,center_y,diameter_pixels,diameter_um,area
     image1.png,1,245,312,68,170.0,3632.3
     image1.png,2,489,201,72,180.0,4071.5
     image2.png,1,156,428,65,162.5,3318.3
@@ -1089,7 +1089,7 @@ SimpleBlobDetector анализирует изображение на разны
 
 **Формат CSV файла**:
 ```csv
-filename,cell_number,center_x,center_y,diameter_pixels,diameter_nm,area
+filename,cell_number,center_x,center_y,diameter_pixels,diameter_um,area
 image1.png,1,245.5,312.3,68,170.0,3632.3
 image1.png,2,489.2,201.7,72,180.0,4071.5
 image2.png,1,156.1,428.9,65,162.5,3318.3
@@ -1101,7 +1101,7 @@ image2.png,1,156.1,428.9,65,162.5,3318.3
 - **center_x**: X-координата центра клетки в пикселях (от левого края)
 - **center_y**: Y-координата центра клетки в пикселях (от верхнего края)
 - **diameter_pixels**: Диаметр клетки в пикселях
-- **diameter_nm**: Диаметр клетки в микрометрах (если коэффициент известен)
+- **diameter_um**: Диаметр клетки в микрометрах (если коэффициент известен)
 - **area**: Площадь клетки (вычисленная из диаметра), в квадратных единицах
 
 **Использование CSV**:

@@ -168,29 +168,6 @@ void StatisticsWidget::populateOverviewTab(const StatisticsAnalyzer::Comprehensi
     // Резюме
     summaryText->setPlainText(analysis.summary);
 
-    // Получаем пороги из настроек
-    double minThreshold = SettingsManager::instance().getStatisticsMinThreshold();
-    double maxThreshold = SettingsManager::instance().getStatisticsMaxThreshold();
-
-    // Подсчитываем процентные доли для диаметров
-    int totalCells = currentCells.size();
-    int cellsBelowMin = 0;
-    int cellsAboveMax = 0;
-
-    for (const Cell& cell : currentCells) {
-        if (cell.diameter_nm > 0) { // Учитываем только клетки с заданным диаметром
-            if (cell.diameter_nm < minThreshold) {
-                cellsBelowMin++;
-            }
-            if (cell.diameter_nm > maxThreshold) {
-                cellsAboveMax++;
-            }
-        }
-    }
-
-    double percentBelowMin = totalCells > 0 ? (cellsBelowMin * 100.0 / totalCells) : 0.0;
-    double percentAboveMax = totalCells > 0 ? (cellsAboveMax * 100.0 / totalCells) : 0.0;
-
     // Основная таблица статистик
     overviewTable->setColumnCount(2);
     overviewTable->setHorizontalHeaderLabels({"Параметр", "Значение"});
@@ -204,13 +181,19 @@ void StatisticsWidget::populateOverviewTab(const StatisticsAnalyzer::Comprehensi
     overviewTable->setItem(1, 0, new QTableWidgetItem("Среднее (мкм)"));
     overviewTable->setItem(1, 1, new QTableWidgetItem(formatStatValue(analysis.diameterStats.mean)));
 
-    // Процент < minThreshold
-    overviewTable->setItem(2, 0, new QTableWidgetItem(QString("% < %1 мкм").arg(minThreshold)));
-    overviewTable->setItem(2, 1, new QTableWidgetItem(formatStatValue(percentBelowMin) + "%"));
+    // Процент < 50 мкм (из расчетов в StatisticsAnalyzer)
+    overviewTable->setItem(2, 0, new QTableWidgetItem("% < 50 мкм"));
+    overviewTable->setItem(2, 1, new QTableWidgetItem(
+        formatStatValue(analysis.diameterStats.percentBelow50) + "%" +
+        QString(" (%1 клеток)").arg(analysis.diameterStats.countBelow50)
+    ));
 
-    // Процент > maxThreshold
-    overviewTable->setItem(3, 0, new QTableWidgetItem(QString("% > %1 мкм").arg(maxThreshold)));
-    overviewTable->setItem(3, 1, new QTableWidgetItem(formatStatValue(percentAboveMax) + "%"));
+    // Процент > 100 мкм (из расчетов в StatisticsAnalyzer)
+    overviewTable->setItem(3, 0, new QTableWidgetItem("% > 100 мкм"));
+    overviewTable->setItem(3, 1, new QTableWidgetItem(
+        formatStatValue(analysis.diameterStats.percentAbove100) + "%" +
+        QString(" (%1 клеток)").arg(analysis.diameterStats.countAbove100)
+    ));
 
     overviewTable->resizeColumnsToContents();
     overviewTable->horizontalHeader()->setStretchLastSection(true);
@@ -394,9 +377,9 @@ void StatisticsWidget::populateOutliersTab(const StatisticsAnalyzer::Comprehensi
         const Cell& cell = currentCells[cellIndex];
         
         outliersTable->setItem(rowIndex, 0, new QTableWidgetItem(QString::number(cellIndex + 1)));
-        outliersTable->setItem(rowIndex, 1, new QTableWidgetItem(formatStatValue(cell.diameter_nm)));
+        outliersTable->setItem(rowIndex, 1, new QTableWidgetItem(formatStatValue(cell.diameter_um)));
         // Вычисляем площадь в мкм²
-        double area_um2 = M_PI * (cell.diameter_nm / 2.0) * (cell.diameter_nm / 2.0);
+        double area_um2 = M_PI * (cell.diameter_um / 2.0) * (cell.diameter_um / 2.0);
         outliersTable->setItem(rowIndex, 2, new QTableWidgetItem(formatStatValue(area_um2)));
         
         QString imageName = QFileInfo(QString::fromStdString(cell.imagePath)).baseName();
@@ -404,7 +387,7 @@ void StatisticsWidget::populateOutliersTab(const StatisticsAnalyzer::Comprehensi
         
         // Z-score для диаметра (в микрометрах)
         if (diamStats.standardDeviation > 0) {
-            double zScore = std::abs(cell.diameter_nm - diamStats.mean) / diamStats.standardDeviation;
+            double zScore = std::abs(cell.diameter_um - diamStats.mean) / diamStats.standardDeviation;
             outliersTable->setItem(rowIndex, 4, new QTableWidgetItem(formatStatValue(zScore, 2)));
         } else {
             outliersTable->setItem(rowIndex, 4, new QTableWidgetItem("N/A"));

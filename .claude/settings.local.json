@@ -6,7 +6,10 @@
       "Bash(dir:*)",
       "Bash(nul)",
       "Bash(cmd /c \"dir /s /b logs 2>nul\")",
-      "Bash(cmd /c \"type D:\\github\\cell-analyzer\\advanceddetector.cpp | find /c /v \"\"\")"
+      "Bash(cmd /c \"type D:\\github\\cell-analyzer\\advanceddetector.cpp | find /c /v \"\"\")",
+      "Bash(cmd /c \"cd /d D:\\github\\cell-analyzer && type D:\\github\\cell-analyzer\\advanceddetector.cpp | find /c /v \"\"\")",
+      "Bash(cmd /c \"cd /d D:\\github\\cell-analyzer && build-release.bat\")",
+      "Bash(cmd /c:*)"
     ],
     "deny": [],
     "ask": []

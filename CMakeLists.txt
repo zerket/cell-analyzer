@@ -17,7 +17,6 @@ find_package(OpenCV REQUIRED
         core
         imgproc
         highgui
-        objdetect
 )
 
 # Добавление исполняемого файла
@@ -27,8 +26,14 @@ add_executable(${PROJECT_NAME}
     mainwindow.cpp
     previewgrid.h
     previewgrid.cpp
+    improvedpreviewgrid.h
+    improvedpreviewgrid.cpp
     verificationwidget.h
     verificationwidget.cpp
+    verificationdialog.h
+    verificationdialog.cpp
+    markupimagewidget.h
+    markupimagewidget.cpp
     imageprocessor.h
     imageprocessor.cpp
     cellitem.h
@@ -40,23 +45,15 @@ add_executable(${PROJECT_NAME}
     cellitemwidget.cpp
     celllistitemwidget.h
     celllistitemwidget.cpp
-    markupimagewidget.h
-    markupimagewidget.cpp
-    parametertuningwidget.h
-    parametertuningwidget.cpp
     settingsmanager.h
     settingsmanager.cpp
     logger.h
     thememanager.h
     thememanager.cpp
-    advanceddetector.h
-    advanceddetector.cpp
     statisticsanalyzer.h
     statisticsanalyzer.cpp
     statisticswidget.h
     statisticswidget.cpp
-    algorithmselectionwidget.h
-    algorithmselectionwidget.cpp
     zoomableimagewidget.h
     zoomableimagewidget.cpp
     progressdialog.h

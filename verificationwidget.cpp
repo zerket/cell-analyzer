@@ -291,9 +291,7 @@ void VerificationWidget::updateCellList()
         CellListItemWidget* cellWidget = new CellListItemWidget(i + 1, cell, this);
 
         // Автоматически заполняем диаметр, если коэффициент существует
-        QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
-        ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
-        double currentCoeff = preset.umPerPixel;
+        double currentCoeff = SettingsManager::instance().getCoefficient();
         if (currentCoeff > 0.0) {
             double calculatedDiameter = cell.diameterPx * currentCoeff;
             cellWidget->setDiameterNm(calculatedDiameter);
@@ -568,23 +566,16 @@ void VerificationWidget::recalculateDiameters()
         }
     }
 
-    // Update coefficient в текущем пресете
+    // Update coefficient display and save to settings
     m_coefficientEdit->setText(QString::number(avgScale, 'f', 4));
-
-    // Обновляем коэффициент в последнем выбранном пресете
-    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
-    ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
-    preset.umPerPixel = avgScale;
-    SettingsManager::instance().savePreset(preset);
+    SettingsManager::instance().setCoefficient(avgScale);
 
     LOG_INFO(QString("Recalculated with coefficient: %1 μm/px").arg(avgScale));
 }
 
 void VerificationWidget::loadSavedCoefficient()
 {
-    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
-    ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
-    double savedCoeff = preset.umPerPixel;
+    double savedCoeff = SettingsManager::instance().getCoefficient();
     LOG_INFO(QString("loadSavedCoefficient: savedCoeff=%1").arg(savedCoeff));
 
     if (savedCoeff > 0) {
@@ -597,10 +588,8 @@ QVector<Cell> VerificationWidget::getVerifiedCells() const
 {
     QVector<Cell> updatedCells = m_cells;
 
-    // Получаем коэффициент из последнего выбранного пресета
-    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
-    ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
-    double currentCoeff = preset.umPerPixel;
+    // Получаем коэффициент из настроек
+    double currentCoeff = SettingsManager::instance().getCoefficient();
 
     // Обновляем диаметры для текущего отображаемого файла из виджетов
     QVector<int> currentIndices = m_cellsByFile[m_currentFilePath];
@@ -614,7 +603,7 @@ QVector<Cell> VerificationWidget::getVerifiedCells() const
                 diameterNm = updatedCells[globalIndex].diameterPx * currentCoeff;
             }
 
-            updatedCells[globalIndex].diameter_nm = diameterNm;
+            updatedCells[globalIndex].diameter_um = diameterNm;
             updatedCells[globalIndex].diameterNm = static_cast<float>(diameterNm);
         }
     }
@@ -627,7 +616,7 @@ QVector<Cell> VerificationWidget::getVerifiedCells() const
             QVector<int> cellIndices = it.value();
             for (int globalIndex : cellIndices) {
                 double diameterNm = updatedCells[globalIndex].diameterPx * currentCoeff;
-                updatedCells[globalIndex].diameter_nm = diameterNm;
+                updatedCells[globalIndex].diameter_um = diameterNm;
                 updatedCells[globalIndex].diameterNm = static_cast<float>(diameterNm);
             }
         }
@@ -640,10 +629,8 @@ void VerificationWidget::onSaveCellsClicked()
 {
     LOG_INFO("Save cells button clicked");
 
-    // Получаем коэффициент из последнего выбранного пресета
-    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
-    ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
-    double currentCoeff = preset.umPerPixel;
+    // Получаем коэффициент из настроек
+    double currentCoeff = SettingsManager::instance().getCoefficient();
 
     // Collect verified cells data for export
     QVector<QPair<Cell, double>> verifiedCells;
@@ -736,14 +723,9 @@ void VerificationWidget::onSaveCellsClicked()
             saveDebugImage(imagePath, imageCells, debugPath);
         }
 
-        // Update preset coefficient
-        QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
-        ImageProcessor::HoughParams preset = SettingsManager::instance().getPresetByName(lastPreset);
-        double currentCoeff = preset.umPerPixel;
-
-        if (currentCoeff > 0.0 && !lastPreset.isEmpty() && lastPreset != "По умолчанию") {
-            LOG_INFO(QString("Coefficient %1 μm/px already in preset '%2'")
-                .arg(currentCoeff, 0, 'f', 4).arg(lastPreset));
+        // Log coefficient info
+        if (currentCoeff > 0.0) {
+            LOG_INFO(QString("Used coefficient: %1 μm/px").arg(currentCoeff, 0, 'f', 4));
         }
 
         QMessageBox::information(this, "Успех",
@@ -799,13 +781,42 @@ void VerificationWidget::saveDebugImage(const QString& originalImagePath,
 
 cv::Mat VerificationWidget::loadImageSafely(const QString& imagePath)
 {
+    // Check if path contains non-ASCII characters (Cyrillic, etc.)
+    bool hasUnicode = false;
+    for (QChar c : imagePath) {
+        if (c.unicode() > 127) {
+            hasUnicode = true;
+            break;
+        }
+    }
+
+    // For Unicode paths, use QImage directly to avoid OpenCV warnings
+    if (hasUnicode) {
+        QImage qImage;
+        if (!qImage.load(imagePath)) {
+            LOG_ERROR("Failed to load image: " + imagePath);
+            return cv::Mat();
+        }
+
+        // Convert QImage to cv::Mat
+        QImage rgbImage = qImage.convertToFormat(QImage::Format_RGB888);
+        cv::Mat mat(rgbImage.height(), rgbImage.width(), CV_8UC3,
+                   (void*)rgbImage.constBits(), rgbImage.bytesPerLine());
+        cv::Mat result;
+        cv::cvtColor(mat, result, cv::COLOR_RGB2BGR);
+
+        LOG_DEBUG("Image loaded through QImage (Unicode path): " + imagePath);
+        return result.clone();
+    }
+
+    // For ASCII paths, try OpenCV directly (faster)
     cv::Mat image = cv::imread(imagePath.toStdString());
 
     if (!image.empty()) {
         return image;
     }
 
-    // Try through QImage for Unicode support
+    // Fallback to QImage if OpenCV failed
     QImage qImage;
     if (!qImage.load(imagePath)) {
         LOG_ERROR("Failed to load image: " + imagePath);
@@ -817,6 +828,6 @@ cv::Mat VerificationWidget::loadImageSafely(const QString& imagePath)
     cv::Mat result;
     cv::cvtColor(mat, result, cv::COLOR_RGB2BGR);
 
-    LOG_INFO("Image loaded through QImage: " + imagePath);
+    LOG_INFO("Image loaded through QImage (fallback): " + imagePath);
     return result.clone();
 }

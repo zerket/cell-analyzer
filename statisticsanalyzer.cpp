@@ -108,7 +108,25 @@ StatisticsAnalyzer::BasicStatistics StatisticsAnalyzer::calculateBasicStatistics
     // Асимметрия и эксцесс
     stats.skewness = calculateSkewness(values, stats.mean, stats.standardDeviation);
     stats.kurtosis = calculateKurtosis(values, stats.mean, stats.standardDeviation);
-    
+
+    // Новые метрики: % < 50 мкм и % > 100 мкм
+    stats.countBelow50 = 0;
+    stats.countAbove100 = 0;
+
+    for (double value : values) {
+        if (value < 50.0) {
+            stats.countBelow50++;
+        }
+        if (value > 100.0) {
+            stats.countAbove100++;
+        }
+    }
+
+    if (stats.count > 0) {
+        stats.percentBelow50 = (static_cast<double>(stats.countBelow50) / stats.count) * 100.0;
+        stats.percentAbove100 = (static_cast<double>(stats.countAbove100) / stats.count) * 100.0;
+    }
+
     return stats;
 }
 
@@ -433,9 +451,9 @@ QVector<double> StatisticsAnalyzer::extractDiameters(const QVector<Cell>& cells)
     int zeroCells = 0;
     
     for (const Cell& cell : cells) {
-        // Используем только diameter_nm (микрометры)
-        if (cell.diameter_nm > 0) {
-            diameters.append(cell.diameter_nm);
+        // Используем только diameter_um (микрометры)
+        if (cell.diameter_um > 0) {
+            diameters.append(cell.diameter_um);
             validCells++;
         } else {
             zeroCells++;
@@ -450,9 +468,9 @@ QVector<double> StatisticsAnalyzer::extractAreas(const QVector<Cell>& cells) {
     QVector<double> areas;
     
     for (const Cell& cell : cells) {
-        // Вычисляем площадь в мкм² на основе diameter_nm
-        if (cell.diameter_nm > 0) {
-            double radius_um = cell.diameter_nm / 2.0;
+        // Вычисляем площадь в мкм² на основе diameter_um
+        if (cell.diameter_um > 0) {
+            double radius_um = cell.diameter_um / 2.0;
             double area_um2 = M_PI * radius_um * radius_um;
             areas.append(area_um2);
         }

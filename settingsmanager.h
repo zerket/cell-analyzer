@@ -5,8 +5,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QVariant>
-#include <QVector>
-#include "imageprocessor.h"
 
 class SettingsManager {
 public:
@@ -25,6 +23,10 @@ public:
     double getStatisticsMaxThreshold() const { return m_statisticsMaxThreshold; }
     void setStatisticsMaxThreshold(double threshold);
 
+    // Коэффициент пересчета (мкм/пиксель)
+    double getCoefficient() const { return m_coefficient; }
+    void setCoefficient(double coefficient);
+
     // Тема
     QString getTheme() const { return m_theme; }
     void setTheme(const QString& theme);
@@ -36,15 +38,6 @@ public:
     QVariant getValue(const QString& key, const QVariant& defaultValue = QVariant()) const;
     void setValue(const QString& key, const QVariant& value);
 
-    // Методы для работы с пресетами (новая структура - массив)
-    QVector<ImageProcessor::HoughParams> getAllPresets() const;
-    void setAllPresets(const QVector<ImageProcessor::HoughParams>& presets);
-    ImageProcessor::HoughParams getPresetByName(const QString& name) const;
-    void savePreset(const ImageProcessor::HoughParams& preset);
-    void deletePreset(const QString& name);
-    QString getLastSelectedPreset() const;
-    void setLastSelectedPreset(const QString& presetName);
-
 private:
     SettingsManager();
     ~SettingsManager() = default;
@@ -52,13 +45,11 @@ private:
     SettingsManager& operator=(const SettingsManager&) = delete;
 
     void ensureSettingsDirectory();
-    QJsonObject houghParamsToJson(const ImageProcessor::HoughParams& params) const;
-    ImageProcessor::HoughParams jsonToHoughParams(const QJsonObject& json) const;
 
-    QVector<ImageProcessor::HoughParams> m_presets;
     int m_previewSize = 150;
     double m_statisticsMinThreshold = 50.0;  // По умолчанию 50 мкм
     double m_statisticsMaxThreshold = 100.0; // По умолчанию 100 мкм
+    double m_coefficient = 0.0;              // Коэффициент мкм/пиксель
     QString m_theme = "Dark";
     QString m_settingsFile = "settings.json";
     mutable QJsonObject m_settings;
