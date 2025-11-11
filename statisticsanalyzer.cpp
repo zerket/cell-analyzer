@@ -108,7 +108,25 @@ StatisticsAnalyzer::BasicStatistics StatisticsAnalyzer::calculateBasicStatistics
     // Асимметрия и эксцесс
     stats.skewness = calculateSkewness(values, stats.mean, stats.standardDeviation);
     stats.kurtosis = calculateKurtosis(values, stats.mean, stats.standardDeviation);
-    
+
+    // Новые метрики: % < 50 мкм и % > 100 мкм
+    stats.countBelow50 = 0;
+    stats.countAbove100 = 0;
+
+    for (double value : values) {
+        if (value < 50.0) {
+            stats.countBelow50++;
+        }
+        if (value > 100.0) {
+            stats.countAbove100++;
+        }
+    }
+
+    if (stats.count > 0) {
+        stats.percentBelow50 = (static_cast<double>(stats.countBelow50) / stats.count) * 100.0;
+        stats.percentAbove100 = (static_cast<double>(stats.countAbove100) / stats.count) * 100.0;
+    }
+
     return stats;
 }
 

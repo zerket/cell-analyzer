@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QCoreApplication>
+#include "logger.h"
 
 SettingsManager& SettingsManager::instance() {
     static SettingsManager instance;
@@ -36,13 +37,6 @@ QString SettingsManager::getSettingsPath() const {
 void SettingsManager::saveSettings() {
     QJsonObject root;
 
-    // Сохраняем пресеты как массив
-    QJsonArray presetsArray;
-    for (const auto& preset : m_presets) {
-        presetsArray.append(yoloParamsToJson(preset));
-    }
-    root["yoloParams"] = presetsArray;
-
     // Сохраняем размер превью
     root["previewSize"] = m_previewSize;
 
@@ -50,13 +44,11 @@ void SettingsManager::saveSettings() {
     root["statisticsMinThreshold"] = m_statisticsMinThreshold;
     root["statisticsMaxThreshold"] = m_statisticsMaxThreshold;
 
+    // Сохраняем коэффициент
+    root["coefficient"] = m_coefficient;
+
     // Сохраняем тему
     root["Theme"] = m_theme;
-
-    // Сохраняем последний выбранный пресет
-    if (m_settings.contains("lastSelectedPreset")) {
-        root["lastSelectedPreset"] = m_settings["lastSelectedPreset"];
-    }
 
     // Записываем в файл
     QJsonDocument doc(root);
@@ -64,24 +56,16 @@ void SettingsManager::saveSettings() {
     if (file.open(QIODevice::WriteOnly)) {
         file.write(doc.toJson(QJsonDocument::Indented));
         file.close();
-        qDebug() << "Settings saved to:" << getSettingsPath();
+        LOG_INFO(QString("Settings saved to: %1").arg(getSettingsPath()));
     } else {
-        qDebug() << "Failed to save settings to:" << getSettingsPath();
+        LOG_ERROR(QString("Failed to save settings to: %1").arg(getSettingsPath()));
     }
 }
 
 void SettingsManager::loadSettings() {
     QFile file(getSettingsPath());
     if (!file.exists()) {
-        qDebug() << "Settings file not found, using defaults";
-        // Создаем дефолтный пресет
-        ImageProcessor::YoloParams defaultPreset;
-        defaultPreset.modelPath = "ml-data/models/yolov8s_cells_v1.0.pt";
-        defaultPreset.confThreshold = 0.25;
-        defaultPreset.iouThreshold = 0.7;
-        defaultPreset.minCellArea = 500;
-        defaultPreset.device = "0";
-        m_presets.append(defaultPreset);
+        LOG_INFO("Settings file not found, using defaults");
         saveSettings(); // Создаем файл с настройками по умолчанию
         return;
     }
@@ -93,22 +77,6 @@ void SettingsManager::loadSettings() {
         QJsonDocument doc = QJsonDocument::fromJson(data);
         if (!doc.isNull() && doc.isObject()) {
             QJsonObject root = doc.object();
-
-            // Загружаем пресеты из массива (поддерживаем старые и новые форматы)
-            if (root.contains("yoloParams") && root["yoloParams"].isArray()) {
-                QJsonArray presetsArray = root["yoloParams"].toArray();
-                m_presets.clear();
-                for (const QJsonValue& value : presetsArray) {
-                    if (value.isObject()) {
-                        m_presets.append(jsonToYoloParams(value.toObject()));
-                    }
-                }
-            } else if (root.contains("houghParams") && root["houghParams"].isArray()) {
-                // Старый формат - создаем default preset
-                m_presets.clear();
-                ImageProcessor::YoloParams defaultPreset;
-                m_presets.append(defaultPreset);
-            }
 
             // Загружаем размер превью
             if (root.contains("previewSize")) {
@@ -123,6 +91,11 @@ void SettingsManager::loadSettings() {
                 m_statisticsMaxThreshold = root["statisticsMaxThreshold"].toDouble(100.0);
             }
 
+            // Загружаем коэффициент
+            if (root.contains("coefficient")) {
+                m_coefficient = root["coefficient"].toDouble(0.0);
+            }
+
             // Загружаем тему
             if (root.contains("Theme")) {
                 m_theme = root["Theme"].toString("Dark");
@@ -131,10 +104,10 @@ void SettingsManager::loadSettings() {
             // Сохраняем весь объект для общих настроек
             m_settings = root;
 
-            qDebug() << "Settings loaded from:" << getSettingsPath();
+            LOG_INFO(QString("Settings loaded from: %1").arg(getSettingsPath()));
         }
     } else {
-        qDebug() << "Failed to load settings from:" << getSettingsPath();
+        LOG_ERROR(QString("Failed to load settings from: %1").arg(getSettingsPath()));
     }
 }
 
@@ -153,35 +126,15 @@ void SettingsManager::setStatisticsMaxThreshold(double threshold) {
     saveSettings();
 }
 
+void SettingsManager::setCoefficient(double coefficient) {
+    m_coefficient = coefficient;
+    saveSettings();
+    LOG_INFO(QString("Coefficient updated: %1 μm/px").arg(coefficient));
+}
+
 void SettingsManager::setTheme(const QString& theme) {
     m_theme = theme;
     saveSettings();
-}
-
-QJsonObject SettingsManager::houghParamsToJson(const ImageProcessor::HoughParams& params) const {
-    QJsonObject json;
-    json["name"] = params.name;
-    json["dp"] = params.dp;
-    json["minDist"] = params.minDist;
-    json["param1"] = params.param1;
-    json["param2"] = params.param2;
-    json["minRadius"] = params.minRadius;
-    json["maxRadius"] = params.maxRadius;
-    json["umPerPixel"] = params.umPerPixel;
-    return json;
-}
-
-ImageProcessor::HoughParams SettingsManager::jsonToHoughParams(const QJsonObject& json) const {
-    ImageProcessor::HoughParams params;
-    params.name = json["name"].toString("default");
-    params.dp = json["dp"].toDouble(1.0);
-    params.minDist = json["minDist"].toDouble(30.0);
-    params.param1 = json["param1"].toDouble(90.0);
-    params.param2 = json["param2"].toDouble(50.0);
-    params.minRadius = json["minRadius"].toInt(30);
-    params.maxRadius = json["maxRadius"].toInt(150);
-    params.umPerPixel = json["umPerPixel"].toDouble(0.0);
-    return params;
 }
 
 QVariant SettingsManager::getValue(const QString& key, const QVariant& defaultValue) const {
@@ -237,60 +190,4 @@ void SettingsManager::setValue(const QString& key, const QVariant& value) {
     }
 
     saveSettings();
-}
-
-// Методы для работы с пресетами
-QVector<ImageProcessor::HoughParams> SettingsManager::getAllPresets() const {
-    return m_presets;
-}
-
-void SettingsManager::setAllPresets(const QVector<ImageProcessor::HoughParams>& presets) {
-    m_presets = presets;
-    saveSettings();
-}
-
-ImageProcessor::HoughParams SettingsManager::getPresetByName(const QString& name) const {
-    for (const auto& preset : m_presets) {
-        if (preset.name == name) {
-            return preset;
-        }
-    }
-    // Возвращаем первый пресет, если не найден
-    if (!m_presets.isEmpty()) {
-        return m_presets.first();
-    }
-    // Возвращаем дефолтный
-    return ImageProcessor::HoughParams();
-}
-
-void SettingsManager::savePreset(const ImageProcessor::HoughParams& preset) {
-    // Ищем существующий пресет с таким же именем
-    for (int i = 0; i < m_presets.size(); ++i) {
-        if (m_presets[i].name == preset.name) {
-            m_presets[i] = preset;
-            saveSettings();
-            return;
-        }
-    }
-    // Если не найден, добавляем новый
-    m_presets.append(preset);
-    saveSettings();
-}
-
-void SettingsManager::deletePreset(const QString& name) {
-    for (int i = 0; i < m_presets.size(); ++i) {
-        if (m_presets[i].name == name) {
-            m_presets.removeAt(i);
-            saveSettings();
-            return;
-        }
-    }
-}
-
-QString SettingsManager::getLastSelectedPreset() const {
-    return getValue("lastSelectedPreset", "default").toString();
-}
-
-void SettingsManager::setLastSelectedPreset(const QString& presetName) {
-    setValue("lastSelectedPreset", presetName);
 }

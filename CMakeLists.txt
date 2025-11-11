@@ -27,6 +27,7 @@ add_executable(${PROJECT_NAME}
     previewgrid.h
     previewgrid.cpp
     improvedpreviewgrid.h
+    improvedpreviewgrid.cpp
     verificationwidget.h
     verificationwidget.cpp
     verificationdialog.h

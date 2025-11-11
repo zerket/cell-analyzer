@@ -17,16 +17,22 @@ public:
         double maximum = 0.0;
         double range = 0.0;
         int count = 0;
-        
+
         // Квартили
         double q1 = 0.0;  // 25-й процентиль
         double q3 = 0.0;  // 75-й процентиль
         double iqr = 0.0; // Межквартильный размах
-        
+
         // Дополнительные статистики
         double skewness = 0.0;    // Асимметрия
         double kurtosis = 0.0;    // Эксцесс
         double coefficientOfVariation = 0.0; // Коэффициент вариации
+
+        // Новые метрики (для диаметров в мкм)
+        double percentBelow50 = 0.0;  // % клеток < 50 мкм
+        double percentAbove100 = 0.0; // % клеток > 100 мкм
+        int countBelow50 = 0;         // Количество клеток < 50 мкм
+        int countAbove100 = 0;        // Количество клеток > 100 мкм
     };
     
     struct Distribution {

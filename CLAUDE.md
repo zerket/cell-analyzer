@@ -4,21 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CellAnalyzer is a Qt6-based desktop application for automated cell detection and analysis in microscopic images. It uses OpenCV for image processing and provides an intuitive GUI for researchers to measure cell diameters automatically, replacing manual measurement work.
+CellAnalyzer is a Qt6-based desktop application for automated cell detection and analysis in microscopic images. It uses **YOLOv8** for AI-powered cell detection via Python integration, and OpenCV for image processing. The application provides an intuitive GUI for researchers to measure cell diameters automatically, replacing manual measurement work.
 
 ### Main Features
-- **Multiple Detection Algorithms**: HoughCircles, ContourBased, Watershed, Morphological, Adaptive Threshold, Blob Detection
-- **Interactive Parameter Tuning**: Real-time preview with automatic parameter optimization
-- **Advanced Statistics**: Comprehensive statistical analysis with outlier detection, distribution analysis, and correlation
+- **YOLO-based Cell Detection**: YOLOv8 instance segmentation for accurate cell detection
+- **Python Integration**: Seamless Python-Qt bridge via QProcess for YOLO inference
+- **Advanced Statistics**: Comprehensive statistical analysis including % < 50 μm and % > 100 μm metrics
 - **Theme Support**: Light and dark themes with persistent settings
 - **Zoomable Image Viewer**: Pan and zoom functionality for detailed inspection
-- **Artifact Filtering**: Filter water droplets and other interference
 - **Automatic Scale Bar Detection**: Calculate measurements in micrometers
-- **Manual Verification**: Review and remove false positives
-- **CSV Export**: Complete measurement data export
+- **Manual Verification**: Review and remove false positives with interactive UI
+- **CSV Export**: Complete measurement data export with μm values
 - **Individual Cell Image Extraction**: Save detected cells as separate images
-- **Preset Management**: Save/load parameter presets with coefficient storage
+- **Coefficient Management**: Persistent pixel-to-micrometer coefficient storage
 - **Drag-and-Drop Support**: Easy image loading with improved preview grid
+- **Multi-image Tab Interface**: Separate tabs for each analyzed image
 
 ## Build Commands
 
@@ -57,76 +57,51 @@ build\Release\CellAnalyzer.exe
 - Contains toolbar with preview size slider, clear button, add images button, and analyze button
 
 **ImageProcessor** (`imageprocessor.h/cpp`)
-- Core image processing logic using OpenCV HoughCircles algorithm
-- Processes multiple images with configurable parameters
-- Detects scale ruler and calculates nm/pixel ratio
-- HoughCircles parameters:
-  - dp = 1.0 (accumulator resolution)
-  - minDist = 30.0 (minimum distance between circle centers)
-  - param1 = 90.0 (Canny edge detector threshold)
-  - param2 = 50.0 (circle center threshold)
-  - minRadius = 30 pixels
-  - maxRadius = 150 pixels
-
-**ParameterTuningWidget** (`parametertuningwidget.h/cpp`)
-- Interactive parameter tuning interface with controlled preview workflow
-- **NEW**: Shows original image initially (no auto-detection)
-- **NEW**: Interactive cell selection by clicking on image (red dots)
-- **NEW**: "Применить параметры" button triggers detection preview
-- **NEW**: Automatic parameter optimization based on selected cells
-- **NEW**: Iterative optimization algorithm with 1-minute timeout
-- **NEW**: Fixed coordinate mapping for accurate cell selection
-- **NEW**: Stable image scaling (800x600 max) to prevent zoom issues
-- **NEW**: Separate "Продолжить" button enabled only after applying parameters
-- **NEW**: Overlap filtering with minDist parameter enforcement
-- **NEW**: Smart evaluation algorithm ensuring each user point matches only one circle
-- **NEW**: Complete reset functionality ("🔄 Сбросить всё" button)
-- **NEW**: Unicode path support for images with Cyrillic characters
-- **NEW**: Auto-apply parameters with 200ms delay when values change
-- **NEW**: Guaranteed coverage algorithm using multiple search strategies
-- **NEW**: Enhanced UI with bottom toolbar (Back, Reset All, Continue buttons)  
-- **NEW**: Strategy-based optimization covering aggressive detection, threshold variation, and small circles
-- **NEW**: Advanced preset system with coefficient storage and auto-application
-- **NEW**: Preset management with save/delete functionality and last-used memory
-- **NEW**: Workflow optimization for repeated use with template-based processing
-- Allows saving/loading parameter presets with coefficients
-- Uses sophisticated scoring system to evaluate parameter quality for selected cells
+- Core YOLO-based cell detection using Python script integration
+- Executes `ml-data/scripts/detect_cells.py` via QProcess
+- Processes multiple images with configurable YOLO parameters
+- Detects scale ruler and calculates μm/pixel ratio using OpenCV
+- YOLO parameters (YoloParams structure):
+  - modelPath: Path to YOLO model (.pt file) - default: "ml-data/models/yolov8s_cells_v1.0.pt"
+  - confThreshold: Confidence threshold - default: 0.25
+  - iouThreshold: NMS IoU threshold - default: 0.7
+  - minCellArea: Minimum cell area in pixels to filter droplets - default: 500
+  - device: CUDA device ("0" for GPU, "cpu" for CPU)
+- Converts YOLO bounding boxes to circles for visualization
+- Supports Unicode image paths through QImage fallback
 
 **VerificationWidget** (`verificationwidget.h/cpp`)
-- Grid display of detected cells for manual verification
-- Shows diameter in pixels and nanometers
-- Allows removing false positives
-- Exports results to CSV format
+- **NEW DESIGN**: Multi-tab interface with per-image organization
+- Tab-based file navigation showing cell count per image
+- Split panel layout: cell list (left 25%) and preview with markup (right 75%)
+- Interactive cell selection: click on list or image to select, right-click on image to remove
+- Manual diameter input in micrometers for each cell
+- Coefficient calculation and management:
+  - Manual input of μm diameters for reference cells
+  - "Пересчитать" button calculates average coefficient and applies to empty fields
+  - Coefficient saved to SettingsManager for persistence
+  - Auto-loads saved coefficient on startup
+- Cell info panel showing position, radius, and diameter
+- Export to CSV with filename, cell number, position, diameter (pixels and μm)
+- Debug images with highlighted cells and annotations
 
 **SettingsManager** (`settingsmanager.h/cpp`)
 - Singleton pattern for centralized settings management
-- Saves to `AppData/Local/CellAnalyzer/settings.json`
-- Auto-saves on parameter changes
-
-**AdvancedDetector** (`advanceddetector.h/cpp`)
-- Multiple detection algorithms support:
-  - HoughCircles (circular cells detection)
-  - ContourBased (arbitrary shape detection)
-  - WatershedSegmentation (overlapping cells separation)
-  - MorphologicalOperations (shape-based detection)
-  - AdaptiveThreshold (contrast-adaptive detection)
-  - BlobDetection (keypoint-based detection)
-- Per-algorithm parameter configuration
-- Filtering by area, circularity, and other morphological properties
-- Overlap removal and quality filtering
-
-**AlgorithmSelectionWidget** (`algorithmselectionwidget.h/cpp`)
-- UI for selecting detection algorithm
-- Stacked parameter panels for each algorithm type
-- Real-time parameter adjustment with preview
-- Algorithm description tooltips
-- Preset management integration
+- Saves settings to `settings.json` next to executable
+- Manages:
+  - Preview size (default: 150px)
+  - Statistics thresholds (min: 50.0 μm, max: 100.0 μm)
+  - Pixel-to-micrometer coefficient (persistent across sessions)
+  - Theme preference (Light/Dark)
+- Auto-saves on any setting change
+- **REMOVED**: Preset management (no longer needed with YOLO)
 
 **StatisticsAnalyzer** (`statisticsanalyzer.h/cpp`)
-- Comprehensive statistical analysis:
+- Comprehensive statistical analysis (all metrics in micrometers):
   - Basic statistics: mean, median, std deviation, variance, min, max, range
   - Quartiles: Q1, Q3, IQR
   - Advanced metrics: skewness, kurtosis, coefficient of variation
+  - **NEW**: % < 50 μm and % > 100 μm with cell counts
   - Distribution analysis with histogram binning
 - Outlier detection:
   - IQR method (Interquartile Range)
@@ -137,7 +112,7 @@ build\Release\CellAnalyzer.exe
 
 **StatisticsWidget** (`statisticswidget.h/cpp`)
 - Multi-tab statistics display:
-  - Overview: Summary statistics and cell counts
+  - Overview: Summary statistics with median, mean, % < 50 μm, % > 100 μm
   - Details: Per-parameter detailed statistics
   - Distribution: Histogram and distribution shape analysis
   - Correlation: Parameter correlation matrix
@@ -200,21 +175,24 @@ build\Release\CellAnalyzer.exe
 
 ## Dependencies
 
-- **Qt6**: Widgets, Gui modules
-- **OpenCV 4.11.0**: core, imgproc, highgui, objdetect modules
+- **Qt6**: Widgets, Gui, Concurrent modules
+- **OpenCV 4.11.0**: core, imgproc, highgui modules (for scale detection and image loading)
+- **Python 3.x**: Required for YOLO inference
+- **Python packages**: ultralytics, opencv-python, numpy, torch
 - **Compiler**: MSVC 2022
 - **Build System**: CMake 3.16+
 - **Platform**: Windows x64
 
 ## Important Implementation Details
 
-1. **Image Processing Pipeline**:
-   - Median blur preprocessing (`cv::medianBlur`)
-   - Multiple detection algorithms (HoughCircles, Contours, Watershed, etc.)
-   - Visibility filtering (minimum 60% of circle must be visible)
-   - Scale detection using HoughLinesP
-   - Morphological filtering and overlap removal
-   - Unicode path support for international characters
+1. **YOLO Detection Pipeline**:
+   - Python script (`ml-data/scripts/detect_cells.py`) executed via QProcess
+   - YOLO model performs instance segmentation
+   - Bounding boxes converted to circles for visualization compatibility
+   - Droplet filtering based on area threshold (default: 500 pixels)
+   - JSON output parsed by Qt application
+   - Scale detection using OpenCV HoughLinesP
+   - Unicode path support for international characters via QImage fallback
 
 2. **Responsive UI**:
    - QScrollArea for content overflow
@@ -254,67 +232,54 @@ build\Release\CellAnalyzer.exe
    - Batch processing with progress tracking
 
 7. **Data Persistence**:
-   - Settings saved to JSON format
-   - Last-used preset auto-loading
+   - Settings saved to JSON format next to executable
+   - Coefficient (μm/pixel) persistence across sessions
    - Theme preference persistence
-   - Window size and position memory
-   - Parameter history tracking
+   - No presets needed - YOLO parameters are fixed
 
 ## User Workflows
 
-### Single Image Analysis
-1. User selects one image → Parameter tuning screen opens (shows original image without detection)
-2. **NEW**: User can click on image to select target cells (red dots appear at click locations)
-3. User can either:
-   - Manually adjust parameters and click "Применить параметры" to see detection results
-   - Load a saved preset and apply it
-   - **NEW**: Select cells and use "🎯 Подобрать параметры" for automatic optimization
-4. Once parameters are applied, preview shows both detected circles and selected cells
-5. User can save parameter preset with custom name
-6. **NEW**: "Продолжить" button (bottom-right) is enabled only after parameters are applied
+### **NEW: Simplified YOLO Workflow**
 
-### Batch Processing
-1. User selects multiple images → Uses saved presets
-2. Progress bar shows processing status
-3. Automatic scale detection on each image
-4. Cell detection using selected parameters
+**Step 1: Load Images**
+1. User selects one or multiple images
+2. Images displayed in preview grid
+3. Click "Начать анализ (YOLO)" button
 
-### Verification and Export
-1. Grid view shows all detected cells
-2. Click to remove false positives
-3. View comprehensive statistics (optional)
-4. Export to CSV with complete measurements
-5. Save individual cell images
-6. Export statistical reports (Text/CSV/Markdown)
+**Step 2: Automatic Detection**
+1. YOLO model processes all images automatically
+2. No parameter tuning needed - AI handles detection
+3. Progress shown during processing
+4. Results appear in verification widget
 
-### Statistics Analysis Workflow
-1. After verification, access statistics widget
+**Step 3: Verification and Coefficient**
+1. **Multi-tab interface**: Separate tab for each analyzed image
+2. **Split view**: Cell list (left) and image preview (right)
+3. **Interactive selection**: Click cells in list or on image
+4. **Coefficient workflow**:
+   - Measure a few cells manually with microscope
+   - Enter real μm values in the "Диаметр (мкм)" column
+   - Click "Пересчитать" to calculate and apply coefficient to all cells
+   - Coefficient auto-saves for future sessions
+5. **Remove false positives**: Right-click on image or click ❌ button
+6. **Export**: Click "💾 Сохранить" to export CSV with all measurements
+
+**Step 4: Statistics (Optional)**
+1. Click "📊 Статистика" button
 2. Review multi-tab analysis:
-   - **Overview**: Summary statistics and counts
-   - **Details**: Per-image group statistics
-   - **Distribution**: Histogram and shape analysis
+   - **Overview**: Median, mean, % < 50 μm, % > 100 μm
+   - **Details**: Full statistics per parameter
+   - **Distribution**: Histogram and distribution analysis
    - **Correlation**: Parameter relationships
-   - **Outliers**: Anomaly detection and filtering
-3. Export statistical reports in preferred format
-4. Return to verification for additional cell filtering if needed
+   - **Outliers**: Anomaly detection
+3. Export statistical reports (Text/CSV/Markdown)
+4. Return to verification for adjustments
 
-### **NEW: Optimized Template Workflow**
-**First-time setup (detailed configuration):**
-1. Load images → Parameter tuning page (shows original image)
-2. Click on target cells to mark them (red dots)
-3. Use "🎯 Подобрать параметры" for automatic optimization
-4. Save preset with meaningful name (includes coefficient)
-5. Continue to verification → Diameters auto-filled if coefficient available
-6. Manual verification and CSV export
-
-**Subsequent use (streamlined):**
-1. Load images → Parameter tuning page  
-2. Last-used preset auto-selected and applied
-3. Verify correct preset is chosen → Continue
-4. Verification page with pre-filled diameters
-5. Quick verification and export
-
-This workflow enables **one-time careful setup**, then **fast repeated processing** with the same image types.
+### Key Advantages
+- **No parameter tuning** - YOLO works automatically
+- **Persistent coefficient** - Set once, use forever (for same microscope/magnification)
+- **Fast workflow** - Load → Detect → Verify → Export
+- **Accurate AI detection** - 99.3% mAP50 on trained data
 
 ## ToDo plan
 1. all todo plan in file ./todo.md

@@ -168,29 +168,6 @@ void StatisticsWidget::populateOverviewTab(const StatisticsAnalyzer::Comprehensi
     // Резюме
     summaryText->setPlainText(analysis.summary);
 
-    // Получаем пороги из настроек
-    double minThreshold = SettingsManager::instance().getStatisticsMinThreshold();
-    double maxThreshold = SettingsManager::instance().getStatisticsMaxThreshold();
-
-    // Подсчитываем процентные доли для диаметров
-    int totalCells = currentCells.size();
-    int cellsBelowMin = 0;
-    int cellsAboveMax = 0;
-
-    for (const Cell& cell : currentCells) {
-        if (cell.diameter_um > 0) { // Учитываем только клетки с заданным диаметром
-            if (cell.diameter_um < minThreshold) {
-                cellsBelowMin++;
-            }
-            if (cell.diameter_um > maxThreshold) {
-                cellsAboveMax++;
-            }
-        }
-    }
-
-    double percentBelowMin = totalCells > 0 ? (cellsBelowMin * 100.0 / totalCells) : 0.0;
-    double percentAboveMax = totalCells > 0 ? (cellsAboveMax * 100.0 / totalCells) : 0.0;
-
     // Основная таблица статистик
     overviewTable->setColumnCount(2);
     overviewTable->setHorizontalHeaderLabels({"Параметр", "Значение"});
@@ -204,13 +181,19 @@ void StatisticsWidget::populateOverviewTab(const StatisticsAnalyzer::Comprehensi
     overviewTable->setItem(1, 0, new QTableWidgetItem("Среднее (мкм)"));
     overviewTable->setItem(1, 1, new QTableWidgetItem(formatStatValue(analysis.diameterStats.mean)));
 
-    // Процент < minThreshold
-    overviewTable->setItem(2, 0, new QTableWidgetItem(QString("% < %1 мкм").arg(minThreshold)));
-    overviewTable->setItem(2, 1, new QTableWidgetItem(formatStatValue(percentBelowMin) + "%"));
+    // Процент < 50 мкм (из расчетов в StatisticsAnalyzer)
+    overviewTable->setItem(2, 0, new QTableWidgetItem("% < 50 мкм"));
+    overviewTable->setItem(2, 1, new QTableWidgetItem(
+        formatStatValue(analysis.diameterStats.percentBelow50) + "%" +
+        QString(" (%1 клеток)").arg(analysis.diameterStats.countBelow50)
+    ));
 
-    // Процент > maxThreshold
-    overviewTable->setItem(3, 0, new QTableWidgetItem(QString("% > %1 мкм").arg(maxThreshold)));
-    overviewTable->setItem(3, 1, new QTableWidgetItem(formatStatValue(percentAboveMax) + "%"));
+    // Процент > 100 мкм (из расчетов в StatisticsAnalyzer)
+    overviewTable->setItem(3, 0, new QTableWidgetItem("% > 100 мкм"));
+    overviewTable->setItem(3, 1, new QTableWidgetItem(
+        formatStatValue(analysis.diameterStats.percentAbove100) + "%" +
+        QString(" (%1 клеток)").arg(analysis.diameterStats.countAbove100)
+    ));
 
     overviewTable->resizeColumnsToContents();
     overviewTable->horizontalHeader()->setStretchLastSection(true);
