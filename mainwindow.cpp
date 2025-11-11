@@ -22,7 +22,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
 
-    setWindowTitle("Cell Analyzer - Анализатор клеток");
+    setWindowTitle("Cell Analyzer - Анализатор клеток (YOLO)");
     setMinimumSize(1200, 800);
     resize(1200, 800);
 
@@ -36,103 +36,10 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     verificationWidget = nullptr;
-    parameterTuningWidget = nullptr;
     statisticsWidget = nullptr;
 
-    // Загружаем параметры из настроек (последний выбранный пресет)
-    QString lastPreset = SettingsManager::instance().getLastSelectedPreset();
-    currentHoughParams = SettingsManager::instance().getPresetByName(lastPreset);
-
-    // Создаем главный виджет напрямую без внешнего QScrollArea
+    // Создаем главный виджет
     setCentralWidget(createMainWidget());
-}
-
-
-void MainWindow::onParametersConfirmed(const ParameterTuningWidget::HoughParams& params) {
-    LOG_INFO("MainWindow::onParametersConfirmed() called");
-    
-    currentHoughParams = params;
-    LOG_INFO("Parameters confirmed and saved in preset");
-    
-    LOG_INFO("Cleaning up parameter tuning widget");
-    // Удаляем виджет настройки параметров
-    if (parameterTuningWidget) {
-        parameterTuningWidget->hide();
-        parameterTuningWidget->deleteLater();
-        parameterTuningWidget = nullptr;
-        LOG_INFO("Parameter tuning widget cleaned up");
-    }
-    
-    LOG_INFO("Creating ImageProcessor");
-    // Обработка изображений с заданными параметрами
-    ImageProcessor* processor = nullptr;
-    try {
-        processor = new ImageProcessor();
-        LOG_INFO("ImageProcessor created successfully");
-    } catch (const std::exception& e) {
-        LOG_ERROR(QString("Failed to create ImageProcessor: %1").arg(e.what()));
-        return;
-    }
-    
-    LOG_INFO(QString("Processing %1 images").arg(selectedImagePaths.size()));
-    try {
-        processor->processImages(selectedImagePaths, params);
-        LOG_INFO("Images processed successfully");
-    } catch (const std::exception& e) {
-        LOG_ERROR(QString("Failed to process images: %1").arg(e.what()));
-        delete processor;
-        return;
-    }
-
-    LOG_INFO(QString("Detected %1 cells").arg(processor->getDetectedCells().size()));
-    
-    if (processor->getDetectedCells().isEmpty()) {
-        LOG_WARNING("No cells detected");
-        QMessageBox::information(this, "Результат", "Клетки не обнаружены на выбранных изображениях");
-        delete processor;
-        
-        // Возвращаемся к главному экрану
-        LOG_INFO("Returning to main screen");
-        setCentralWidget(createMainWidget());
-        return;
-    }
-
-    LOG_INFO("Cleaning up old verification widget");
-    if (verificationWidget) {
-        verificationWidget->deleteLater();
-        verificationWidget = nullptr;
-    }
-    
-    LOG_INFO("Creating copy of detected cells");
-    // Создаем копию вектора cells перед удалением processor
-    QVector<Cell> detectedCells = processor->getDetectedCells();
-    LOG_INFO(QString("Copied %1 cells").arg(detectedCells.size()));
-    
-    delete processor;
-    LOG_INFO("ImageProcessor deleted");
-    
-    LOG_INFO("Creating VerificationWidget");
-    try {
-        verificationWidget = new VerificationWidget(detectedCells);
-        LOG_INFO("VerificationWidget created successfully");
-    } catch (const std::exception& e) {
-        LOG_ERROR(QString("Failed to create VerificationWidget: %1").arg(e.what()));
-        return;
-    }
-
-    LOG_INFO("Connecting signals");
-    connect(verificationWidget, &VerificationWidget::analysisCompleted, this, [this]() {
-        LOG_INFO("Analysis completed, returning to main screen");
-        // Возвращаемся к главному экрану после анализа
-        setCentralWidget(createMainWidget());
-    });
-    
-    connect(verificationWidget, &VerificationWidget::statisticsRequested, this, &MainWindow::showStatistics);
-
-    LOG_INFO("Setting VerificationWidget as central widget");
-    // НЕ оборачиваем в QScrollArea, т.к. он уже есть внутри VerificationWidget
-    setCentralWidget(verificationWidget);
-    LOG_INFO("onParametersConfirmed() completed successfully");
 }
 
 void MainWindow::updateAnalysisButtonState() {
@@ -145,7 +52,7 @@ QWidget* MainWindow::createMainWidget() {
     centralLayout = new QVBoxLayout(centralWidgetContainer);
     centralLayout->setSpacing(10);
     centralLayout->setContentsMargins(20, 20, 20, 20);
-    
+
     // Кнопка выбора изображений
     selectButton = new QPushButton("Выбрать изображения");
     selectButton->setToolTip("Выберите одно или несколько изображений с микроскопа для анализа");
@@ -165,7 +72,7 @@ QWidget* MainWindow::createMainWidget() {
     );
     connect(selectButton, &QPushButton::clicked, this, &MainWindow::selectImages);
 
-    // Создаем scroll area для превью (будет добавлена позже в setupWithImagesState)
+    // Создаем scroll area для превью
     previewScrollArea = new QScrollArea(this);
     previewScrollArea->setWidgetResizable(true);
     previewScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -176,12 +83,12 @@ QWidget* MainWindow::createMainWidget() {
     previewGrid->setPreviewSize(200);
     previewScrollArea->setWidget(previewGrid);
     connect(previewGrid, &PreviewGrid::pathsChanged, this, &MainWindow::updateAnalysisButtonState);
-    
+
     // Прогресс бар
     progressBar = new QProgressBar(this);
     progressBar->setVisible(false);
     progressBar->setTextVisible(true);
-    
+
     // Нижний тулбар
     toolbarWidget = new QWidget();
     toolbarWidget->setVisible(false);
@@ -204,7 +111,7 @@ QWidget* MainWindow::createMainWidget() {
     );
     connect(clearButton, &QPushButton::clicked, this, &MainWindow::clearImages);
     toolbarLayout->addWidget(clearButton);
-    
+
     // Кнопка добавления изображений
     addImagesButton = new QPushButton("Добавить изображения");
     addImagesButton->setStyleSheet(
@@ -220,11 +127,11 @@ QWidget* MainWindow::createMainWidget() {
     );
     connect(addImagesButton, &QPushButton::clicked, this, &MainWindow::selectImages);
     toolbarLayout->addWidget(addImagesButton);
-    
+
     toolbarLayout->addStretch();
-    
+
     // Кнопка анализа
-    analyzeButton = new QPushButton("Начать анализ");
+    analyzeButton = new QPushButton("Начать анализ (YOLO)");
     analyzeButton->setMinimumHeight(40);
     analyzeButton->setStyleSheet(
         "QPushButton {"
@@ -244,9 +151,9 @@ QWidget* MainWindow::createMainWidget() {
     analyzeButton->setEnabled(false);
     connect(analyzeButton, &QPushButton::clicked, this, &MainWindow::startAnalysis);
     toolbarLayout->addWidget(analyzeButton);
-    
+
     setupInitialState();
-    
+
     return centralWidgetContainer;
 }
 
@@ -283,9 +190,9 @@ void MainWindow::setupWithImagesState() {
 
     selectButton->hide();
 
-    // Добавляем scroll area с previewGrid (растягивается на все доступное пространство)
+    // Добавляем scroll area с previewGrid
     if (centralLayout->indexOf(previewScrollArea) == -1) {
-        centralLayout->addWidget(previewScrollArea, 1); // stretch factor = 1
+        centralLayout->addWidget(previewScrollArea, 1);
     }
 
     // Прогресс бар
@@ -293,7 +200,7 @@ void MainWindow::setupWithImagesState() {
         centralLayout->addWidget(progressBar);
     }
 
-    // Toolbar всегда внизу без stretch (фиксированная позиция)
+    // Toolbar всегда внизу
     if (centralLayout->indexOf(toolbarWidget) == -1) {
         centralLayout->addWidget(toolbarWidget);
     }
@@ -306,7 +213,7 @@ void MainWindow::setupWithImagesState() {
 void MainWindow::clearImages() {
     // Очищаем все изображения
     previewGrid->clearAll();
-    
+
     // Возвращаемся к начальному состоянию
     setupInitialState();
 }
@@ -327,17 +234,82 @@ void MainWindow::startAnalysis() {
         return;
     }
 
-    // Всегда показываем экран настройки параметров, используя первое изображение для предпросмотра
-    if (parameterTuningWidget) {
-        parameterTuningWidget->deleteLater();
-        parameterTuningWidget = nullptr;
+    LOG_INFO(QString("Starting YOLO analysis for %1 images").arg(selectedImagePaths.size()));
+
+    // Создаем ImageProcessor
+    ImageProcessor* processor = nullptr;
+    try {
+        processor = new ImageProcessor();
+        LOG_INFO("ImageProcessor created successfully");
+    } catch (const std::exception& e) {
+        LOG_ERROR(QString("Failed to create ImageProcessor: %1").arg(e.what()));
+        QMessageBox::critical(this, "Ошибка", QString("Не удалось создать обработчик изображений: %1").arg(e.what()));
+        return;
     }
-    
-    parameterTuningWidget = new ParameterTuningWidget(selectedImagePaths.first(), this);
-    connect(parameterTuningWidget, &ParameterTuningWidget::parametersConfirmed,
-            this, &MainWindow::onParametersConfirmed);
-    
-    setCentralWidget(parameterTuningWidget);
+
+    // Обработка изображений с параметрами YOLO по умолчанию
+    ImageProcessor::YoloParams params;  // Default: conf=0.25, iou=0.7, minArea=500
+
+    LOG_INFO(QString("Processing %1 images with YOLO").arg(selectedImagePaths.size()));
+
+    try {
+        processor->processImages(selectedImagePaths, params);
+        LOG_INFO("Images processed successfully");
+    } catch (const std::exception& e) {
+        LOG_ERROR(QString("Failed to process images: %1").arg(e.what()));
+        QMessageBox::critical(this, "Ошибка", QString("Ошибка обработки изображений: %1").arg(e.what()));
+        delete processor;
+        return;
+    }
+
+    LOG_INFO(QString("Detected %1 cells").arg(processor->getDetectedCells().size()));
+
+    if (processor->getDetectedCells().isEmpty()) {
+        LOG_WARNING("No cells detected");
+        QMessageBox::information(this, "Результат", "Клетки не обнаружены на выбранных изображениях");
+        delete processor;
+
+        // Возвращаемся к главному экрану
+        LOG_INFO("Returning to main screen");
+        setCentralWidget(createMainWidget());
+        return;
+    }
+
+    LOG_INFO("Creating copy of detected cells");
+    // Создаем копию вектора cells перед удалением processor
+    QVector<Cell> detectedCells = processor->getDetectedCells();
+    LOG_INFO(QString("Copied %1 cells").arg(detectedCells.size()));
+
+    delete processor;
+    LOG_INFO("ImageProcessor deleted");
+
+    // Очищаем старый verification widget
+    if (verificationWidget) {
+        verificationWidget->deleteLater();
+        verificationWidget = nullptr;
+    }
+
+    LOG_INFO("Creating VerificationWidget");
+    try {
+        verificationWidget = new VerificationWidget(detectedCells);
+        LOG_INFO("VerificationWidget created successfully");
+    } catch (const std::exception& e) {
+        LOG_ERROR(QString("Failed to create VerificationWidget: %1").arg(e.what()));
+        QMessageBox::critical(this, "Ошибка", QString("Не удалось создать окно верификации: %1").arg(e.what()));
+        return;
+    }
+
+    LOG_INFO("Connecting signals");
+    connect(verificationWidget, &VerificationWidget::analysisCompleted, this, [this]() {
+        LOG_INFO("Analysis completed, returning to main screen");
+        setCentralWidget(createMainWidget());
+    });
+
+    connect(verificationWidget, &VerificationWidget::statisticsRequested, this, &MainWindow::showStatistics);
+
+    LOG_INFO("Setting VerificationWidget as central widget");
+    setCentralWidget(verificationWidget);
+    LOG_INFO("Analysis started successfully");
 }
 
 void MainWindow::showVerification() {
@@ -348,21 +320,20 @@ void MainWindow::showVerification() {
 
     Logger::instance().log("Возврат к окну проверки результатов");
 
-    // Извлекаем текущий центральный виджет БЕЗ удаления (QScrollArea со статистикой)
+    // Извлекаем текущий центральный виджет БЕЗ удаления
     QWidget* oldCentral = takeCentralWidget();
     if (oldCentral) {
-        Logger::instance().log("Удаляем QScrollArea со статистикой");
+        Logger::instance().log("Удаляем старый центральный виджет");
         oldCentral->deleteLater();
     }
 
-    // НЕ оборачиваем в QScrollArea, т.к. он уже есть внутри VerificationWidget
     setCentralWidget(verificationWidget);
     Logger::instance().log("VerificationWidget установлен как центральный виджет");
 }
 
 
 MainWindow::~MainWindow() {
-    // Очистка ресурсов, если нужно
+    // Очистка ресурсов
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event) {
@@ -370,18 +341,18 @@ void MainWindow::resizeEvent(QResizeEvent* event) {
 
     if (!previewGrid || !previewScrollArea) return;
 
-    // Проверяем, что мы на главном экране (centralWidget == centralWidgetContainer)
+    // Проверяем, что мы на главном экране
     if (centralWidget() != centralWidgetContainer) {
         return;
     }
 
-    // Проверяем, что previewScrollArea видим (значит мы в режиме с изображениями)
+    // Проверяем, что previewScrollArea видим
     if (!previewScrollArea->isVisible()) {
         return;
     }
 
-    int width = previewScrollArea->viewport()->width() - 20; // учитываем отступы
-    int previewItemWidth = previewGrid->getPreviewSize() + 10; // размер превью + отступы
+    int width = previewScrollArea->viewport()->width() - 20;
+    int previewItemWidth = previewGrid->getPreviewSize() + 10;
     int maxColumns = width / previewItemWidth;
     if (maxColumns < 1) maxColumns = 1;
 
@@ -425,7 +396,6 @@ void MainWindow::setupMenuBar() {
     aboutAction->setShortcut(QKeySequence("F1"));
     connect(aboutAction, &QAction::triggered, this, [this]() {
         // Читаем содержимое README.md
-        // Ищем файл в нескольких возможных местах
         QStringList possiblePaths = {
             QCoreApplication::applicationDirPath() + "/README.md",
             QCoreApplication::applicationDirPath() + "/../README.md",
@@ -450,8 +420,9 @@ void MainWindow::setupMenuBar() {
         }
 
         if (!found) {
-            readmeContent = "# CellAnalyzer\n\nНе удалось загрузить файл README.md\n\n"
+            readmeContent = "# CellAnalyzer (YOLO Edition)\n\nНе удалось загрузить файл README.md\n\n"
                           "Приложение для автоматического обнаружения и анализа клеток на микроскопических изображениях.\n\n"
+                          "Использует YOLOv8 для детекции клеток.\n\n"
                           "Попробованные пути:\n";
             for (const QString& path : possiblePaths) {
                 readmeContent += "- " + path + "\n";
@@ -519,7 +490,6 @@ void MainWindow::showStatistics() {
         statisticsWidget = new StatisticsWidget(this);
         connect(statisticsWidget, &StatisticsWidget::backToVerification,
                 this, &MainWindow::onBackFromStatistics);
-        // Обнуляем указатель при удалении виджета
         connect(statisticsWidget, &QObject::destroyed, this, [this]() {
             statisticsWidget = nullptr;
             Logger::instance().log("StatisticsWidget удален, указатель обнулен");
@@ -538,7 +508,7 @@ void MainWindow::showStatistics() {
 
 void MainWindow::onBackFromStatistics() {
     Logger::instance().log("onBackFromStatistics: Обработка возврата из статистики");
-    
+
     try {
         showVerification();
         Logger::instance().log("onBackFromStatistics: Успешно вернулись к проверке результатов");

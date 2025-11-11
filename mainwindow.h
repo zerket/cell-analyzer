@@ -12,7 +12,6 @@
 #include <QLabel>
 #include "previewgrid.h"
 #include "verificationwidget.h"
-#include "parametertuningwidget.h"
 #include "statisticswidget.h"
 
 class MainWindow : public QMainWindow {
@@ -28,20 +27,17 @@ private slots:
     void showVerification();
     void showStatistics();
     void updateAnalysisButtonState();
-    void onParametersConfirmed(const ParameterTuningWidget::HoughParams& params);
     void clearImages();
     void onBackFromStatistics();
 
 private:
     PreviewGrid* previewGrid;
     VerificationWidget* verificationWidget;
-    ParameterTuningWidget* parameterTuningWidget;
     StatisticsWidget* statisticsWidget;
     QPushButton* analyzeButton;
     QPushButton* selectButton;
     QProgressBar* progressBar;
     QStringList selectedImagePaths;
-    ParameterTuningWidget::HoughParams currentHoughParams;
 
     QWidget* centralWidgetContainer;
     QVBoxLayout* centralLayout;

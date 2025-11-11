@@ -85,3 +85,5 @@ nul
 /results
 /logs
 CellAnalyzer-Release*.zip
+ml-data/training_data/*
+ml-data/training_runs/*
