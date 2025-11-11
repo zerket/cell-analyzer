@@ -1,28 +1,5 @@
 {
     "Theme": "Dark",
-    "houghParams": [
-        {
-            "dp": 0.5,
-            "maxRadius": 80,
-            "minDist": 35,
-            "minRadius": 20,
-            "name": "default",
-            "param1": 80,
-            "param2": 40,
-            "umPerPixel": 0.99878
-        },
-        {
-            "dp": 0.5,
-            "maxRadius": 80,
-            "minDist": 35,
-            "minRadius": 20,
-            "name": "ТИМ1",
-            "param1": 60,
-            "param2": 30,
-            "umPerPixel": 0.99
-        }
-    ],
-    "lastSelectedPreset": "ТИМ1",
     "previewSize": 150,
     "statisticsMaxThreshold": 100,
     "statisticsMinThreshold": 50

@@ -28,6 +28,9 @@ public:
     void clearDiameterNm();
     void setSelected(bool selected);
 
+    // Lazy loading for thumbnail
+    void loadThumbnail();
+
 signals:
     void clicked(CellListItemWidget* item);
     void diameterNmChanged();
@@ -51,6 +54,7 @@ private:
     Cell m_cell;
     bool m_selected;
     bool m_hovered;
+    bool m_thumbnailLoaded;
 
     QLabel* m_numberLabel;
     QLabel* m_imageLabel;

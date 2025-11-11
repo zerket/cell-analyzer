@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QMap>
+#include <QTimer>
 #include "cell.h"
 #include "celllistitemwidget.h"
 #include "markupimagewidget.h"
@@ -38,6 +39,7 @@ private slots:
     void onRecalculateClicked();
     void onClearDiametersClicked();
     void onSaveCellsClicked();
+    void loadNextThumbnailBatch();
 
 private:
     // Setup methods
@@ -89,6 +91,10 @@ private:
     QVector<CellListItemWidget*> m_cellWidgets;
     int m_selectedCellIndex;
     QString m_currentFilePath;
+
+    // Lazy loading optimization
+    QTimer* m_thumbnailLoadTimer;
+    int m_thumbnailLoadIndex;
 };
 
 #endif // VERIFICATIONWIDGET_H

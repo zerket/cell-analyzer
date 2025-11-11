@@ -167,3 +167,1372 @@
 2025-11-11 23:20:45.366 [INFO] Connecting signals
 2025-11-11 23:20:45.366 [INFO] Setting VerificationWidget as central widget
 2025-11-11 23:20:45.381 [INFO] Analysis started successfully
+2025-11-12 00:26:34.756 [INFO] ==================================================
+2025-11-12 00:26:34.757 [INFO] CellAnalyzer application started
+2025-11-12 00:26:34.757 [INFO] ==================================================
+2025-11-12 00:26:34.893 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 00:26:50.092 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 00:26:50.092 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:26:50.092 [INFO] ImageProcessor created successfully
+2025-11-12 00:26:50.092 [INFO] Processing 1 images with YOLO
+2025-11-12 00:26:50.092 [INFO] Processing 1 images with YOLO model
+2025-11-12 00:26:50.092 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:26:50.092 [INFO] Confidence threshold: 0.1
+2025-11-12 00:26:50.118 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:26:50.258 [INFO] Using CPU backend
+2025-11-12 00:26:50.550 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:26:50.550 [INFO] Image size: 1388x1040
+2025-11-12 00:26:50.550 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:26:50.550 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:26:50.550 [INFO] Detection 0: x=8.22595, y=6.13378, w=16.959, h=13.0373, score=0.0286407
+2025-11-12 00:26:50.550 [INFO] Detection 76: x=604.704, y=5.43094, w=73.3755, h=11.2632, score=0.0162674
+2025-11-12 00:26:50.550 [INFO] Detection 975: x=125.601, y=111.564, w=40.985, h=53.0071, score=0.281421
+2025-11-12 00:26:50.550 [INFO] Detection 976: x=125.496, y=111.584, w=40.6826, h=53.1266, score=0.106159
+2025-11-12 00:26:50.550 [INFO] Detection 1054: x=125.642, y=111.511, w=40.932, h=52.9776, score=0.0127823
+2025-11-12 00:26:50.550 [INFO] Before NMS: 347 detections
+2025-11-12 00:26:50.550 [INFO] After NMS: 39 detections
+2025-11-12 00:26:50.550 [INFO] ONNX detected 39 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-12 00:26:50.590 [INFO] Processing complete. Detected 39 cells total
+2025-11-12 00:26:50.590 [INFO] Images processed successfully
+2025-11-12 00:26:50.590 [INFO] Detected 39 cells
+2025-11-12 00:26:50.590 [INFO] Creating copy of detected cells
+2025-11-12 00:26:50.590 [INFO] Copied 39 cells
+2025-11-12 00:26:50.590 [INFO] ImageProcessor destroyed
+2025-11-12 00:26:50.590 [INFO] ImageProcessor deleted
+2025-11-12 00:26:50.590 [INFO] Creating VerificationWidget
+2025-11-12 00:26:50.590 [INFO] VerificationWidget constructor called (New Design)
+2025-11-12 00:26:50.590 [INFO] Received 39 cells
+2025-11-12 00:26:50.592 [INFO] Cells grouped into 1 files
+2025-11-12 00:26:50.592 [INFO] groupCellsByFile completed
+2025-11-12 00:26:50.592 [INFO] setupUI: Creating main layout
+2025-11-12 00:26:50.592 [INFO] setupUI: Creating file tabs
+2025-11-12 00:26:50.592 [INFO] setupUI: Added tab for ТИМ1.jpg with 39 cells
+2025-11-12 00:26:50.592 [INFO] setupUI: File tabs created
+2025-11-12 00:26:50.592 [INFO] setupUI: Creating main splitter
+2025-11-12 00:26:50.592 [INFO] setupUI: Creating cell list panel
+2025-11-12 00:26:50.593 [INFO] setupUI: Creating right panel
+2025-11-12 00:26:50.593 [INFO] setupUI: Creating preview widget
+2025-11-12 00:26:50.594 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-12 00:26:50.627 [INFO] Updated cell list with 39 cells
+2025-11-12 00:26:50.639 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:26:50.646 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:26:50.646 [INFO] VerificationWidget UI setup completed
+2025-11-12 00:26:50.646 [INFO] setupUI completed
+2025-11-12 00:26:50.646 [INFO] loadSavedCoefficient: savedCoeff=0
+2025-11-12 00:26:50.646 [INFO] loadSavedCoefficient completed
+2025-11-12 00:26:50.646 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:26:50.651 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:26:50.651 [INFO] First cell selected
+2025-11-12 00:26:50.651 [INFO] VerificationWidget created successfully
+2025-11-12 00:26:50.651 [INFO] Connecting signals
+2025-11-12 00:26:50.651 [INFO] Setting VerificationWidget as central widget
+2025-11-12 00:26:50.651 [INFO] Analysis started successfully
+2025-11-12 00:26:56.934 [INFO] Cells grouped into 1 files
+2025-11-12 00:26:56.969 [INFO] Updated cell list with 38 cells
+2025-11-12 00:26:56.988 [INFO] Auto-scrolled to cell at local index 36
+2025-11-12 00:26:56.993 [INFO] Selected cell: global=36, local=36
+2025-11-12 00:26:56.993 [INFO] Cell removed by right-click on image: local index 36
+2025-11-12 00:27:20.880 [INFO] Auto-scrolled to cell at local index 34
+2025-11-12 00:27:20.884 [INFO] Selected cell: global=34, local=34
+2025-11-12 00:27:21.615 [INFO] Auto-scrolled to cell at local index 17
+2025-11-12 00:27:21.619 [INFO] Selected cell: global=17, local=17
+2025-11-12 00:27:22.374 [INFO] Auto-scrolled to cell at local index 7
+2025-11-12 00:27:22.377 [INFO] Selected cell: global=7, local=7
+2025-11-12 00:27:22.897 [INFO] Auto-scrolled to cell at local index 25
+2025-11-12 00:27:22.901 [INFO] Selected cell: global=25, local=25
+2025-11-12 00:27:33.536 [INFO] Analysis completed, returning to main screen
+2025-11-12 00:27:33.537 [INFO] VerificationWidget destructor called
+2025-11-12 00:27:39.995 [INFO] Starting YOLO analysis for 9 images
+2025-11-12 00:27:39.995 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:27:39.995 [INFO] ImageProcessor created successfully
+2025-11-12 00:27:39.995 [INFO] Processing 9 images with YOLO
+2025-11-12 00:27:39.995 [INFO] Processing 9 images with YOLO model
+2025-11-12 00:27:39.995 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:39.995 [INFO] Confidence threshold: 0.1
+2025-11-12 00:27:40.004 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:40.112 [INFO] Using CPU backend
+2025-11-12 00:27:40.403 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:27:40.403 [INFO] Image size: 1388x1040
+2025-11-12 00:27:40.403 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:27:40.403 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:27:40.403 [INFO] Detection 0: x=8.54776, y=6.70898, w=17.7093, h=14.2808, score=0.0174344
+2025-11-12 00:27:40.403 [INFO] Detection 1054: x=120.307, y=112.71, w=31.1081, h=50.7142, score=0.166251
+2025-11-12 00:27:40.403 [INFO] Detection 1055: x=122.741, y=111.618, w=36.2268, h=52.1309, score=0.231806
+2025-11-12 00:27:40.403 [INFO] Detection 1056: x=125.805, y=110.398, w=41.3181, h=52.518, score=0.0940144
+2025-11-12 00:27:40.403 [INFO] Detection 1057: x=129.725, y=108.578, w=33.3338, h=48.3483, score=0.0169477
+2025-11-12 00:27:40.403 [INFO] Before NMS: 186 detections
+2025-11-12 00:27:40.403 [INFO] After NMS: 34 detections
+2025-11-12 00:27:40.403 [INFO] ONNX detected 34 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ1 посчитан.jpg
+2025-11-12 00:27:40.439 [INFO] Scale detected: 10 nm over 74.0068 pixels = 0.000135123 μm/pixel
+2025-11-12 00:27:40.439 [INFO] Scale detected: 0.000135123 μm/pixel
+2025-11-12 00:27:40.453 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:40.570 [INFO] Using CPU backend
+2025-11-12 00:27:40.891 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:27:40.891 [INFO] Image size: 1388x1040
+2025-11-12 00:27:40.891 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:27:40.891 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:27:40.891 [INFO] Detection 0: x=8.22595, y=6.13378, w=16.959, h=13.0373, score=0.0286407
+2025-11-12 00:27:40.891 [INFO] Detection 76: x=604.704, y=5.43094, w=73.3755, h=11.2632, score=0.0162674
+2025-11-12 00:27:40.891 [INFO] Detection 975: x=125.601, y=111.564, w=40.985, h=53.0071, score=0.281421
+2025-11-12 00:27:40.891 [INFO] Detection 976: x=125.496, y=111.584, w=40.6826, h=53.1266, score=0.106159
+2025-11-12 00:27:40.891 [INFO] Detection 1054: x=125.642, y=111.511, w=40.932, h=52.9776, score=0.0127823
+2025-11-12 00:27:40.891 [INFO] Before NMS: 347 detections
+2025-11-12 00:27:40.891 [INFO] After NMS: 39 detections
+2025-11-12 00:27:40.892 [INFO] ONNX detected 39 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-12 00:27:40.941 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:41.050 [INFO] Using CPU backend
+2025-11-12 00:27:41.355 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:27:41.355 [INFO] Image size: 1388x1040
+2025-11-12 00:27:41.355 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:27:41.355 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:27:41.355 [INFO] Detection 0: x=11.2799, y=5.77863, w=23.0566, h=12.3732, score=0.0371662
+2025-11-12 00:27:41.355 [INFO] Detection 1: x=25.0372, y=4.60221, w=50.9569, h=9.36364, score=0.0120038
+2025-11-12 00:27:41.355 [INFO] Detection 2: x=26.2921, y=4.7131, w=56.2343, h=9.69751, score=0.0182267
+2025-11-12 00:27:41.355 [INFO] Detection 3: x=30.5408, y=4.07967, w=62.9452, h=8.49069, score=0.0139091
+2025-11-12 00:27:41.355 [INFO] Detection 4: x=32.926, y=3.59133, w=57.8914, h=7.47881, score=0.016108
+2025-11-12 00:27:41.355 [INFO] Before NMS: 966 detections
+2025-11-12 00:27:41.355 [INFO] After NMS: 114 detections
+2025-11-12 00:27:41.356 [INFO] ONNX detected 114 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ2.jpg
+2025-11-12 00:27:41.393 [INFO] Scale detected: 100 nm over 57.0351 pixels = 0.00175331 μm/pixel
+2025-11-12 00:27:41.393 [INFO] Scale detected: 0.00175331 μm/pixel
+2025-11-12 00:27:41.422 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:41.529 [INFO] Using CPU backend
+2025-11-12 00:27:41.877 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:27:41.877 [INFO] Image size: 1388x1040
+2025-11-12 00:27:41.877 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:27:41.877 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:27:41.877 [INFO] Detection 25: x=217.512, y=9.14283, w=37.3926, h=18.0051, score=0.743511
+2025-11-12 00:27:41.877 [INFO] Detection 26: x=217.547, y=9.04906, w=37.9979, h=17.934, score=0.852551
+2025-11-12 00:27:41.877 [INFO] Detection 27: x=217.574, y=9.23842, w=37.8759, h=18.231, score=0.902476
+2025-11-12 00:27:41.877 [INFO] Detection 28: x=217.594, y=9.38101, w=37.9312, h=18.5978, score=0.857801
+2025-11-12 00:27:41.877 [INFO] Detection 29: x=218.667, y=9.28098, w=36.9003, h=18.3932, score=0.032254
+2025-11-12 00:27:41.878 [INFO] Before NMS: 504 detections
+2025-11-12 00:27:41.878 [INFO] After NMS: 55 detections
+2025-11-12 00:27:41.878 [INFO] ONNX detected 55 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ3.jpg
+2025-11-12 00:27:41.941 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:42.045 [INFO] Using CPU backend
+2025-11-12 00:27:42.336 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:27:42.336 [INFO] Image size: 1388x1040
+2025-11-12 00:27:42.336 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:27:42.336 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:27:42.336 [INFO] Detection 0: x=8.48773, y=4.75019, w=16.7196, h=10.2107, score=0.0119261
+2025-11-12 00:27:42.336 [INFO] Detection 1: x=26.2546, y=5.4368, w=40.2766, h=10.7324, score=0.187224
+2025-11-12 00:27:42.336 [INFO] Detection 2: x=26.1716, y=5.49114, w=37.1565, h=10.8873, score=0.665823
+2025-11-12 00:27:42.336 [INFO] Detection 3: x=25.9429, y=5.61697, w=36.2555, h=11.152, score=0.774365
+2025-11-12 00:27:42.336 [INFO] Detection 4: x=26.2435, y=5.88177, w=35.2797, h=11.572, score=0.747013
+2025-11-12 00:27:42.336 [INFO] Before NMS: 331 detections
+2025-11-12 00:27:42.336 [INFO] After NMS: 39 detections
+2025-11-12 00:27:42.336 [INFO] ONNX detected 39 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ4.jpg
+2025-11-12 00:27:42.381 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:42.499 [INFO] Using CPU backend
+2025-11-12 00:27:42.855 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:27:42.855 [INFO] Image size: 1388x1040
+2025-11-12 00:27:42.855 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:27:42.855 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:27:42.855 [INFO] Detection 43: x=354.344, y=15.6787, w=41.6573, h=31.1919, score=0.901814
+2025-11-12 00:27:42.855 [INFO] Detection 44: x=354.547, y=15.6966, w=41.9191, h=31.2004, score=0.894044
+2025-11-12 00:27:42.855 [INFO] Detection 45: x=354.463, y=15.6823, w=41.7005, h=31.1654, score=0.834917
+2025-11-12 00:27:42.855 [INFO] Detection 48: x=397.601, y=18.1689, w=54.4259, h=36.0889, score=0.133433
+2025-11-12 00:27:42.855 [INFO] Detection 49: x=397.956, y=18.2989, w=53.8795, h=36.3553, score=0.902578
+2025-11-12 00:27:42.855 [INFO] Before NMS: 481 detections
+2025-11-12 00:27:42.856 [INFO] After NMS: 54 detections
+2025-11-12 00:27:42.856 [INFO] ONNX detected 54 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ5.jpg
+2025-11-12 00:27:42.892 [INFO] Scale detected: 100 nm over 188.043 pixels = 0.000531795 μm/pixel
+2025-11-12 00:27:42.892 [INFO] Scale detected: 0.000531795 μm/pixel
+2025-11-12 00:27:42.906 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:43.013 [INFO] Using CPU backend
+2025-11-12 00:27:43.307 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:27:43.308 [INFO] Image size: 1388x1040
+2025-11-12 00:27:43.308 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:27:43.308 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:27:43.308 [INFO] Detection 36: x=297.396, y=14.7309, w=40.2995, h=29.2539, score=0.892029
+2025-11-12 00:27:43.308 [INFO] Detection 37: x=297.411, y=14.6584, w=40.06, h=29.0964, score=0.899786
+2025-11-12 00:27:43.308 [INFO] Detection 38: x=297.409, y=14.7687, w=39.9774, h=29.3427, score=0.868375
+2025-11-12 00:27:43.308 [INFO] Detection 45: x=374.581, y=5.08159, w=35.6484, h=10.0341, score=0.625044
+2025-11-12 00:27:43.308 [INFO] Detection 46: x=374.849, y=5.03204, w=36.7326, h=9.9578, score=0.747368
+2025-11-12 00:27:43.308 [INFO] Before NMS: 320 detections
+2025-11-12 00:27:43.308 [INFO] After NMS: 35 detections
+2025-11-12 00:27:43.308 [INFO] ONNX detected 35 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ6.jpg
+2025-11-12 00:27:43.344 [INFO] Scale detected: 100 nm over 257.031 pixels = 0.000389058 μm/pixel
+2025-11-12 00:27:43.344 [INFO] Scale detected: 0.000389058 μm/pixel
+2025-11-12 00:27:43.356 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:43.464 [INFO] Using CPU backend
+2025-11-12 00:27:43.755 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:27:43.755 [INFO] Image size: 1388x1040
+2025-11-12 00:27:43.755 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:27:43.755 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:27:43.755 [INFO] Detection 31: x=260.504, y=6.91733, w=32.3483, h=13.7143, score=0.755504
+2025-11-12 00:27:43.755 [INFO] Detection 32: x=260.288, y=7.00101, w=32.4426, h=13.822, score=0.865899
+2025-11-12 00:27:43.756 [INFO] Detection 33: x=260.169, y=7.0308, w=32.5733, h=13.8432, score=0.830258
+2025-11-12 00:27:43.756 [INFO] Detection 34: x=260.578, y=6.88154, w=32.9744, h=13.53, score=0.454644
+2025-11-12 00:27:43.756 [INFO] Detection 51: x=421.517, y=11.9752, w=47.5782, h=23.6474, score=0.871471
+2025-11-12 00:27:43.756 [INFO] Before NMS: 488 detections
+2025-11-12 00:27:43.756 [INFO] After NMS: 53 detections
+2025-11-12 00:27:43.756 [INFO] ONNX detected 53 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ7.jpg
+2025-11-12 00:27:43.829 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:27:43.949 [INFO] Using CPU backend
+2025-11-12 00:27:44.249 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:27:44.249 [INFO] Image size: 1388x1040
+2025-11-12 00:27:44.249 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:27:44.249 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:27:44.249 [INFO] Detection 61: x=490.816, y=17.8964, w=41.8837, h=35.5565, score=0.206317
+2025-11-12 00:27:44.249 [INFO] Detection 62: x=490.806, y=18.5888, w=41.7042, h=37.0736, score=0.110655
+2025-11-12 00:27:44.249 [INFO] Detection 140: x=490.821, y=18.8908, w=42.5232, h=37.7315, score=0.400662
+2025-11-12 00:27:44.249 [INFO] Detection 141: x=490.784, y=18.9337, w=42.1473, h=37.8324, score=0.654215
+2025-11-12 00:27:44.249 [INFO] Detection 142: x=490.977, y=19.0593, w=41.6992, h=38.1247, score=0.782326
+2025-11-12 00:27:44.250 [INFO] Before NMS: 924 detections
+2025-11-12 00:27:44.250 [INFO] After NMS: 101 detections
+2025-11-12 00:27:44.250 [INFO] ONNX detected 101 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ8.jpg
+2025-11-12 00:27:44.292 [INFO] Scale detected: 100 nm over 68.1175 pixels = 0.00146805 μm/pixel
+2025-11-12 00:27:44.292 [INFO] Scale detected: 0.00146805 μm/pixel
+2025-11-12 00:27:44.302 [INFO] Processing complete. Detected 524 cells total
+2025-11-12 00:27:44.302 [INFO] Images processed successfully
+2025-11-12 00:27:44.302 [INFO] Detected 524 cells
+2025-11-12 00:27:44.302 [INFO] Creating copy of detected cells
+2025-11-12 00:27:44.302 [INFO] Copied 524 cells
+2025-11-12 00:27:44.302 [INFO] ImageProcessor destroyed
+2025-11-12 00:27:44.302 [INFO] ImageProcessor deleted
+2025-11-12 00:28:21.149 [INFO] ==================================================
+2025-11-12 00:28:21.149 [INFO] CellAnalyzer application started
+2025-11-12 00:28:21.149 [INFO] ==================================================
+2025-11-12 00:28:21.149 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 00:28:27.563 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 00:28:27.563 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:28:27.563 [INFO] ImageProcessor created successfully
+2025-11-12 00:28:27.563 [INFO] Processing 1 images with YOLO
+2025-11-12 00:28:27.563 [INFO] Processing 1 images with YOLO model
+2025-11-12 00:28:27.563 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:27.563 [INFO] Confidence threshold: 0.1
+2025-11-12 00:28:27.583 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:27.685 [INFO] Using CPU backend
+2025-11-12 00:28:27.963 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:28:27.963 [INFO] Image size: 1388x1040
+2025-11-12 00:28:27.963 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:28:27.963 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:28:27.963 [INFO] Detection 0: x=8.54776, y=6.70898, w=17.7093, h=14.2808, score=0.0174344
+2025-11-12 00:28:27.963 [INFO] Detection 1054: x=120.307, y=112.71, w=31.1081, h=50.7142, score=0.166251
+2025-11-12 00:28:27.963 [INFO] Detection 1055: x=122.741, y=111.618, w=36.2268, h=52.1309, score=0.231806
+2025-11-12 00:28:27.963 [INFO] Detection 1056: x=125.805, y=110.398, w=41.3181, h=52.518, score=0.0940144
+2025-11-12 00:28:27.963 [INFO] Detection 1057: x=129.725, y=108.578, w=33.3338, h=48.3483, score=0.0169477
+2025-11-12 00:28:27.963 [INFO] Before NMS: 186 detections
+2025-11-12 00:28:27.963 [INFO] After NMS: 34 detections
+2025-11-12 00:28:27.963 [INFO] ONNX detected 34 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ1 посчитан.jpg
+2025-11-12 00:28:28.003 [INFO] Scale detected: 10 nm over 74.0068 pixels = 0.000135123 μm/pixel
+2025-11-12 00:28:28.003 [INFO] Scale detected: 0.000135123 μm/pixel
+2025-11-12 00:28:28.009 [INFO] Processing complete. Detected 34 cells total
+2025-11-12 00:28:28.009 [INFO] Images processed successfully
+2025-11-12 00:28:28.009 [INFO] Detected 34 cells
+2025-11-12 00:28:28.009 [INFO] Creating copy of detected cells
+2025-11-12 00:28:28.009 [INFO] Copied 34 cells
+2025-11-12 00:28:28.009 [INFO] ImageProcessor destroyed
+2025-11-12 00:28:28.009 [INFO] ImageProcessor deleted
+2025-11-12 00:28:28.009 [INFO] Creating VerificationWidget
+2025-11-12 00:28:28.009 [INFO] VerificationWidget constructor called (New Design)
+2025-11-12 00:28:28.009 [INFO] Received 34 cells
+2025-11-12 00:28:28.010 [INFO] Cells grouped into 1 files
+2025-11-12 00:28:28.010 [INFO] groupCellsByFile completed
+2025-11-12 00:28:28.010 [INFO] setupUI: Creating main layout
+2025-11-12 00:28:28.010 [INFO] setupUI: Creating file tabs
+2025-11-12 00:28:28.010 [INFO] setupUI: Added tab for ТИМ1 посчитан.jpg with 34 cells
+2025-11-12 00:28:28.010 [INFO] setupUI: File tabs created
+2025-11-12 00:28:28.010 [INFO] setupUI: Creating main splitter
+2025-11-12 00:28:28.010 [INFO] setupUI: Creating cell list panel
+2025-11-12 00:28:28.010 [INFO] setupUI: Creating right panel
+2025-11-12 00:28:28.010 [INFO] setupUI: Creating preview widget
+2025-11-12 00:28:28.010 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ1 посчитан.jpg
+2025-11-12 00:28:28.035 [INFO] Updated cell list with 34 cells
+2025-11-12 00:28:28.045 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:28:28.050 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:28:28.050 [INFO] VerificationWidget UI setup completed
+2025-11-12 00:28:28.050 [INFO] setupUI completed
+2025-11-12 00:28:28.050 [INFO] loadSavedCoefficient: savedCoeff=0
+2025-11-12 00:28:28.050 [INFO] loadSavedCoefficient completed
+2025-11-12 00:28:28.050 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:28:28.055 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:28:28.055 [INFO] First cell selected
+2025-11-12 00:28:28.055 [INFO] VerificationWidget created successfully
+2025-11-12 00:28:28.055 [INFO] Connecting signals
+2025-11-12 00:28:28.055 [INFO] Setting VerificationWidget as central widget
+2025-11-12 00:28:28.055 [INFO] Analysis started successfully
+2025-11-12 00:28:40.974 [INFO] Auto-scrolled to cell at local index 18
+2025-11-12 00:28:40.975 [INFO] Selected cell: global=18, local=18
+2025-11-12 00:28:42.103 [INFO] Auto-scrolled to cell at local index 8
+2025-11-12 00:28:42.111 [INFO] Selected cell: global=8, local=8
+2025-11-12 00:28:50.113 [INFO] Analysis completed, returning to main screen
+2025-11-12 00:28:50.113 [INFO] VerificationWidget destructor called
+2025-11-12 00:28:57.040 [INFO] Starting YOLO analysis for 8 images
+2025-11-12 00:28:57.040 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:28:57.040 [INFO] ImageProcessor created successfully
+2025-11-12 00:28:57.040 [INFO] Processing 8 images with YOLO
+2025-11-12 00:28:57.040 [INFO] Processing 8 images with YOLO model
+2025-11-12 00:28:57.040 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:57.040 [INFO] Confidence threshold: 0.1
+2025-11-12 00:28:57.052 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:57.152 [INFO] Using CPU backend
+2025-11-12 00:28:57.429 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:28:57.429 [INFO] Image size: 1388x1040
+2025-11-12 00:28:57.429 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:28:57.429 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:28:57.429 [INFO] Detection 0: x=8.22595, y=6.13378, w=16.959, h=13.0373, score=0.0286407
+2025-11-12 00:28:57.429 [INFO] Detection 76: x=604.704, y=5.43094, w=73.3755, h=11.2632, score=0.0162674
+2025-11-12 00:28:57.429 [INFO] Detection 975: x=125.601, y=111.564, w=40.985, h=53.0071, score=0.281421
+2025-11-12 00:28:57.429 [INFO] Detection 976: x=125.496, y=111.584, w=40.6826, h=53.1266, score=0.106159
+2025-11-12 00:28:57.429 [INFO] Detection 1054: x=125.642, y=111.511, w=40.932, h=52.9776, score=0.0127823
+2025-11-12 00:28:57.429 [INFO] Before NMS: 347 detections
+2025-11-12 00:28:57.429 [INFO] After NMS: 39 detections
+2025-11-12 00:28:57.429 [INFO] ONNX detected 39 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-12 00:28:57.481 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:57.582 [INFO] Using CPU backend
+2025-11-12 00:28:57.857 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:28:57.857 [INFO] Image size: 1388x1040
+2025-11-12 00:28:57.857 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:28:57.857 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:28:57.857 [INFO] Detection 0: x=11.2799, y=5.77863, w=23.0566, h=12.3732, score=0.0371662
+2025-11-12 00:28:57.857 [INFO] Detection 1: x=25.0372, y=4.60221, w=50.9569, h=9.36364, score=0.0120038
+2025-11-12 00:28:57.857 [INFO] Detection 2: x=26.2921, y=4.7131, w=56.2343, h=9.69751, score=0.0182267
+2025-11-12 00:28:57.857 [INFO] Detection 3: x=30.5408, y=4.07967, w=62.9452, h=8.49069, score=0.0139091
+2025-11-12 00:28:57.857 [INFO] Detection 4: x=32.926, y=3.59133, w=57.8914, h=7.47881, score=0.016108
+2025-11-12 00:28:57.857 [INFO] Before NMS: 966 detections
+2025-11-12 00:28:57.863 [INFO] After NMS: 114 detections
+2025-11-12 00:28:57.863 [INFO] ONNX detected 114 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ2.jpg
+2025-11-12 00:28:57.898 [INFO] Scale detected: 100 nm over 57.0351 pixels = 0.00175331 μm/pixel
+2025-11-12 00:28:57.898 [INFO] Scale detected: 0.00175331 μm/pixel
+2025-11-12 00:28:57.925 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:58.021 [INFO] Using CPU backend
+2025-11-12 00:28:58.300 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:28:58.300 [INFO] Image size: 1388x1040
+2025-11-12 00:28:58.300 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:28:58.300 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:28:58.300 [INFO] Detection 25: x=217.512, y=9.14283, w=37.3926, h=18.0051, score=0.743511
+2025-11-12 00:28:58.300 [INFO] Detection 26: x=217.547, y=9.04906, w=37.9979, h=17.934, score=0.852551
+2025-11-12 00:28:58.300 [INFO] Detection 27: x=217.574, y=9.23842, w=37.8759, h=18.231, score=0.902476
+2025-11-12 00:28:58.300 [INFO] Detection 28: x=217.594, y=9.38101, w=37.9312, h=18.5978, score=0.857801
+2025-11-12 00:28:58.300 [INFO] Detection 29: x=218.667, y=9.28098, w=36.9003, h=18.3932, score=0.032254
+2025-11-12 00:28:58.300 [INFO] Before NMS: 504 detections
+2025-11-12 00:28:58.300 [INFO] After NMS: 55 detections
+2025-11-12 00:28:58.300 [INFO] ONNX detected 55 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ3.jpg
+2025-11-12 00:28:58.354 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:58.456 [INFO] Using CPU backend
+2025-11-12 00:28:58.773 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:28:58.773 [INFO] Image size: 1388x1040
+2025-11-12 00:28:58.773 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:28:58.773 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:28:58.773 [INFO] Detection 0: x=8.48773, y=4.75019, w=16.7196, h=10.2107, score=0.0119261
+2025-11-12 00:28:58.773 [INFO] Detection 1: x=26.2546, y=5.4368, w=40.2766, h=10.7324, score=0.187224
+2025-11-12 00:28:58.773 [INFO] Detection 2: x=26.1716, y=5.49114, w=37.1565, h=10.8873, score=0.665823
+2025-11-12 00:28:58.773 [INFO] Detection 3: x=25.9429, y=5.61697, w=36.2555, h=11.152, score=0.774365
+2025-11-12 00:28:58.773 [INFO] Detection 4: x=26.2435, y=5.88177, w=35.2797, h=11.572, score=0.747013
+2025-11-12 00:28:58.773 [INFO] Before NMS: 331 detections
+2025-11-12 00:28:58.773 [INFO] After NMS: 39 detections
+2025-11-12 00:28:58.773 [INFO] ONNX detected 39 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ4.jpg
+2025-11-12 00:28:58.817 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:58.928 [INFO] Using CPU backend
+2025-11-12 00:28:59.230 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:28:59.230 [INFO] Image size: 1388x1040
+2025-11-12 00:28:59.230 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:28:59.230 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:28:59.230 [INFO] Detection 43: x=354.344, y=15.6787, w=41.6573, h=31.1919, score=0.901814
+2025-11-12 00:28:59.230 [INFO] Detection 44: x=354.547, y=15.6966, w=41.9191, h=31.2004, score=0.894044
+2025-11-12 00:28:59.230 [INFO] Detection 45: x=354.463, y=15.6823, w=41.7005, h=31.1654, score=0.834917
+2025-11-12 00:28:59.230 [INFO] Detection 48: x=397.601, y=18.1689, w=54.4259, h=36.0889, score=0.133433
+2025-11-12 00:28:59.230 [INFO] Detection 49: x=397.956, y=18.2989, w=53.8795, h=36.3553, score=0.902578
+2025-11-12 00:28:59.230 [INFO] Before NMS: 481 detections
+2025-11-12 00:28:59.230 [INFO] After NMS: 54 detections
+2025-11-12 00:28:59.230 [INFO] ONNX detected 54 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ5.jpg
+2025-11-12 00:28:59.260 [INFO] Scale detected: 100 nm over 188.043 pixels = 0.000531795 μm/pixel
+2025-11-12 00:28:59.260 [INFO] Scale detected: 0.000531795 μm/pixel
+2025-11-12 00:28:59.280 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:59.383 [INFO] Using CPU backend
+2025-11-12 00:28:59.677 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:28:59.677 [INFO] Image size: 1388x1040
+2025-11-12 00:28:59.677 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:28:59.677 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:28:59.677 [INFO] Detection 36: x=297.396, y=14.7309, w=40.2995, h=29.2539, score=0.892029
+2025-11-12 00:28:59.677 [INFO] Detection 37: x=297.411, y=14.6584, w=40.06, h=29.0964, score=0.899786
+2025-11-12 00:28:59.677 [INFO] Detection 38: x=297.409, y=14.7687, w=39.9774, h=29.3427, score=0.868375
+2025-11-12 00:28:59.677 [INFO] Detection 45: x=374.581, y=5.08159, w=35.6484, h=10.0341, score=0.625044
+2025-11-12 00:28:59.677 [INFO] Detection 46: x=374.849, y=5.03204, w=36.7326, h=9.9578, score=0.747368
+2025-11-12 00:28:59.677 [INFO] Before NMS: 320 detections
+2025-11-12 00:28:59.677 [INFO] After NMS: 35 detections
+2025-11-12 00:28:59.677 [INFO] ONNX detected 35 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ6.jpg
+2025-11-12 00:28:59.708 [INFO] Scale detected: 100 nm over 257.031 pixels = 0.000389058 μm/pixel
+2025-11-12 00:28:59.708 [INFO] Scale detected: 0.000389058 μm/pixel
+2025-11-12 00:28:59.718 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:28:59.837 [INFO] Using CPU backend
+2025-11-12 00:29:00.145 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:29:00.145 [INFO] Image size: 1388x1040
+2025-11-12 00:29:00.145 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:29:00.145 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:29:00.145 [INFO] Detection 31: x=260.504, y=6.91733, w=32.3483, h=13.7143, score=0.755504
+2025-11-12 00:29:00.145 [INFO] Detection 32: x=260.288, y=7.00101, w=32.4426, h=13.822, score=0.865899
+2025-11-12 00:29:00.145 [INFO] Detection 33: x=260.169, y=7.0308, w=32.5733, h=13.8432, score=0.830258
+2025-11-12 00:29:00.145 [INFO] Detection 34: x=260.578, y=6.88154, w=32.9744, h=13.53, score=0.454644
+2025-11-12 00:29:00.145 [INFO] Detection 51: x=421.517, y=11.9752, w=47.5782, h=23.6474, score=0.871471
+2025-11-12 00:29:00.145 [INFO] Before NMS: 488 detections
+2025-11-12 00:29:00.145 [INFO] After NMS: 53 detections
+2025-11-12 00:29:00.145 [INFO] ONNX detected 53 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ7.jpg
+2025-11-12 00:29:00.188 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:29:00.291 [INFO] Using CPU backend
+2025-11-12 00:29:00.561 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:29:00.561 [INFO] Image size: 1388x1040
+2025-11-12 00:29:00.561 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:29:00.561 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:29:00.561 [INFO] Detection 61: x=490.816, y=17.8964, w=41.8837, h=35.5565, score=0.206317
+2025-11-12 00:29:00.561 [INFO] Detection 62: x=490.806, y=18.5888, w=41.7042, h=37.0736, score=0.110655
+2025-11-12 00:29:00.561 [INFO] Detection 140: x=490.821, y=18.8908, w=42.5232, h=37.7315, score=0.400662
+2025-11-12 00:29:00.561 [INFO] Detection 141: x=490.784, y=18.9337, w=42.1473, h=37.8324, score=0.654215
+2025-11-12 00:29:00.561 [INFO] Detection 142: x=490.977, y=19.0593, w=41.6992, h=38.1247, score=0.782326
+2025-11-12 00:29:00.561 [INFO] Before NMS: 924 detections
+2025-11-12 00:29:00.561 [INFO] After NMS: 101 detections
+2025-11-12 00:29:00.561 [INFO] ONNX detected 101 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ8.jpg
+2025-11-12 00:29:00.601 [INFO] Scale detected: 100 nm over 68.1175 pixels = 0.00146805 μm/pixel
+2025-11-12 00:29:00.601 [INFO] Scale detected: 0.00146805 μm/pixel
+2025-11-12 00:29:00.631 [INFO] Processing complete. Detected 490 cells total
+2025-11-12 00:29:00.631 [INFO] Images processed successfully
+2025-11-12 00:29:00.631 [INFO] Detected 490 cells
+2025-11-12 00:29:00.631 [INFO] Creating copy of detected cells
+2025-11-12 00:29:00.631 [INFO] Copied 490 cells
+2025-11-12 00:29:00.631 [INFO] ImageProcessor destroyed
+2025-11-12 00:29:00.631 [INFO] ImageProcessor deleted
+2025-11-12 00:46:55.105 [INFO] ==================================================
+2025-11-12 00:46:55.106 [INFO] CellAnalyzer application started
+2025-11-12 00:46:55.106 [INFO] ==================================================
+2025-11-12 00:46:55.240 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 00:47:03.754 [INFO] Starting YOLO analysis for 8 images
+2025-11-12 00:47:03.754 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:47:03.754 [INFO] ImageProcessor created successfully
+2025-11-12 00:47:03.754 [INFO] Processing 8 images with YOLO
+2025-11-12 00:47:03.754 [INFO] Processing 8 images with YOLO model
+2025-11-12 00:47:03.754 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:47:03.754 [INFO] Confidence threshold: 0.1
+2025-11-12 00:47:03.776 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:47:03.878 [INFO] Using CPU backend
+2025-11-12 00:47:04.184 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:47:04.184 [INFO] Image size: 1388x1040
+2025-11-12 00:47:04.184 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:47:04.184 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:47:04.184 [INFO] Detection 0: x=8.22595, y=6.13378, w=16.959, h=13.0373, score=0.0286407
+2025-11-12 00:47:04.184 [INFO] Detection 76: x=604.704, y=5.43094, w=73.3755, h=11.2632, score=0.0162674
+2025-11-12 00:47:04.184 [INFO] Detection 975: x=125.601, y=111.564, w=40.985, h=53.0071, score=0.281421
+2025-11-12 00:47:04.184 [INFO] Detection 976: x=125.496, y=111.584, w=40.6826, h=53.1266, score=0.106159
+2025-11-12 00:47:04.184 [INFO] Detection 1054: x=125.642, y=111.511, w=40.932, h=52.9776, score=0.0127823
+2025-11-12 00:47:04.184 [INFO] Before NMS: 347 detections
+2025-11-12 00:47:04.185 [INFO] After NMS: 39 detections
+2025-11-12 00:47:04.185 [INFO] ONNX detected 39 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-12 00:47:04.233 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:47:04.336 [INFO] Using CPU backend
+2025-11-12 00:47:04.615 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:47:04.615 [INFO] Image size: 1388x1040
+2025-11-12 00:47:04.615 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:47:04.615 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:47:04.615 [INFO] Detection 0: x=11.2799, y=5.77863, w=23.0566, h=12.3732, score=0.0371662
+2025-11-12 00:47:04.615 [INFO] Detection 1: x=25.0372, y=4.60221, w=50.9569, h=9.36364, score=0.0120038
+2025-11-12 00:47:04.615 [INFO] Detection 2: x=26.2921, y=4.7131, w=56.2343, h=9.69751, score=0.0182267
+2025-11-12 00:47:04.615 [INFO] Detection 3: x=30.5408, y=4.07967, w=62.9452, h=8.49069, score=0.0139091
+2025-11-12 00:47:04.615 [INFO] Detection 4: x=32.926, y=3.59133, w=57.8914, h=7.47881, score=0.016108
+2025-11-12 00:47:04.615 [INFO] Before NMS: 966 detections
+2025-11-12 00:47:04.616 [INFO] After NMS: 114 detections
+2025-11-12 00:47:04.616 [INFO] ONNX detected 114 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ2.jpg
+2025-11-12 00:47:04.650 [INFO] Scale detected: 100 nm over 57.0351 pixels = 0.00175331 μm/pixel
+2025-11-12 00:47:04.650 [INFO] Scale detected: 0.00175331 μm/pixel
+2025-11-12 00:47:04.679 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:47:04.783 [INFO] Using CPU backend
+2025-11-12 00:47:05.111 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:47:05.111 [INFO] Image size: 1388x1040
+2025-11-12 00:47:05.111 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:47:05.111 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:47:05.111 [INFO] Detection 25: x=217.512, y=9.14283, w=37.3926, h=18.0051, score=0.743511
+2025-11-12 00:47:05.111 [INFO] Detection 26: x=217.547, y=9.04906, w=37.9979, h=17.934, score=0.852551
+2025-11-12 00:47:05.111 [INFO] Detection 27: x=217.574, y=9.23842, w=37.8759, h=18.231, score=0.902476
+2025-11-12 00:47:05.111 [INFO] Detection 28: x=217.594, y=9.38101, w=37.9312, h=18.5978, score=0.857801
+2025-11-12 00:47:05.111 [INFO] Detection 29: x=218.667, y=9.28098, w=36.9003, h=18.3932, score=0.032254
+2025-11-12 00:47:05.111 [INFO] Before NMS: 504 detections
+2025-11-12 00:47:05.111 [INFO] After NMS: 55 detections
+2025-11-12 00:47:05.111 [INFO] ONNX detected 55 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ3.jpg
+2025-11-12 00:47:05.167 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:47:05.272 [INFO] Using CPU backend
+2025-11-12 00:47:05.589 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:47:05.589 [INFO] Image size: 1388x1040
+2025-11-12 00:47:05.589 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:47:05.589 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:47:05.589 [INFO] Detection 0: x=8.48773, y=4.75019, w=16.7196, h=10.2107, score=0.0119261
+2025-11-12 00:47:05.589 [INFO] Detection 1: x=26.2546, y=5.4368, w=40.2766, h=10.7324, score=0.187224
+2025-11-12 00:47:05.589 [INFO] Detection 2: x=26.1716, y=5.49114, w=37.1565, h=10.8873, score=0.665823
+2025-11-12 00:47:05.589 [INFO] Detection 3: x=25.9429, y=5.61697, w=36.2555, h=11.152, score=0.774365
+2025-11-12 00:47:05.589 [INFO] Detection 4: x=26.2435, y=5.88177, w=35.2797, h=11.572, score=0.747013
+2025-11-12 00:47:05.589 [INFO] Before NMS: 331 detections
+2025-11-12 00:47:05.589 [INFO] After NMS: 39 detections
+2025-11-12 00:47:05.589 [INFO] ONNX detected 39 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ4.jpg
+2025-11-12 00:47:05.632 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:47:05.748 [INFO] Using CPU backend
+2025-11-12 00:47:06.021 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:47:06.021 [INFO] Image size: 1388x1040
+2025-11-12 00:47:06.021 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:47:06.021 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:47:06.021 [INFO] Detection 43: x=354.344, y=15.6787, w=41.6573, h=31.1919, score=0.901814
+2025-11-12 00:47:06.021 [INFO] Detection 44: x=354.547, y=15.6966, w=41.9191, h=31.2004, score=0.894044
+2025-11-12 00:47:06.021 [INFO] Detection 45: x=354.463, y=15.6823, w=41.7005, h=31.1654, score=0.834917
+2025-11-12 00:47:06.021 [INFO] Detection 48: x=397.601, y=18.1689, w=54.4259, h=36.0889, score=0.133433
+2025-11-12 00:47:06.021 [INFO] Detection 49: x=397.956, y=18.2989, w=53.8795, h=36.3553, score=0.902578
+2025-11-12 00:47:06.021 [INFO] Before NMS: 481 detections
+2025-11-12 00:47:06.021 [INFO] After NMS: 54 detections
+2025-11-12 00:47:06.022 [INFO] ONNX detected 54 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ5.jpg
+2025-11-12 00:47:06.053 [INFO] Scale detected: 100 nm over 188.043 pixels = 0.000531795 μm/pixel
+2025-11-12 00:47:06.053 [INFO] Scale detected: 0.000531795 μm/pixel
+2025-11-12 00:47:06.073 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:47:06.174 [INFO] Using CPU backend
+2025-11-12 00:47:06.513 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:47:06.513 [INFO] Image size: 1388x1040
+2025-11-12 00:47:06.513 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:47:06.513 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:47:06.513 [INFO] Detection 36: x=297.396, y=14.7309, w=40.2995, h=29.2539, score=0.892029
+2025-11-12 00:47:06.513 [INFO] Detection 37: x=297.411, y=14.6584, w=40.06, h=29.0964, score=0.899786
+2025-11-12 00:47:06.514 [INFO] Detection 38: x=297.409, y=14.7687, w=39.9774, h=29.3427, score=0.868375
+2025-11-12 00:47:06.514 [INFO] Detection 45: x=374.581, y=5.08159, w=35.6484, h=10.0341, score=0.625044
+2025-11-12 00:47:06.514 [INFO] Detection 46: x=374.849, y=5.03204, w=36.7326, h=9.9578, score=0.747368
+2025-11-12 00:47:06.514 [INFO] Before NMS: 320 detections
+2025-11-12 00:47:06.514 [INFO] After NMS: 35 detections
+2025-11-12 00:47:06.514 [INFO] ONNX detected 35 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ6.jpg
+2025-11-12 00:47:06.551 [INFO] Scale detected: 100 nm over 257.031 pixels = 0.000389058 μm/pixel
+2025-11-12 00:47:06.551 [INFO] Scale detected: 0.000389058 μm/pixel
+2025-11-12 00:47:06.564 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:47:06.669 [INFO] Using CPU backend
+2025-11-12 00:47:06.976 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:47:06.976 [INFO] Image size: 1388x1040
+2025-11-12 00:47:06.976 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:47:06.976 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:47:06.976 [INFO] Detection 31: x=260.504, y=6.91733, w=32.3483, h=13.7143, score=0.755504
+2025-11-12 00:47:06.976 [INFO] Detection 32: x=260.288, y=7.00101, w=32.4426, h=13.822, score=0.865899
+2025-11-12 00:47:06.976 [INFO] Detection 33: x=260.169, y=7.0308, w=32.5733, h=13.8432, score=0.830258
+2025-11-12 00:47:06.976 [INFO] Detection 34: x=260.578, y=6.88154, w=32.9744, h=13.53, score=0.454644
+2025-11-12 00:47:06.976 [INFO] Detection 51: x=421.517, y=11.9752, w=47.5782, h=23.6474, score=0.871471
+2025-11-12 00:47:06.976 [INFO] Before NMS: 488 detections
+2025-11-12 00:47:06.976 [INFO] After NMS: 53 detections
+2025-11-12 00:47:06.976 [INFO] ONNX detected 53 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ7.jpg
+2025-11-12 00:47:07.023 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:47:07.132 [INFO] Using CPU backend
+2025-11-12 00:47:07.489 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:47:07.489 [INFO] Image size: 1388x1040
+2025-11-12 00:47:07.489 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:47:07.489 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:47:07.489 [INFO] Detection 61: x=490.816, y=17.8964, w=41.8837, h=35.5565, score=0.206317
+2025-11-12 00:47:07.489 [INFO] Detection 62: x=490.806, y=18.5888, w=41.7042, h=37.0736, score=0.110655
+2025-11-12 00:47:07.489 [INFO] Detection 140: x=490.821, y=18.8908, w=42.5232, h=37.7315, score=0.400662
+2025-11-12 00:47:07.489 [INFO] Detection 141: x=490.784, y=18.9337, w=42.1473, h=37.8324, score=0.654215
+2025-11-12 00:47:07.490 [INFO] Detection 142: x=490.977, y=19.0593, w=41.6992, h=38.1247, score=0.782326
+2025-11-12 00:47:07.490 [INFO] Before NMS: 924 detections
+2025-11-12 00:47:07.490 [INFO] After NMS: 101 detections
+2025-11-12 00:47:07.490 [INFO] ONNX detected 101 cells in D:/github/cell-analyzer/cells/ТИМ/ТИМ8.jpg
+2025-11-12 00:47:07.533 [INFO] Scale detected: 100 nm over 68.1175 pixels = 0.00146805 μm/pixel
+2025-11-12 00:47:07.533 [INFO] Scale detected: 0.00146805 μm/pixel
+2025-11-12 00:47:07.566 [INFO] Processing complete. Detected 490 cells total
+2025-11-12 00:47:07.566 [INFO] Images processed successfully
+2025-11-12 00:47:07.566 [INFO] Detected 490 cells
+2025-11-12 00:47:07.566 [INFO] Creating copy of detected cells
+2025-11-12 00:47:07.566 [INFO] Copied 490 cells
+2025-11-12 00:47:07.566 [INFO] ImageProcessor destroyed
+2025-11-12 00:47:07.566 [INFO] ImageProcessor deleted
+2025-11-12 00:47:07.566 [INFO] Creating VerificationWidget
+2025-11-12 00:47:07.566 [INFO] VerificationWidget constructor called (New Design)
+2025-11-12 00:47:07.566 [INFO] Received 490 cells
+2025-11-12 00:47:07.589 [INFO] Cells grouped into 8 files
+2025-11-12 00:47:07.590 [INFO] groupCellsByFile completed
+2025-11-12 00:47:07.590 [INFO] setupUI: Creating main layout
+2025-11-12 00:47:07.590 [INFO] setupUI: Creating file tabs
+2025-11-12 00:47:07.590 [INFO] setupUI: Added tab for ТИМ1.jpg with 39 cells
+2025-11-12 00:47:07.590 [INFO] setupUI: Added tab for ТИМ2.jpg with 114 cells
+2025-11-12 00:47:07.590 [INFO] setupUI: Added tab for ТИМ3.jpg with 55 cells
+2025-11-12 00:47:07.590 [INFO] setupUI: Added tab for ТИМ4.jpg with 39 cells
+2025-11-12 00:47:07.590 [INFO] setupUI: Added tab for ТИМ5.jpg with 54 cells
+2025-11-12 00:47:07.590 [INFO] setupUI: Added tab for ТИМ6.jpg with 35 cells
+2025-11-12 00:47:07.590 [INFO] setupUI: Added tab for ТИМ7.jpg with 53 cells
+2025-11-12 00:47:07.590 [INFO] setupUI: Added tab for ТИМ8.jpg with 101 cells
+2025-11-12 00:47:07.591 [INFO] setupUI: File tabs created
+2025-11-12 00:47:07.591 [INFO] setupUI: Creating main splitter
+2025-11-12 00:47:07.591 [INFO] setupUI: Creating cell list panel
+2025-11-12 00:47:07.591 [INFO] setupUI: Creating right panel
+2025-11-12 00:47:07.591 [INFO] setupUI: Creating preview widget
+2025-11-12 00:47:07.592 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg
+2025-11-12 00:47:07.631 [INFO] Updated cell list with 39 cells
+2025-11-12 00:47:07.649 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:47:07.656 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:47:07.656 [INFO] VerificationWidget UI setup completed
+2025-11-12 00:47:07.656 [INFO] setupUI completed
+2025-11-12 00:47:07.656 [INFO] loadSavedCoefficient: savedCoeff=0
+2025-11-12 00:47:07.656 [INFO] loadSavedCoefficient completed
+2025-11-12 00:47:07.656 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:47:07.661 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:47:07.661 [INFO] First cell selected
+2025-11-12 00:47:07.661 [INFO] VerificationWidget created successfully
+2025-11-12 00:47:07.661 [INFO] Connecting signals
+2025-11-12 00:47:07.661 [INFO] Setting VerificationWidget as central widget
+2025-11-12 00:47:07.661 [INFO] Analysis started successfully
+2025-11-12 00:47:08.255 [INFO] All thumbnails loaded (39 total)
+2025-11-12 00:47:14.771 [INFO] Auto-scrolled to cell at local index 36
+2025-11-12 00:47:14.775 [INFO] Selected cell: global=36, local=36
+2025-11-12 00:47:15.495 [INFO] Cells grouped into 8 files
+2025-11-12 00:47:15.537 [INFO] Updated cell list with 38 cells
+2025-11-12 00:47:15.554 [INFO] Auto-scrolled to cell at local index 36
+2025-11-12 00:47:15.557 [INFO] Selected cell: global=36, local=36
+2025-11-12 00:47:15.557 [INFO] Cell removed by right-click on image: local index 36
+2025-11-12 00:47:16.037 [INFO] All thumbnails loaded (38 total)
+2025-11-12 00:47:19.234 [INFO] Auto-scrolled to cell at local index 37
+2025-11-12 00:47:19.238 [INFO] Selected cell: global=37, local=37
+2025-11-12 00:47:19.695 [INFO] Cells grouped into 8 files
+2025-11-12 00:47:19.730 [INFO] Updated cell list with 37 cells
+2025-11-12 00:47:19.749 [INFO] Auto-scrolled to cell at local index 36
+2025-11-12 00:47:19.753 [INFO] Selected cell: global=36, local=36
+2025-11-12 00:47:19.753 [INFO] Cell removed by right-click on image: local index 37
+2025-11-12 00:47:20.230 [INFO] All thumbnails loaded (37 total)
+2025-11-12 00:47:20.816 [INFO] Auto-scrolled to cell at local index 36
+2025-11-12 00:47:20.820 [INFO] Selected cell: global=36, local=36
+2025-11-12 00:47:28.839 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ2.jpg
+2025-11-12 00:47:28.941 [INFO] Updated cell list with 114 cells
+2025-11-12 00:47:28.975 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:47:28.982 [INFO] Selected cell: global=37, local=0
+2025-11-12 00:47:30.448 [INFO] All thumbnails loaded (114 total)
+2025-11-12 00:47:31.386 [INFO] Auto-scrolled to cell at local index 87
+2025-11-12 00:47:31.394 [INFO] Selected cell: global=124, local=87
+2025-11-12 00:47:31.772 [INFO] Cells grouped into 8 files
+2025-11-12 00:47:31.877 [INFO] Updated cell list with 113 cells
+2025-11-12 00:47:31.916 [INFO] Auto-scrolled to cell at local index 87
+2025-11-12 00:47:31.923 [INFO] Selected cell: global=124, local=87
+2025-11-12 00:47:31.923 [INFO] Cell removed by right-click on image: local index 87
+2025-11-12 00:47:33.322 [INFO] All thumbnails loaded (113 total)
+2025-11-12 00:47:38.412 [INFO] Auto-scrolled to cell at local index 70
+2025-11-12 00:47:38.419 [INFO] Selected cell: global=107, local=70
+2025-11-12 00:47:39.123 [INFO] Auto-scrolled to cell at local index 70
+2025-11-12 00:47:39.130 [INFO] Selected cell: global=107, local=70
+2025-11-12 00:47:39.702 [INFO] Auto-scrolled to cell at local index 100
+2025-11-12 00:47:39.710 [INFO] Selected cell: global=137, local=100
+2025-11-12 00:47:40.611 [INFO] Auto-scrolled to cell at local index 36
+2025-11-12 00:47:40.618 [INFO] Selected cell: global=73, local=36
+2025-11-12 00:47:43.627 [INFO] Auto-scrolled to cell at local index 70
+2025-11-12 00:47:43.634 [INFO] Selected cell: global=107, local=70
+2025-11-12 00:47:45.137 [INFO] Auto-scrolled to cell at local index 100
+2025-11-12 00:47:45.144 [INFO] Selected cell: global=137, local=100
+2025-11-12 00:47:46.219 [INFO] Auto-scrolled to cell at local index 36
+2025-11-12 00:47:46.226 [INFO] Selected cell: global=73, local=36
+2025-11-12 00:47:59.754 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ3.jpg
+2025-11-12 00:47:59.803 [INFO] Updated cell list with 55 cells
+2025-11-12 00:47:59.830 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:47:59.835 [INFO] Selected cell: global=150, local=0
+2025-11-12 00:48:00.496 [INFO] All thumbnails loaded (55 total)
+2025-11-12 00:48:11.000 [INFO] Auto-scrolled to cell at local index 8
+2025-11-12 00:48:11.005 [INFO] Selected cell: global=158, local=8
+2025-11-12 00:48:12.260 [INFO] Settings saved to: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 00:48:12.260 [INFO] Coefficient updated: 0.983871 μm/px
+2025-11-12 00:48:12.260 [INFO] Recalculated with coefficient: 0.983871 μm/px
+2025-11-12 00:48:16.324 [INFO] Извлечен центральный виджет: да
+2025-11-12 00:48:16.328 [INFO] StatisticsWidget: Отображение статистики для 487 клеток
+2025-11-12 00:48:16.328 [INFO] StatisticsAnalyzer: Начинаем анализ 487 клеток
+2025-11-12 00:48:16.409 [INFO] StatisticsAnalyzer: Анализ завершен
+2025-11-12 00:48:16.444 [INFO] Открыт статистический анализ
+2025-11-12 00:48:45.930 [INFO] onBackFromStatistics: Обработка возврата из статистики
+2025-11-12 00:48:45.930 [INFO] Возврат к окну проверки результатов
+2025-11-12 00:48:45.931 [INFO] Удаляем старый центральный виджет
+2025-11-12 00:48:45.931 [INFO] VerificationWidget установлен как центральный виджет
+2025-11-12 00:48:45.931 [INFO] onBackFromStatistics: Успешно вернулись к проверке результатов
+2025-11-12 00:48:45.936 [INFO] StatisticsWidget удален, указатель обнулен
+2025-11-12 00:48:49.771 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ4.jpg
+2025-11-12 00:48:49.814 [INFO] Updated cell list with 39 cells
+2025-11-12 00:48:49.836 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:48:49.840 [INFO] Selected cell: global=205, local=0
+2025-11-12 00:48:50.322 [INFO] All thumbnails loaded (39 total)
+2025-11-12 00:49:25.778 [INFO] Auto-scrolled to cell at local index 38
+2025-11-12 00:49:25.781 [INFO] Selected cell: global=243, local=38
+2025-11-12 00:49:29.909 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ5.jpg
+2025-11-12 00:49:29.965 [INFO] Updated cell list with 54 cells
+2025-11-12 00:49:29.991 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:49:29.995 [INFO] Selected cell: global=244, local=0
+2025-11-12 00:49:30.644 [INFO] All thumbnails loaded (54 total)
+2025-11-12 00:49:38.318 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ6.jpg
+2025-11-12 00:49:38.353 [INFO] Updated cell list with 35 cells
+2025-11-12 00:49:38.373 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:49:38.376 [INFO] Selected cell: global=298, local=0
+2025-11-12 00:49:38.790 [INFO] All thumbnails loaded (35 total)
+2025-11-12 00:49:43.606 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ7.jpg
+2025-11-12 00:49:43.660 [INFO] Updated cell list with 53 cells
+2025-11-12 00:49:43.681 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:49:43.686 [INFO] Selected cell: global=333, local=0
+2025-11-12 00:49:44.352 [INFO] All thumbnails loaded (53 total)
+2025-11-12 00:49:48.999 [INFO] Save cells button clicked
+2025-11-12 00:49:49.060 [INFO] CSV exported to: D:/github/cell-analyzer/results/cell_analysis_2025-11-12_00-49-49.csv
+2025-11-12 00:49:49.065 [INFO] saveDebugImage: D:/github/cell-analyzer/cells/ТИМ/ТИМ5.jpg, cells=54
+2025-11-12 00:49:49.139 [INFO] Debug image saved: D:/github/cell-analyzer/results/ТИМ5_highlighted.png
+2025-11-12 00:49:49.150 [INFO] saveDebugImage: D:/github/cell-analyzer/cells/ТИМ/ТИМ2.jpg, cells=113
+2025-11-12 00:49:49.207 [INFO] Debug image saved: D:/github/cell-analyzer/results/ТИМ2_highlighted.png
+2025-11-12 00:49:49.212 [INFO] saveDebugImage: D:/github/cell-analyzer/cells/ТИМ/ТИМ6.jpg, cells=35
+2025-11-12 00:49:49.264 [INFO] Debug image saved: D:/github/cell-analyzer/results/ТИМ6_highlighted.png
+2025-11-12 00:49:49.268 [INFO] saveDebugImage: D:/github/cell-analyzer/cells/ТИМ/ТИМ7.jpg, cells=53
+2025-11-12 00:49:49.325 [INFO] Debug image saved: D:/github/cell-analyzer/results/ТИМ7_highlighted.png
+2025-11-12 00:49:49.337 [INFO] saveDebugImage: D:/github/cell-analyzer/cells/ТИМ/ТИМ8.jpg, cells=101
+2025-11-12 00:49:49.397 [INFO] Debug image saved: D:/github/cell-analyzer/results/ТИМ8_highlighted.png
+2025-11-12 00:49:49.401 [INFO] saveDebugImage: D:/github/cell-analyzer/cells/ТИМ/ТИМ1.jpg, cells=37
+2025-11-12 00:49:49.453 [INFO] Debug image saved: D:/github/cell-analyzer/results/ТИМ1_highlighted.png
+2025-11-12 00:49:49.455 [INFO] saveDebugImage: D:/github/cell-analyzer/cells/ТИМ/ТИМ4.jpg, cells=39
+2025-11-12 00:49:49.507 [INFO] Debug image saved: D:/github/cell-analyzer/results/ТИМ4_highlighted.png
+2025-11-12 00:49:49.511 [INFO] saveDebugImage: D:/github/cell-analyzer/cells/ТИМ/ТИМ3.jpg, cells=55
+2025-11-12 00:49:49.565 [INFO] Debug image saved: D:/github/cell-analyzer/results/ТИМ3_highlighted.png
+2025-11-12 00:49:49.567 [INFO] Used coefficient: 0.9839 μm/px
+2025-11-12 00:50:13.315 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ3.jpg
+2025-11-12 00:50:13.375 [INFO] Updated cell list with 55 cells
+2025-11-12 00:50:13.398 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:50:13.403 [INFO] Selected cell: global=150, local=0
+2025-11-12 00:50:14.069 [INFO] All thumbnails loaded (55 total)
+2025-11-12 00:50:39.110 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ4.jpg
+2025-11-12 00:50:39.153 [INFO] Updated cell list with 39 cells
+2025-11-12 00:50:39.173 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:50:39.176 [INFO] Selected cell: global=205, local=0
+2025-11-12 00:50:39.656 [INFO] All thumbnails loaded (39 total)
+2025-11-12 00:50:41.995 [INFO] Auto-scrolled to cell at local index 6
+2025-11-12 00:50:41.998 [INFO] Selected cell: global=211, local=6
+2025-11-12 00:50:42.756 [INFO] Auto-scrolled to cell at local index 4
+2025-11-12 00:50:42.759 [INFO] Selected cell: global=209, local=4
+2025-11-12 00:50:43.096 [INFO] Auto-scrolled to cell at local index 23
+2025-11-12 00:50:43.099 [INFO] Selected cell: global=228, local=23
+2025-11-12 00:50:45.490 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:50:45.493 [INFO] Selected cell: global=205, local=0
+2025-11-12 00:50:46.033 [INFO] Auto-scrolled to cell at local index 1
+2025-11-12 00:50:46.037 [INFO] Selected cell: global=206, local=1
+2025-11-12 00:50:53.930 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ5.jpg
+2025-11-12 00:50:54.004 [INFO] Updated cell list with 54 cells
+2025-11-12 00:50:54.025 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:50:54.029 [INFO] Selected cell: global=244, local=0
+2025-11-12 00:50:54.699 [INFO] All thumbnails loaded (54 total)
+2025-11-12 00:51:13.764 [INFO] Auto-scrolled to cell at local index 47
+2025-11-12 00:51:13.765 [INFO] Selected cell: global=291, local=47
+2025-11-12 00:51:14.694 [INFO] Auto-scrolled to cell at local index 22
+2025-11-12 00:51:14.706 [INFO] Selected cell: global=266, local=22
+2025-11-12 00:51:17.336 [INFO] Auto-scrolled to cell at local index 48
+2025-11-12 00:51:17.336 [INFO] Selected cell: global=292, local=48
+2025-11-12 00:51:17.835 [INFO] Cells grouped into 8 files
+2025-11-12 00:51:17.888 [INFO] Updated cell list with 53 cells
+2025-11-12 00:51:17.908 [INFO] Auto-scrolled to cell at local index 48
+2025-11-12 00:51:17.918 [INFO] Selected cell: global=292, local=48
+2025-11-12 00:51:17.918 [INFO] Cell removed by right-click on image: local index 48
+2025-11-12 00:51:18.574 [INFO] All thumbnails loaded (53 total)
+2025-11-12 00:51:34.046 [INFO] File tab changed to: D:/github/cell-analyzer/cells/ТИМ/ТИМ6.jpg
+2025-11-12 00:51:34.077 [INFO] Updated cell list with 35 cells
+2025-11-12 00:51:34.098 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:51:34.098 [INFO] Selected cell: global=297, local=0
+2025-11-12 00:51:34.538 [INFO] All thumbnails loaded (35 total)
+2025-11-12 00:51:36.729 [INFO] Analysis completed, returning to main screen
+2025-11-12 00:51:36.729 [INFO] VerificationWidget destructor called
+2025-11-12 00:51:53.791 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 00:51:53.791 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:51:53.791 [INFO] ImageProcessor created successfully
+2025-11-12 00:51:53.791 [INFO] Processing 1 images with YOLO
+2025-11-12 00:51:53.791 [INFO] Processing 1 images with YOLO model
+2025-11-12 00:51:53.791 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:51:53.791 [INFO] Confidence threshold: 0.1
+2025-11-12 00:51:53.799 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:51:53.901 [INFO] Using CPU backend
+2025-11-12 00:51:54.176 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:51:54.176 [INFO] Image size: 1388x1040
+2025-11-12 00:51:54.176 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:51:54.176 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:51:54.176 [INFO] Detection 3: x=33.3751, y=17.959, w=53.7296, h=36.0032, score=0.0164641
+2025-11-12 00:51:54.176 [INFO] Detection 4: x=33.5478, y=19.1736, w=54.172, h=38.2635, score=0.65088
+2025-11-12 00:51:54.176 [INFO] Detection 13: x=118.067, y=13.26, w=41.4447, h=26.3086, score=0.357664
+2025-11-12 00:51:54.176 [INFO] Detection 14: x=118.258, y=13.2437, w=41.7962, h=26.3568, score=0.878505
+2025-11-12 00:51:54.176 [INFO] Detection 15: x=118.45, y=13.2714, w=41.694, h=26.3615, score=0.867205
+2025-11-12 00:51:54.176 [INFO] Before NMS: 1029 detections
+2025-11-12 00:51:54.176 [INFO] After NMS: 121 detections
+2025-11-12 00:51:54.176 [INFO] ONNX detected 120 cells in F:/Kravchenko/Адипоциты ИБС/2019_04_11 Пациент 33 Черемных/ПЖТ световая для АФК2.jpg
+2025-11-12 00:51:54.213 [INFO] Scale detected: 100 nm over 58 pixels = 0.00172414 μm/pixel
+2025-11-12 00:51:54.213 [INFO] Scale detected: 0.00172414 μm/pixel
+2025-11-12 00:51:54.233 [INFO] Processing complete. Detected 120 cells total
+2025-11-12 00:51:54.233 [INFO] Images processed successfully
+2025-11-12 00:51:54.233 [INFO] Detected 120 cells
+2025-11-12 00:51:54.233 [INFO] Creating copy of detected cells
+2025-11-12 00:51:54.233 [INFO] Copied 120 cells
+2025-11-12 00:51:54.233 [INFO] ImageProcessor destroyed
+2025-11-12 00:51:54.233 [INFO] ImageProcessor deleted
+2025-11-12 00:52:10.081 [INFO] ==================================================
+2025-11-12 00:52:10.082 [INFO] CellAnalyzer application started
+2025-11-12 00:52:10.082 [INFO] ==================================================
+2025-11-12 00:52:10.083 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 00:52:23.291 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 00:52:23.291 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:52:23.291 [INFO] ImageProcessor created successfully
+2025-11-12 00:52:23.291 [INFO] Processing 1 images with YOLO
+2025-11-12 00:52:23.291 [INFO] Processing 1 images with YOLO model
+2025-11-12 00:52:23.291 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:52:23.291 [INFO] Confidence threshold: 0.1
+2025-11-12 00:52:23.316 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:52:23.416 [INFO] Using CPU backend
+2025-11-12 00:52:23.728 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:52:23.728 [INFO] Image size: 1388x1040
+2025-11-12 00:52:23.728 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:52:23.728 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:52:23.728 [INFO] Detection 483: x=30.8738, y=59.3653, w=16.5454, h=21.8331, score=0.0132887
+2025-11-12 00:52:23.728 [INFO] Detection 484: x=30.9804, y=59.1762, w=16.4688, h=22.2738, score=0.0127523
+2025-11-12 00:52:23.728 [INFO] Detection 563: x=30.6016, y=59.018, w=15.8583, h=21.9403, score=0.0148531
+2025-11-12 00:52:23.728 [INFO] Detection 564: x=30.5079, y=58.9717, w=16.1893, h=22.0696, score=0.0166091
+2025-11-12 00:52:23.728 [INFO] Detection 852: x=416.449, y=90.9777, w=50.7198, h=66.3599, score=0.0374232
+2025-11-12 00:52:23.728 [INFO] Before NMS: 382 detections
+2025-11-12 00:52:23.728 [INFO] After NMS: 46 detections
+2025-11-12 00:52:23.728 [INFO] ONNX detected 46 cells in F:/Kravchenko/Адипоциты ИБС/2019_03_27 Пациент 32 Погорелов/ПЖТ5.jpg
+2025-11-12 00:52:23.770 [INFO] Processing complete. Detected 46 cells total
+2025-11-12 00:52:23.770 [INFO] Images processed successfully
+2025-11-12 00:52:23.770 [INFO] Detected 46 cells
+2025-11-12 00:52:23.770 [INFO] Creating copy of detected cells
+2025-11-12 00:52:23.770 [INFO] Copied 46 cells
+2025-11-12 00:52:23.770 [INFO] ImageProcessor destroyed
+2025-11-12 00:52:23.770 [INFO] ImageProcessor deleted
+2025-11-12 00:52:23.770 [INFO] Creating VerificationWidget
+2025-11-12 00:52:23.770 [INFO] VerificationWidget constructor called (New Design)
+2025-11-12 00:52:23.770 [INFO] Received 46 cells
+2025-11-12 00:52:23.780 [INFO] Cells grouped into 1 files
+2025-11-12 00:52:23.780 [INFO] groupCellsByFile completed
+2025-11-12 00:52:23.780 [INFO] setupUI: Creating main layout
+2025-11-12 00:52:23.780 [INFO] setupUI: Creating file tabs
+2025-11-12 00:52:23.780 [INFO] setupUI: Added tab for ПЖТ5.jpg with 46 cells
+2025-11-12 00:52:23.780 [INFO] setupUI: File tabs created
+2025-11-12 00:52:23.780 [INFO] setupUI: Creating main splitter
+2025-11-12 00:52:23.780 [INFO] setupUI: Creating cell list panel
+2025-11-12 00:52:23.780 [INFO] setupUI: Creating right panel
+2025-11-12 00:52:23.780 [INFO] setupUI: Creating preview widget
+2025-11-12 00:52:23.780 [INFO] File tab changed to: F:/Kravchenko/Адипоциты ИБС/2019_03_27 Пациент 32 Погорелов/ПЖТ5.jpg
+2025-11-12 00:52:23.831 [INFO] Updated cell list with 46 cells
+2025-11-12 00:52:23.841 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:52:23.851 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:52:23.851 [INFO] VerificationWidget UI setup completed
+2025-11-12 00:52:23.851 [INFO] setupUI completed
+2025-11-12 00:52:23.851 [INFO] loadSavedCoefficient: savedCoeff=0.983871
+2025-11-12 00:52:23.851 [INFO] Loaded saved coefficient: 0.983871 μm/px
+2025-11-12 00:52:23.851 [INFO] loadSavedCoefficient completed
+2025-11-12 00:52:23.851 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:52:23.853 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:52:23.853 [INFO] First cell selected
+2025-11-12 00:52:23.853 [INFO] VerificationWidget created successfully
+2025-11-12 00:52:23.853 [INFO] Connecting signals
+2025-11-12 00:52:23.853 [INFO] Setting VerificationWidget as central widget
+2025-11-12 00:52:23.853 [INFO] Analysis started successfully
+2025-11-12 00:52:24.524 [INFO] All thumbnails loaded (46 total)
+2025-11-12 00:52:29.591 [INFO] Auto-scrolled to cell at local index 42
+2025-11-12 00:52:29.591 [INFO] Selected cell: global=42, local=42
+2025-11-12 00:52:30.039 [INFO] Cells grouped into 1 files
+2025-11-12 00:52:30.085 [INFO] Updated cell list with 45 cells
+2025-11-12 00:52:30.106 [INFO] Auto-scrolled to cell at local index 42
+2025-11-12 00:52:30.115 [INFO] Selected cell: global=42, local=42
+2025-11-12 00:52:30.115 [INFO] Cell removed by right-click on image: local index 42
+2025-11-12 00:52:30.666 [INFO] All thumbnails loaded (45 total)
+2025-11-12 00:52:33.694 [INFO] Auto-scrolled to cell at local index 43
+2025-11-12 00:52:33.697 [INFO] Selected cell: global=43, local=43
+2025-11-12 00:52:33.971 [INFO] Cells grouped into 1 files
+2025-11-12 00:52:34.011 [INFO] Updated cell list with 44 cells
+2025-11-12 00:52:34.041 [INFO] Auto-scrolled to cell at local index 43
+2025-11-12 00:52:34.048 [INFO] Selected cell: global=43, local=43
+2025-11-12 00:52:34.048 [INFO] Cell removed by right-click on image: local index 43
+2025-11-12 00:52:34.564 [INFO] All thumbnails loaded (44 total)
+2025-11-12 00:52:35.842 [INFO] Auto-scrolled to cell at local index 40
+2025-11-12 00:52:35.853 [INFO] Selected cell: global=40, local=40
+2025-11-12 00:52:36.037 [INFO] Cells grouped into 1 files
+2025-11-12 00:52:36.078 [INFO] Updated cell list with 43 cells
+2025-11-12 00:52:36.109 [INFO] Auto-scrolled to cell at local index 40
+2025-11-12 00:52:36.109 [INFO] Selected cell: global=40, local=40
+2025-11-12 00:52:36.109 [INFO] Cell removed by right-click on image: local index 40
+2025-11-12 00:52:36.666 [INFO] All thumbnails loaded (43 total)
+2025-11-12 00:52:39.259 [INFO] Auto-scrolled to cell at local index 36
+2025-11-12 00:52:39.267 [INFO] Selected cell: global=36, local=36
+2025-11-12 00:52:39.416 [INFO] Cells grouped into 1 files
+2025-11-12 00:52:39.462 [INFO] Updated cell list with 42 cells
+2025-11-12 00:52:39.492 [INFO] Auto-scrolled to cell at local index 36
+2025-11-12 00:52:39.497 [INFO] Selected cell: global=36, local=36
+2025-11-12 00:52:39.497 [INFO] Cell removed by right-click on image: local index 36
+2025-11-12 00:52:40.017 [INFO] All thumbnails loaded (42 total)
+2025-11-12 00:52:42.612 [INFO] Cells grouped into 1 files
+2025-11-12 00:52:42.653 [INFO] Updated cell list with 41 cells
+2025-11-12 00:52:42.673 [INFO] Auto-scrolled to cell at local index 39
+2025-11-12 00:52:42.673 [INFO] Selected cell: global=39, local=39
+2025-11-12 00:52:42.673 [INFO] Cell removed by right-click on image: local index 39
+2025-11-12 00:52:43.229 [INFO] All thumbnails loaded (41 total)
+2025-11-12 00:52:45.894 [INFO] Cells grouped into 1 files
+2025-11-12 00:52:45.938 [INFO] Updated cell list with 40 cells
+2025-11-12 00:52:45.964 [INFO] Auto-scrolled to cell at local index 34
+2025-11-12 00:52:45.968 [INFO] Selected cell: global=34, local=34
+2025-11-12 00:52:45.968 [INFO] Cell removed by right-click on image: local index 34
+2025-11-12 00:52:46.436 [INFO] All thumbnails loaded (40 total)
+2025-11-12 00:52:48.492 [INFO] Извлечен центральный виджет: да
+2025-11-12 00:52:48.496 [INFO] StatisticsWidget: Отображение статистики для 40 клеток
+2025-11-12 00:52:48.496 [INFO] StatisticsAnalyzer: Начинаем анализ 40 клеток
+2025-11-12 00:52:48.506 [INFO] StatisticsAnalyzer: Анализ завершен
+2025-11-12 00:52:48.513 [INFO] Открыт статистический анализ
+2025-11-12 00:52:52.446 [INFO] onBackFromStatistics: Обработка возврата из статистики
+2025-11-12 00:52:52.446 [INFO] Возврат к окну проверки результатов
+2025-11-12 00:52:52.447 [INFO] Удаляем старый центральный виджет
+2025-11-12 00:52:52.447 [INFO] VerificationWidget установлен как центральный виджет
+2025-11-12 00:52:52.447 [INFO] onBackFromStatistics: Успешно вернулись к проверке результатов
+2025-11-12 00:52:52.448 [INFO] StatisticsWidget удален, указатель обнулен
+2025-11-12 00:53:02.098 [INFO] Analysis completed, returning to main screen
+2025-11-12 00:53:02.100 [INFO] VerificationWidget destructor called
+2025-11-12 00:53:39.797 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 00:53:39.797 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:53:39.797 [INFO] ImageProcessor created successfully
+2025-11-12 00:53:39.797 [INFO] Processing 1 images with YOLO
+2025-11-12 00:53:39.797 [INFO] Processing 1 images with YOLO model
+2025-11-12 00:53:39.797 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:53:39.797 [INFO] Confidence threshold: 0.1
+2025-11-12 00:53:39.812 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:53:39.934 [INFO] Using CPU backend
+2025-11-12 00:53:40.215 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:53:40.215 [INFO] Image size: 1388x1040
+2025-11-12 00:53:40.215 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:53:40.219 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:53:40.219 [INFO] Detection 9: x=85.4076, y=11.2476, w=26.4407, h=22.3952, score=0.768425
+2025-11-12 00:53:40.219 [INFO] Detection 10: x=85.1145, y=11.2647, w=26.4307, h=22.4151, score=0.835298
+2025-11-12 00:53:40.219 [INFO] Detection 11: x=85.0858, y=11.2757, w=26.3009, h=22.3165, score=0.867045
+2025-11-12 00:53:40.219 [INFO] Detection 44: x=371.693, y=9.47035, w=38.0791, h=18.663, score=0.164937
+2025-11-12 00:53:40.219 [INFO] Detection 45: x=371.551, y=9.81812, w=38.3845, h=19.3642, score=0.833204
+2025-11-12 00:53:40.219 [INFO] Before NMS: 2742 detections
+2025-11-12 00:53:40.223 [INFO] After NMS: 305 detections
+2025-11-12 00:53:40.223 [INFO] ONNX detected 303 cells in F:/Kravchenko/Адипоциты ИБС/2019_02_13 Пациент 28 Кочетков/ЭЖТ световая для АФК инс3.jpg
+2025-11-12 00:53:40.270 [INFO] Scale detected: 100 nm over 172.235 pixels = 0.000580601 μm/pixel
+2025-11-12 00:53:40.270 [INFO] Scale detected: 0.000580601 μm/pixel
+2025-11-12 00:53:40.311 [INFO] Processing complete. Detected 303 cells total
+2025-11-12 00:53:40.311 [INFO] Images processed successfully
+2025-11-12 00:53:40.311 [INFO] Detected 303 cells
+2025-11-12 00:53:40.311 [INFO] Creating copy of detected cells
+2025-11-12 00:53:40.311 [INFO] Copied 303 cells
+2025-11-12 00:53:40.311 [INFO] ImageProcessor destroyed
+2025-11-12 00:53:40.311 [INFO] ImageProcessor deleted
+2025-11-12 00:53:59.645 [INFO] ==================================================
+2025-11-12 00:53:59.645 [INFO] CellAnalyzer application started
+2025-11-12 00:53:59.645 [INFO] ==================================================
+2025-11-12 00:53:59.645 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 00:54:31.196 [INFO] ==================================================
+2025-11-12 00:54:31.197 [INFO] CellAnalyzer application started
+2025-11-12 00:54:31.197 [INFO] ==================================================
+2025-11-12 00:54:31.199 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 00:54:44.779 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 00:54:44.779 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:54:44.779 [INFO] ImageProcessor created successfully
+2025-11-12 00:54:44.779 [INFO] Processing 1 images with YOLO
+2025-11-12 00:54:44.779 [INFO] Processing 1 images with YOLO model
+2025-11-12 00:54:44.779 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:54:44.779 [INFO] Confidence threshold: 0.1
+2025-11-12 00:54:44.800 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:54:44.923 [INFO] Using CPU backend
+2025-11-12 00:54:45.195 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:54:45.195 [INFO] Image size: 1388x1040
+2025-11-12 00:54:45.195 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:54:45.195 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:54:45.195 [INFO] Detection 0: x=13.4189, y=3.96541, w=27.3524, h=7.89129, score=0.742178
+2025-11-12 00:54:45.195 [INFO] Detection 1: x=13.3386, y=3.97997, w=28.7268, h=7.85977, score=0.792917
+2025-11-12 00:54:45.195 [INFO] Detection 2: x=12.6876, y=3.98872, w=30.9618, h=7.90094, score=0.747294
+2025-11-12 00:54:45.195 [INFO] Detection 3: x=16.8752, y=4.69961, w=32.3674, h=9.48071, score=0.0164999
+2025-11-12 00:54:45.195 [INFO] Detection 7: x=70.638, y=7.91423, w=43.8662, h=15.6722, score=0.754713
+2025-11-12 00:54:45.195 [INFO] Before NMS: 728 detections
+2025-11-12 00:54:45.195 [INFO] After NMS: 81 detections
+2025-11-12 00:54:45.195 [INFO] ONNX detected 80 cells in F:/Kravchenko/Адипоциты ИБС/2020_04_24 Пациент 41 Титова АА/ЭЖТ8.jpg
+2025-11-12 00:54:45.234 [INFO] Scale detected: 10 nm over 50.01 pixels = 0.00019996 μm/pixel
+2025-11-12 00:54:45.234 [INFO] Scale detected: 0.00019996 μm/pixel
+2025-11-12 00:54:45.245 [INFO] Processing complete. Detected 80 cells total
+2025-11-12 00:54:45.245 [INFO] Images processed successfully
+2025-11-12 00:54:45.245 [INFO] Detected 80 cells
+2025-11-12 00:54:45.245 [INFO] Creating copy of detected cells
+2025-11-12 00:54:45.245 [INFO] Copied 80 cells
+2025-11-12 00:54:45.245 [INFO] ImageProcessor destroyed
+2025-11-12 00:54:45.245 [INFO] ImageProcessor deleted
+2025-11-12 00:54:45.245 [INFO] Creating VerificationWidget
+2025-11-12 00:54:45.245 [INFO] VerificationWidget constructor called (New Design)
+2025-11-12 00:54:45.245 [INFO] Received 80 cells
+2025-11-12 00:54:45.254 [INFO] Cells grouped into 1 files
+2025-11-12 00:54:45.254 [INFO] groupCellsByFile completed
+2025-11-12 00:54:45.254 [INFO] setupUI: Creating main layout
+2025-11-12 00:54:45.254 [INFO] setupUI: Creating file tabs
+2025-11-12 00:54:45.254 [INFO] setupUI: Added tab for ЭЖТ8.jpg with 80 cells
+2025-11-12 00:54:45.254 [INFO] setupUI: File tabs created
+2025-11-12 00:54:45.254 [INFO] setupUI: Creating main splitter
+2025-11-12 00:54:45.254 [INFO] setupUI: Creating cell list panel
+2025-11-12 00:54:45.254 [INFO] setupUI: Creating right panel
+2025-11-12 00:54:45.254 [INFO] setupUI: Creating preview widget
+2025-11-12 00:54:45.254 [INFO] File tab changed to: F:/Kravchenko/Адипоциты ИБС/2020_04_24 Пациент 41 Титова АА/ЭЖТ8.jpg
+2025-11-12 00:54:45.326 [INFO] Updated cell list with 80 cells
+2025-11-12 00:54:45.352 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:54:45.357 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:54:45.357 [INFO] VerificationWidget UI setup completed
+2025-11-12 00:54:45.357 [INFO] setupUI completed
+2025-11-12 00:54:45.357 [INFO] loadSavedCoefficient: savedCoeff=0.983871
+2025-11-12 00:54:45.357 [INFO] Loaded saved coefficient: 0.983871 μm/px
+2025-11-12 00:54:45.357 [INFO] loadSavedCoefficient completed
+2025-11-12 00:54:45.357 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:54:45.368 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:54:45.368 [INFO] First cell selected
+2025-11-12 00:54:45.368 [INFO] VerificationWidget created successfully
+2025-11-12 00:54:45.368 [INFO] Connecting signals
+2025-11-12 00:54:45.368 [INFO] Setting VerificationWidget as central widget
+2025-11-12 00:54:45.368 [INFO] Analysis started successfully
+2025-11-12 00:54:46.403 [INFO] All thumbnails loaded (80 total)
+2025-11-12 00:55:07.513 [INFO] Auto-scrolled to cell at local index 75
+2025-11-12 00:55:07.513 [INFO] Selected cell: global=75, local=75
+2025-11-12 00:55:07.851 [INFO] Cells grouped into 1 files
+2025-11-12 00:55:07.934 [INFO] Updated cell list with 79 cells
+2025-11-12 00:55:07.965 [INFO] Auto-scrolled to cell at local index 75
+2025-11-12 00:55:07.975 [INFO] Selected cell: global=75, local=75
+2025-11-12 00:55:07.975 [INFO] Cell removed by right-click on image: local index 75
+2025-11-12 00:55:08.057 [INFO] Cells grouped into 1 files
+2025-11-12 00:55:08.138 [INFO] Updated cell list with 78 cells
+2025-11-12 00:55:08.169 [INFO] Auto-scrolled to cell at local index 77
+2025-11-12 00:55:08.179 [INFO] Selected cell: global=77, local=77
+2025-11-12 00:55:08.179 [INFO] Cell removed by right-click on image: local index 77
+2025-11-12 00:55:09.070 [INFO] All thumbnails loaded (78 total)
+2025-11-12 00:55:12.646 [INFO] Auto-scrolled to cell at local index 70
+2025-11-12 00:55:12.647 [INFO] Selected cell: global=70, local=70
+2025-11-12 00:55:14.226 [INFO] Auto-scrolled to cell at local index 70
+2025-11-12 00:55:14.235 [INFO] Selected cell: global=70, local=70
+2025-11-12 00:55:15.638 [INFO] Auto-scrolled to cell at local index 70
+2025-11-12 00:55:15.648 [INFO] Selected cell: global=70, local=70
+2025-11-12 00:55:16.363 [INFO] Auto-scrolled to cell at local index 32
+2025-11-12 00:55:16.363 [INFO] Selected cell: global=32, local=32
+2025-11-12 00:55:17.089 [INFO] Auto-scrolled to cell at local index 77
+2025-11-12 00:55:17.101 [INFO] Selected cell: global=77, local=77
+2025-11-12 00:55:18.202 [INFO] Cells grouped into 1 files
+2025-11-12 00:55:18.275 [INFO] Updated cell list with 77 cells
+2025-11-12 00:55:18.306 [INFO] Auto-scrolled to cell at local index 70
+2025-11-12 00:55:18.320 [INFO] Selected cell: global=70, local=70
+2025-11-12 00:55:18.320 [INFO] Cell removed by right-click on image: local index 70
+2025-11-12 00:55:18.605 [INFO] Cells grouped into 1 files
+2025-11-12 00:55:18.686 [INFO] Updated cell list with 76 cells
+2025-11-12 00:55:18.717 [INFO] Auto-scrolled to cell at local index 75
+2025-11-12 00:55:18.717 [INFO] Selected cell: global=75, local=75
+2025-11-12 00:55:18.717 [INFO] Cell removed by right-click on image: local index 76
+2025-11-12 00:55:19.664 [INFO] All thumbnails loaded (76 total)
+2025-11-12 00:55:21.145 [INFO] Cells grouped into 1 files
+2025-11-12 00:55:21.229 [INFO] Updated cell list with 75 cells
+2025-11-12 00:55:21.263 [INFO] Auto-scrolled to cell at local index 71
+2025-11-12 00:55:21.270 [INFO] Selected cell: global=71, local=71
+2025-11-12 00:55:21.270 [INFO] Cell removed by right-click on image: local index 71
+2025-11-12 00:55:22.163 [INFO] All thumbnails loaded (75 total)
+2025-11-12 00:55:22.709 [INFO] Cells grouped into 1 files
+2025-11-12 00:55:22.780 [INFO] Updated cell list with 74 cells
+2025-11-12 00:55:22.811 [INFO] Auto-scrolled to cell at local index 73
+2025-11-12 00:55:22.821 [INFO] Selected cell: global=73, local=73
+2025-11-12 00:55:22.821 [INFO] Cell removed by right-click on image: local index 74
+2025-11-12 00:55:23.726 [INFO] All thumbnails loaded (74 total)
+2025-11-12 00:55:32.940 [INFO] Analysis completed, returning to main screen
+2025-11-12 00:55:32.945 [INFO] VerificationWidget destructor called
+2025-11-12 00:56:11.266 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 00:56:11.266 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:56:11.266 [INFO] ImageProcessor created successfully
+2025-11-12 00:56:11.266 [INFO] Processing 1 images with YOLO
+2025-11-12 00:56:11.266 [INFO] Processing 1 images with YOLO model
+2025-11-12 00:56:11.266 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:56:11.266 [INFO] Confidence threshold: 0.1
+2025-11-12 00:56:11.278 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:56:11.382 [INFO] Using CPU backend
+2025-11-12 00:56:11.647 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:56:11.647 [INFO] Image size: 1388x1040
+2025-11-12 00:56:11.647 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:56:11.647 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:56:11.647 [INFO] Detection 7: x=70.5432, y=14.088, w=36.0091, h=27.9029, score=0.0772551
+2025-11-12 00:56:11.647 [INFO] Detection 8: x=70.6687, y=13.9933, w=36.2777, h=27.7981, score=0.820038
+2025-11-12 00:56:11.647 [INFO] Detection 9: x=70.7441, y=13.9753, w=36.5092, h=27.7563, score=0.871279
+2025-11-12 00:56:11.647 [INFO] Detection 10: x=70.8631, y=14.0395, w=37.3828, h=27.8853, score=0.0256613
+2025-11-12 00:56:11.647 [INFO] Detection 11: x=102.448, y=3.07347, w=38.1584, h=5.9934, score=0.665443
+2025-11-12 00:56:11.647 [INFO] Before NMS: 884 detections
+2025-11-12 00:56:11.647 [INFO] After NMS: 99 detections
+2025-11-12 00:56:11.647 [INFO] ONNX detected 99 cells in F:/Kravchenko/Адипоциты ИБС/2022_11_17 Пациент 80 Клюев/Световая для АФК ЭЖТ3.jpg
+2025-11-12 00:56:11.688 [INFO] Scale detected: 100 nm over 238.355 pixels = 0.000419543 μm/pixel
+2025-11-12 00:56:11.688 [INFO] Scale detected: 0.000419543 μm/pixel
+2025-11-12 00:56:11.699 [INFO] Processing complete. Detected 99 cells total
+2025-11-12 00:56:11.699 [INFO] Images processed successfully
+2025-11-12 00:56:11.699 [INFO] Detected 99 cells
+2025-11-12 00:56:11.699 [INFO] Creating copy of detected cells
+2025-11-12 00:56:11.699 [INFO] Copied 99 cells
+2025-11-12 00:56:11.699 [INFO] ImageProcessor destroyed
+2025-11-12 00:56:11.699 [INFO] ImageProcessor deleted
+2025-11-12 00:56:17.404 [INFO] ==================================================
+2025-11-12 00:56:17.413 [INFO] CellAnalyzer application started
+2025-11-12 00:56:17.413 [INFO] ==================================================
+2025-11-12 00:56:17.414 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 00:56:44.267 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 00:56:44.267 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:56:44.267 [INFO] ImageProcessor created successfully
+2025-11-12 00:56:44.267 [INFO] Processing 1 images with YOLO
+2025-11-12 00:56:44.267 [INFO] Processing 1 images with YOLO model
+2025-11-12 00:56:44.267 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:56:44.267 [INFO] Confidence threshold: 0.1
+2025-11-12 00:56:44.288 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:56:44.390 [INFO] Using CPU backend
+2025-11-12 00:56:44.673 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:56:44.673 [INFO] Image size: 1388x1040
+2025-11-12 00:56:44.673 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:56:44.673 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:56:44.673 [INFO] Detection 60: x=494.557, y=15.7682, w=48.2189, h=31.2826, score=0.0168818
+2025-11-12 00:56:44.673 [INFO] Detection 61: x=494.959, y=15.6491, w=48.0923, h=31.0511, score=0.925724
+2025-11-12 00:56:44.673 [INFO] Detection 62: x=494.751, y=15.7203, w=48.4919, h=31.2746, score=0.912718
+2025-11-12 00:56:44.673 [INFO] Detection 63: x=494.987, y=15.658, w=47.4346, h=31.1262, score=0.765312
+2025-11-12 00:56:44.673 [INFO] Detection 100: x=164.898, y=24.4255, w=40.4993, h=49.1415, score=0.869609
+2025-11-12 00:56:44.673 [INFO] Before NMS: 587 detections
+2025-11-12 00:56:44.673 [INFO] After NMS: 63 detections
+2025-11-12 00:56:44.673 [INFO] ONNX detected 63 cells in F:/Kravchenko/Адипоциты ИБС/2022_11_17 Пациент 80 Клюев/Световая для АФК ТИМ2.jpg
+2025-11-12 00:56:44.703 [INFO] Scale detected: 100 nm over 217.279 pixels = 0.000460239 μm/pixel
+2025-11-12 00:56:44.703 [INFO] Scale detected: 0.000460239 μm/pixel
+2025-11-12 00:56:44.714 [INFO] Processing complete. Detected 63 cells total
+2025-11-12 00:56:44.714 [INFO] Images processed successfully
+2025-11-12 00:56:44.714 [INFO] Detected 63 cells
+2025-11-12 00:56:44.714 [INFO] Creating copy of detected cells
+2025-11-12 00:56:44.714 [INFO] Copied 63 cells
+2025-11-12 00:56:44.714 [INFO] ImageProcessor destroyed
+2025-11-12 00:56:44.714 [INFO] ImageProcessor deleted
+2025-11-12 00:56:44.714 [INFO] Creating VerificationWidget
+2025-11-12 00:56:44.714 [INFO] VerificationWidget constructor called (New Design)
+2025-11-12 00:56:44.714 [INFO] Received 63 cells
+2025-11-12 00:56:44.725 [INFO] Cells grouped into 1 files
+2025-11-12 00:56:44.725 [INFO] groupCellsByFile completed
+2025-11-12 00:56:44.725 [INFO] setupUI: Creating main layout
+2025-11-12 00:56:44.725 [INFO] setupUI: Creating file tabs
+2025-11-12 00:56:44.725 [INFO] setupUI: Added tab for Световая для АФК ТИМ2.jpg with 63 cells
+2025-11-12 00:56:44.725 [INFO] setupUI: File tabs created
+2025-11-12 00:56:44.725 [INFO] setupUI: Creating main splitter
+2025-11-12 00:56:44.725 [INFO] setupUI: Creating cell list panel
+2025-11-12 00:56:44.725 [INFO] setupUI: Creating right panel
+2025-11-12 00:56:44.725 [INFO] setupUI: Creating preview widget
+2025-11-12 00:56:44.725 [INFO] File tab changed to: F:/Kravchenko/Адипоциты ИБС/2022_11_17 Пациент 80 Клюев/Световая для АФК ТИМ2.jpg
+2025-11-12 00:56:44.787 [INFO] Updated cell list with 63 cells
+2025-11-12 00:56:44.805 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:56:44.816 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:56:44.816 [INFO] VerificationWidget UI setup completed
+2025-11-12 00:56:44.816 [INFO] setupUI completed
+2025-11-12 00:56:44.816 [INFO] loadSavedCoefficient: savedCoeff=0.983871
+2025-11-12 00:56:44.816 [INFO] Loaded saved coefficient: 0.983871 μm/px
+2025-11-12 00:56:44.816 [INFO] loadSavedCoefficient completed
+2025-11-12 00:56:44.816 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 00:56:44.819 [INFO] Selected cell: global=0, local=0
+2025-11-12 00:56:44.819 [INFO] First cell selected
+2025-11-12 00:56:44.819 [INFO] VerificationWidget created successfully
+2025-11-12 00:56:44.819 [INFO] Connecting signals
+2025-11-12 00:56:44.819 [INFO] Setting VerificationWidget as central widget
+2025-11-12 00:56:44.819 [INFO] Analysis started successfully
+2025-11-12 00:56:45.725 [INFO] All thumbnails loaded (63 total)
+2025-11-12 00:56:47.006 [INFO] Analysis completed, returning to main screen
+2025-11-12 00:56:47.006 [INFO] VerificationWidget destructor called
+2025-11-12 00:56:51.179 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 00:56:51.179 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 00:56:51.179 [INFO] ImageProcessor created successfully
+2025-11-12 00:56:51.179 [INFO] Processing 1 images with YOLO
+2025-11-12 00:56:51.179 [INFO] Processing 1 images with YOLO model
+2025-11-12 00:56:51.179 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:56:51.179 [INFO] Confidence threshold: 0.1
+2025-11-12 00:56:51.195 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 00:56:51.305 [INFO] Using CPU backend
+2025-11-12 00:56:51.589 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 00:56:51.589 [INFO] Image size: 1388x1040
+2025-11-12 00:56:51.589 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 00:56:51.589 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 00:56:51.589 [INFO] Detection 12: x=113.238, y=3.09768, w=36.1014, h=6.13335, score=0.159233
+2025-11-12 00:56:51.589 [INFO] Detection 13: x=113.753, y=2.55983, w=35.967, h=5.04035, score=0.530164
+2025-11-12 00:56:51.589 [INFO] Detection 14: x=113.734, y=2.57452, w=36.8843, h=5.07859, score=0.632893
+2025-11-12 00:56:51.589 [INFO] Detection 15: x=114.003, y=2.73407, w=33.9149, h=5.33963, score=0.523894
+2025-11-12 00:56:51.589 [INFO] Detection 877: x=621.956, y=96.4309, w=18.4424, h=58.2548, score=0.356612
+2025-11-12 00:56:51.589 [INFO] Before NMS: 200 detections
+2025-11-12 00:56:51.589 [INFO] After NMS: 38 detections
+2025-11-12 00:56:51.589 [INFO] ONNX detected 38 cells in F:/Kravchenko/Адипоциты ИБС/2022_11_17 Пациент 80 Клюев/ТИМ1 счт.jpg
+2025-11-12 00:56:51.631 [INFO] Processing complete. Detected 38 cells total
+2025-11-12 00:56:51.631 [INFO] Images processed successfully
+2025-11-12 00:56:51.631 [INFO] Detected 38 cells
+2025-11-12 00:56:51.631 [INFO] Creating copy of detected cells
+2025-11-12 00:56:51.631 [INFO] Copied 38 cells
+2025-11-12 00:56:51.631 [INFO] ImageProcessor destroyed
+2025-11-12 00:56:51.631 [INFO] ImageProcessor deleted
+2025-11-12 01:04:52.482 [INFO] ==================================================
+2025-11-12 01:04:52.483 [INFO] CellAnalyzer application started
+2025-11-12 01:04:52.483 [INFO] ==================================================
+2025-11-12 01:04:52.650 [INFO] Settings loaded from: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 01:05:13.569 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 01:05:13.569 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 01:05:13.569 [INFO] ImageProcessor created successfully
+2025-11-12 01:05:13.569 [INFO] Processing 1 images with YOLO
+2025-11-12 01:05:13.569 [INFO] Processing 1 images with YOLO model
+2025-11-12 01:05:13.569 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 01:05:13.569 [INFO] Confidence threshold: 0.1
+2025-11-12 01:05:13.596 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 01:05:13.711 [INFO] Using CPU backend
+2025-11-12 01:05:13.987 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 01:05:13.987 [INFO] Image size: 1388x1040
+2025-11-12 01:05:13.987 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 01:05:13.987 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 01:05:13.987 [INFO] Detection 0: x=3.02025, y=6.03691, w=6.48045, h=12.106, score=0.0256893
+2025-11-12 01:05:13.987 [INFO] Detection 18: x=157.216, y=6.84756, w=37.0988, h=13.7048, score=0.801602
+2025-11-12 01:05:13.988 [INFO] Detection 19: x=157.048, y=6.84259, w=37.5175, h=13.6004, score=0.892494
+2025-11-12 01:05:13.988 [INFO] Detection 20: x=157.064, y=6.89378, w=37.689, h=13.6124, score=0.89046
+2025-11-12 01:05:13.988 [INFO] Detection 21: x=156.92, y=6.88569, w=37.5593, h=13.5697, score=0.878232
+2025-11-12 01:05:13.988 [INFO] Before NMS: 717 detections
+2025-11-12 01:05:13.988 [INFO] After NMS: 82 detections
+2025-11-12 01:05:13.988 [INFO] ONNX detected 82 cells in F:/Kravchenko/Адипоциты ИБС/2019_10_15 _Пациент 36 Щенова/ЭЖТ 1 ч 4.jpg
+2025-11-12 01:05:14.032 [INFO] Processing complete. Detected 82 cells total
+2025-11-12 01:05:14.032 [INFO] Images processed successfully
+2025-11-12 01:05:14.032 [INFO] Detected 82 cells
+2025-11-12 01:05:14.032 [INFO] Creating copy of detected cells
+2025-11-12 01:05:14.032 [INFO] Copied 82 cells
+2025-11-12 01:05:14.032 [INFO] ImageProcessor destroyed
+2025-11-12 01:05:14.032 [INFO] ImageProcessor deleted
+2025-11-12 01:05:14.032 [INFO] Creating VerificationWidget
+2025-11-12 01:05:14.032 [INFO] VerificationWidget constructor called (New Design)
+2025-11-12 01:05:14.032 [INFO] Received 82 cells
+2025-11-12 01:05:14.032 [INFO] Cells grouped into 1 files
+2025-11-12 01:05:14.032 [INFO] groupCellsByFile completed
+2025-11-12 01:05:14.032 [INFO] setupUI: Creating main layout
+2025-11-12 01:05:14.032 [INFO] setupUI: Creating file tabs
+2025-11-12 01:05:14.032 [INFO] setupUI: Added tab for ЭЖТ 1 ч 4.jpg with 82 cells
+2025-11-12 01:05:14.032 [INFO] setupUI: File tabs created
+2025-11-12 01:05:14.032 [INFO] setupUI: Creating main splitter
+2025-11-12 01:05:14.032 [INFO] setupUI: Creating cell list panel
+2025-11-12 01:05:14.032 [INFO] setupUI: Creating right panel
+2025-11-12 01:05:14.038 [INFO] setupUI: Creating preview widget
+2025-11-12 01:05:14.040 [INFO] File tab changed to: F:/Kravchenko/Адипоциты ИБС/2019_10_15 _Пациент 36 Щенова/ЭЖТ 1 ч 4.jpg
+2025-11-12 01:05:14.109 [INFO] Updated cell list with 82 cells
+2025-11-12 01:05:14.131 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 01:05:14.146 [INFO] Selected cell: global=0, local=0
+2025-11-12 01:05:14.147 [INFO] VerificationWidget UI setup completed
+2025-11-12 01:05:14.147 [INFO] setupUI completed
+2025-11-12 01:05:14.147 [INFO] loadSavedCoefficient: savedCoeff=0
+2025-11-12 01:05:14.147 [INFO] loadSavedCoefficient completed
+2025-11-12 01:05:14.147 [INFO] Auto-scrolled to cell at local index 0
+2025-11-12 01:05:14.154 [INFO] Selected cell: global=0, local=0
+2025-11-12 01:05:14.154 [INFO] First cell selected
+2025-11-12 01:05:14.154 [INFO] VerificationWidget created successfully
+2025-11-12 01:05:14.154 [INFO] Connecting signals
+2025-11-12 01:05:14.154 [INFO] Setting VerificationWidget as central widget
+2025-11-12 01:05:14.155 [INFO] Analysis started successfully
+2025-11-12 01:05:15.563 [INFO] All thumbnails loaded (82 total)
+2025-11-12 01:05:19.149 [INFO] Auto-scrolled to cell at local index 66
+2025-11-12 01:05:19.153 [INFO] Selected cell: global=66, local=66
+2025-11-12 01:05:20.887 [INFO] Auto-scrolled to cell at local index 66
+2025-11-12 01:05:20.887 [INFO] Selected cell: global=66, local=66
+2025-11-12 01:05:23.764 [INFO] Auto-scrolled to cell at local index 68
+2025-11-12 01:05:23.765 [INFO] Selected cell: global=68, local=68
+2025-11-12 01:05:26.644 [INFO] Cells grouped into 1 files
+2025-11-12 01:05:26.719 [INFO] Updated cell list with 81 cells
+2025-11-12 01:05:26.746 [INFO] Auto-scrolled to cell at local index 68
+2025-11-12 01:05:26.751 [INFO] Selected cell: global=68, local=68
+2025-11-12 01:05:26.751 [INFO] Removed cell at index 68
+2025-11-12 01:05:27.782 [INFO] All thumbnails loaded (81 total)
+2025-11-12 01:05:33.013 [INFO] Cells grouped into 1 files
+2025-11-12 01:05:33.086 [INFO] Updated cell list with 80 cells
+2025-11-12 01:05:33.117 [INFO] Auto-scrolled to cell at local index 55
+2025-11-12 01:05:33.127 [INFO] Selected cell: global=55, local=55
+2025-11-12 01:05:33.127 [INFO] Cell removed by right-click on image: local index 55
+2025-11-12 01:05:33.913 [INFO] Cells grouped into 1 files
+2025-11-12 01:05:33.974 [INFO] Updated cell list with 79 cells
+2025-11-12 01:05:34.004 [INFO] Auto-scrolled to cell at local index 59
+2025-11-12 01:05:34.015 [INFO] Selected cell: global=59, local=59
+2025-11-12 01:05:34.015 [INFO] Cell removed by right-click on image: local index 59
+2025-11-12 01:05:34.903 [INFO] All thumbnails loaded (79 total)
+2025-11-12 01:05:41.176 [INFO] Auto-scrolled to cell at local index 72
+2025-11-12 01:05:41.186 [INFO] Selected cell: global=72, local=72
+2025-11-12 01:05:42.211 [INFO] Cells grouped into 1 files
+2025-11-12 01:05:42.273 [INFO] Updated cell list with 78 cells
+2025-11-12 01:05:42.304 [INFO] Auto-scrolled to cell at local index 72
+2025-11-12 01:05:42.314 [INFO] Selected cell: global=72, local=72
+2025-11-12 01:05:42.314 [INFO] Cell removed by right-click on image: local index 72
+2025-11-12 01:05:43.274 [INFO] All thumbnails loaded (78 total)
+2025-11-12 01:05:44.728 [INFO] Auto-scrolled to cell at local index 76
+2025-11-12 01:05:44.738 [INFO] Selected cell: global=76, local=76
+2025-11-12 01:05:45.615 [INFO] Cells grouped into 1 files
+2025-11-12 01:05:45.693 [INFO] Updated cell list with 77 cells
+2025-11-12 01:05:45.724 [INFO] Auto-scrolled to cell at local index 76
+2025-11-12 01:05:45.730 [INFO] Selected cell: global=76, local=76
+2025-11-12 01:05:45.730 [INFO] Cell removed by right-click on image: local index 76
+2025-11-12 01:05:46.708 [INFO] All thumbnails loaded (77 total)
+2025-11-12 01:06:01.334 [INFO] Cells grouped into 1 files
+2025-11-12 01:06:01.396 [INFO] Updated cell list with 76 cells
+2025-11-12 01:06:01.428 [INFO] Auto-scrolled to cell at local index 68
+2025-11-12 01:06:01.438 [INFO] Selected cell: global=68, local=68
+2025-11-12 01:06:01.438 [INFO] Cell removed by right-click on image: local index 68
+2025-11-12 01:06:02.407 [INFO] All thumbnails loaded (76 total)
+2025-11-12 01:06:05.967 [INFO] Извлечен центральный виджет: да
+2025-11-12 01:06:05.972 [INFO] StatisticsWidget: Отображение статистики для 76 клеток
+2025-11-12 01:06:05.972 [INFO] StatisticsAnalyzer: Начинаем анализ 76 клеток
+2025-11-12 01:06:05.972 [WARN] StatisticsAnalyzer: Нет данных в микрометрах. Возможно не задан коэффициент масштаба.
+2025-11-12 01:06:05.975 [INFO] Открыт статистический анализ
+2025-11-12 01:06:07.355 [INFO] onBackFromStatistics: Обработка возврата из статистики
+2025-11-12 01:06:07.355 [INFO] Возврат к окну проверки результатов
+2025-11-12 01:06:07.355 [INFO] Удаляем старый центральный виджет
+2025-11-12 01:06:07.355 [INFO] VerificationWidget установлен как центральный виджет
+2025-11-12 01:06:07.355 [INFO] onBackFromStatistics: Успешно вернулись к проверке результатов
+2025-11-12 01:06:07.355 [INFO] StatisticsWidget удален, указатель обнулен
+2025-11-12 01:06:08.313 [INFO] Извлечен центральный виджет: да
+2025-11-12 01:06:08.323 [INFO] StatisticsWidget: Отображение статистики для 76 клеток
+2025-11-12 01:06:08.323 [INFO] StatisticsAnalyzer: Начинаем анализ 76 клеток
+2025-11-12 01:06:08.323 [WARN] StatisticsAnalyzer: Нет данных в микрометрах. Возможно не задан коэффициент масштаба.
+2025-11-12 01:06:08.323 [INFO] Открыт статистический анализ
+2025-11-12 01:06:09.133 [INFO] onBackFromStatistics: Обработка возврата из статистики
+2025-11-12 01:06:09.133 [INFO] Возврат к окну проверки результатов
+2025-11-12 01:06:09.133 [INFO] Удаляем старый центральный виджет
+2025-11-12 01:06:09.133 [INFO] VerificationWidget установлен как центральный виджет
+2025-11-12 01:06:09.133 [INFO] onBackFromStatistics: Успешно вернулись к проверке результатов
+2025-11-12 01:06:09.133 [INFO] StatisticsWidget удален, указатель обнулен
+2025-11-12 01:06:10.188 [INFO] Извлечен центральный виджет: да
+2025-11-12 01:06:10.188 [INFO] StatisticsWidget: Отображение статистики для 76 клеток
+2025-11-12 01:06:10.188 [INFO] StatisticsAnalyzer: Начинаем анализ 76 клеток
+2025-11-12 01:06:10.188 [WARN] StatisticsAnalyzer: Нет данных в микрометрах. Возможно не задан коэффициент масштаба.
+2025-11-12 01:06:10.188 [INFO] Открыт статистический анализ
+2025-11-12 01:06:12.282 [INFO] onBackFromStatistics: Обработка возврата из статистики
+2025-11-12 01:06:12.282 [INFO] Возврат к окну проверки результатов
+2025-11-12 01:06:12.287 [INFO] Удаляем старый центральный виджет
+2025-11-12 01:06:12.287 [INFO] VerificationWidget установлен как центральный виджет
+2025-11-12 01:06:12.287 [INFO] onBackFromStatistics: Успешно вернулись к проверке результатов
+2025-11-12 01:06:12.288 [INFO] StatisticsWidget удален, указатель обнулен
+2025-11-12 01:06:13.705 [INFO] Auto-scrolled to cell at local index 5
+2025-11-12 01:06:13.711 [INFO] Selected cell: global=5, local=5
+2025-11-12 01:06:26.645 [INFO] Settings saved to: D:/github/cell-analyzer/build-release/Release/settings.json
+2025-11-12 01:06:26.645 [INFO] Coefficient updated: 0.994521 μm/px
+2025-11-12 01:06:26.645 [INFO] Recalculated with coefficient: 0.994521 μm/px
+2025-11-12 01:06:28.407 [INFO] Извлечен центральный виджет: да
+2025-11-12 01:06:28.415 [INFO] StatisticsWidget: Отображение статистики для 76 клеток
+2025-11-12 01:06:28.415 [INFO] StatisticsAnalyzer: Начинаем анализ 76 клеток
+2025-11-12 01:06:28.426 [INFO] StatisticsAnalyzer: Анализ завершен
+2025-11-12 01:06:28.436 [INFO] Открыт статистический анализ
+2025-11-12 01:06:33.075 [INFO] onBackFromStatistics: Обработка возврата из статистики
+2025-11-12 01:06:33.075 [INFO] Возврат к окну проверки результатов
+2025-11-12 01:06:33.075 [INFO] Удаляем старый центральный виджет
+2025-11-12 01:06:33.075 [INFO] VerificationWidget установлен как центральный виджет
+2025-11-12 01:06:33.075 [INFO] onBackFromStatistics: Успешно вернулись к проверке результатов
+2025-11-12 01:06:33.075 [INFO] StatisticsWidget удален, указатель обнулен
+2025-11-12 01:06:34.242 [INFO] Извлечен центральный виджет: да
+2025-11-12 01:06:34.245 [INFO] StatisticsWidget: Отображение статистики для 76 клеток
+2025-11-12 01:06:34.245 [INFO] StatisticsAnalyzer: Начинаем анализ 76 клеток
+2025-11-12 01:06:34.255 [INFO] StatisticsAnalyzer: Анализ завершен
+2025-11-12 01:06:34.265 [INFO] Открыт статистический анализ
+2025-11-12 01:06:35.137 [INFO] onBackFromStatistics: Обработка возврата из статистики
+2025-11-12 01:06:35.137 [INFO] Возврат к окну проверки результатов
+2025-11-12 01:06:35.137 [INFO] Удаляем старый центральный виджет
+2025-11-12 01:06:35.137 [INFO] VerificationWidget установлен как центральный виджет
+2025-11-12 01:06:35.137 [INFO] onBackFromStatistics: Успешно вернулись к проверке результатов
+2025-11-12 01:06:35.137 [INFO] StatisticsWidget удален, указатель обнулен
+2025-11-12 01:06:37.923 [INFO] Analysis completed, returning to main screen
+2025-11-12 01:06:37.923 [INFO] VerificationWidget destructor called
+2025-11-12 01:06:42.943 [INFO] Starting YOLO analysis for 1 images
+2025-11-12 01:06:42.943 [INFO] ImageProcessor created (ONNX-based)
+2025-11-12 01:06:42.943 [INFO] ImageProcessor created successfully
+2025-11-12 01:06:42.943 [INFO] Processing 1 images with YOLO
+2025-11-12 01:06:42.943 [INFO] Processing 1 images with YOLO model
+2025-11-12 01:06:42.943 [INFO] Model: ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 01:06:42.943 [INFO] Confidence threshold: 0.1
+2025-11-12 01:06:42.955 [INFO] Loading ONNX model: D:/github/cell-analyzer/ml-data/models/yolov8s_cells_v1.0.onnx
+2025-11-12 01:06:43.055 [INFO] Using CPU backend
+2025-11-12 01:06:43.369 [INFO] Output shape: [1, 38, 8400]
+2025-11-12 01:06:43.369 [INFO] Image size: 1388x1040
+2025-11-12 01:06:43.369 [INFO] Detected NON-transposed format: [1, 38, 8400]
+2025-11-12 01:06:43.369 [INFO] Scale factors: scaleX=2.16875, scaleY=1.625
+2025-11-12 01:06:43.369 [INFO] Detection 13: x=108.915, y=4.0586, w=15.7304, h=7.90512, score=0.0404915
+2025-11-12 01:06:43.369 [INFO] Detection 14: x=119.19, y=5.15302, w=22.9465, h=10.198, score=0.0106086
+2025-11-12 01:06:43.369 [INFO] Detection 16: x=134.541, y=5.35876, w=13.2532, h=10.6221, score=0.0381047
+2025-11-12 01:06:43.369 [INFO] Detection 52: x=426.365, y=12.3082, w=84.8711, h=24.6693, score=0.0173089
+2025-11-12 01:06:43.369 [INFO] Detection 53: x=429.248, y=12.441, w=90.2462, h=25.1842, score=0.0674557
+2025-11-12 01:06:43.369 [INFO] Before NMS: 179 detections
+2025-11-12 01:06:43.369 [INFO] After NMS: 29 detections
+2025-11-12 01:06:43.369 [INFO] ONNX detected 29 cells in F:/Kravchenko/Адипоциты ИБС/2019_10_15 _Пациент 36 Щенова/ПЖТ 1 ч 7 посчитан.jpg
+2025-11-12 01:06:43.404 [INFO] Scale detected: 100 nm over 66.1211 pixels = 0.00151238 μm/pixel
+2025-11-12 01:06:43.404 [INFO] Scale detected: 0.00151238 μm/pixel
+2025-11-12 01:06:43.410 [INFO] Processing complete. Detected 29 cells total
+2025-11-12 01:06:43.410 [INFO] Images processed successfully
+2025-11-12 01:06:43.410 [INFO] Detected 29 cells
+2025-11-12 01:06:43.410 [INFO] Creating copy of detected cells
+2025-11-12 01:06:43.410 [INFO] Copied 29 cells
+2025-11-12 01:06:43.410 [INFO] ImageProcessor destroyed
+2025-11-12 01:06:43.410 [INFO] ImageProcessor deleted

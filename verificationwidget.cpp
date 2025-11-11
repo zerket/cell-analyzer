@@ -35,6 +35,8 @@ VerificationWidget::VerificationWidget(const QVector<Cell>& cells, QWidget *pare
     , m_finishButton(nullptr)
     , m_cells(cells)
     , m_selectedCellIndex(-1)
+    , m_thumbnailLoadTimer(nullptr)
+    , m_thumbnailLoadIndex(0)
 {
     LOG_INFO("VerificationWidget constructor called (New Design)");
     LOG_INFO(QString("Received %1 cells").arg(cells.size()));
@@ -64,6 +66,13 @@ VerificationWidget::VerificationWidget(const QVector<Cell>& cells, QWidget *pare
 VerificationWidget::~VerificationWidget()
 {
     LOG_INFO("VerificationWidget destructor called");
+
+    // Останавливаем и удаляем таймер
+    if (m_thumbnailLoadTimer) {
+        m_thumbnailLoadTimer->stop();
+        m_thumbnailLoadTimer->deleteLater();
+        m_thumbnailLoadTimer = nullptr;
+    }
 }
 
 void VerificationWidget::groupCellsByFile()
@@ -234,6 +243,12 @@ void VerificationWidget::setupUI()
 
     setLayout(mainLayout);
 
+    // Initialize lazy loading timer
+    m_thumbnailLoadTimer = new QTimer(this);
+    m_thumbnailLoadTimer->setSingleShot(false);
+    m_thumbnailLoadTimer->setInterval(50); // Загружаем по 10 изображений в секунду
+    connect(m_thumbnailLoadTimer, &QTimer::timeout, this, &VerificationWidget::loadNextThumbnailBatch);
+
     // Initialize first tab
     if (m_fileTabWidget->count() > 0) {
         onFileTabChanged(0);
@@ -245,6 +260,11 @@ void VerificationWidget::setupUI()
 void VerificationWidget::onFileTabChanged(int index)
 {
     if (index < 0 || index >= m_cellsByFile.size()) return;
+
+    // Останавливаем предыдущий таймер загрузки
+    if (m_thumbnailLoadTimer && m_thumbnailLoadTimer->isActive()) {
+        m_thumbnailLoadTimer->stop();
+    }
 
     // Get file path for this tab
     QStringList filePaths = m_cellsByFile.keys();
@@ -306,6 +326,12 @@ void VerificationWidget::updateCellList()
     }
 
     LOG_INFO(QString("Updated cell list with %1 cells").arg(cellIndices.size()));
+
+    // Начинаем постепенную загрузку изображений
+    m_thumbnailLoadIndex = 0;
+    if (m_thumbnailLoadTimer && !m_thumbnailLoadTimer->isActive()) {
+        m_thumbnailLoadTimer->start();
+    }
 }
 
 void VerificationWidget::updatePreviewImage()
@@ -830,4 +856,28 @@ cv::Mat VerificationWidget::loadImageSafely(const QString& imagePath)
 
     LOG_INFO("Image loaded through QImage (fallback): " + imagePath);
     return result.clone();
+}
+
+void VerificationWidget::loadNextThumbnailBatch()
+{
+    // Загружаем по 5 thumbnail за раз для плавности
+    const int batchSize = 5;
+    int loaded = 0;
+
+    while (loaded < batchSize && m_thumbnailLoadIndex < m_cellWidgets.size()) {
+        CellListItemWidget* widget = m_cellWidgets[m_thumbnailLoadIndex];
+        if (widget) {
+            widget->loadThumbnail();
+        }
+        m_thumbnailLoadIndex++;
+        loaded++;
+    }
+
+    // Останавливаем таймер, когда все загружено
+    if (m_thumbnailLoadIndex >= m_cellWidgets.size()) {
+        if (m_thumbnailLoadTimer) {
+            m_thumbnailLoadTimer->stop();
+        }
+        LOG_INFO(QString("All thumbnails loaded (%1 total)").arg(m_cellWidgets.size()));
+    }
 }

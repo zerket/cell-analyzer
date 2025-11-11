@@ -12,6 +12,7 @@ CellListItemWidget::CellListItemWidget(int cellNumber, const Cell& cell, QWidget
     , m_cell(cell)
     , m_selected(false)
     , m_hovered(false)
+    , m_thumbnailLoaded(false)
 {
     setupUI();
     setMouseTracking(true);
@@ -35,14 +36,14 @@ void CellListItemWidget::setupUI()
     // Cell image thumbnail
     m_imageLabel = new QLabel();
     m_imageLabel->setFixedSize(50, 50);
-    m_imageLabel->setScaledContents(true);
+    m_imageLabel->setScaledContents(false); // Изменено на false для лучшей производительности
+    m_imageLabel->setAlignment(Qt::AlignCenter);
 
-    if (!m_cell.image.empty()) {
-        QImage img = matToQImage(m_cell.image);
-        if (!img.isNull()) {
-            m_imageLabel->setPixmap(QPixmap::fromImage(img).scaled(50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        }
-    }
+    // Оптимизация: используем заполнитель вместо реального изображения для экономии памяти
+    // Реальное изображение будет загружено только при необходимости
+    m_imageLabel->setText("📷");
+    m_imageLabel->setStyleSheet("QLabel { background-color: #f0f0f0; font-size: 20px; }");
+
     layout->addWidget(m_imageLabel);
 
     // Diameter in pixels
@@ -110,6 +111,26 @@ void CellListItemWidget::setSelected(bool selected)
 {
     m_selected = selected;
     updateStyle();
+
+    // Загружаем thumbnail только для выделенной ячейки
+    if (selected && !m_thumbnailLoaded) {
+        loadThumbnail();
+    }
+}
+
+void CellListItemWidget::loadThumbnail()
+{
+    if (m_thumbnailLoaded || m_cell.image.empty()) {
+        return;
+    }
+
+    QImage img = matToQImage(m_cell.image);
+    if (!img.isNull()) {
+        // Используем FastTransformation вместо SmoothTransformation для скорости
+        m_imageLabel->setPixmap(QPixmap::fromImage(img).scaled(50, 50, Qt::KeepAspectRatio, Qt::FastTransformation));
+        m_imageLabel->setStyleSheet(""); // Убираем стиль заполнителя
+        m_thumbnailLoaded = true;
+    }
 }
 
 void CellListItemWidget::mousePressEvent(QMouseEvent* event)
