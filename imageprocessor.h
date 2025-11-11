@@ -1,4 +1,4 @@
-// imageprocessor.h - YOLO-BASED VERSION
+// imageprocessor.h - ONNX-BASED VERSION
 #ifndef IMAGEPROCESSOR_H
 #define IMAGEPROCESSOR_H
 
@@ -7,15 +7,16 @@
 #include <QMutex>
 #include "cell.h"
 #include <opencv2/opencv.hpp>
+#include <opencv2/dnn.hpp>
 
 class ImageProcessor {
 public:
     struct YoloParams {
-        QString modelPath = "ml-data/models/yolov8s_cells_v1.0.pt";
+        QString modelPath = "ml-data/models/yolov8s_cells_v1.0.onnx";
         double confThreshold = 0.25;
         double iouThreshold = 0.7;
         int minCellArea = 500;
-        QString device = "0";  // "0" for GPU, "cpu" for CPU
+        bool useCUDA = false;  // Use CUDA backend if available
     };
 
     ImageProcessor();
@@ -34,9 +35,12 @@ public:
 private:
     // Processing methods
     void processSingleImage(const QString& path, const YoloParams& params);
-    QVector<Cell> detectCellsWithYolo(const QString& imagePath, const YoloParams& params);
-    Cell createCellFromYoloDetection(const cv::Mat& srcImage, const QJsonObject& cellData,
-                                     const std::string& imagePath);
+    QVector<Cell> detectCellsWithONNX(const QString& imagePath, const YoloParams& params);
+
+    // ONNX inference helpers
+    cv::Mat preprocessImage(const cv::Mat& image);
+    QVector<Cell> postprocessONNX(const cv::Mat& output, const cv::Mat& originalImage,
+                                   const QString& imagePath, const YoloParams& params);
 
     // Image loading
     cv::Mat loadImageSafely(const QString& imagePath);

@@ -11,12 +11,13 @@ set(OpenCV_DIR "D:/opencv/build")  # Путь к директории OpenCV с 
 # Поиск Qt6
 find_package(Qt6 COMPONENTS Widgets Gui Concurrent REQUIRED)
 
-# Поиск OpenCV с конкретными модулями
+# Поиск OpenCV с конкретными модулями (добавлен dnn для ONNX)
 find_package(OpenCV REQUIRED
     COMPONENTS
         core
         imgproc
         highgui
+        dnn
 )
 
 # Добавление исполняемого файла

@@ -1,4 +1,4 @@
-// markupimagewidget.h - Simplified stub for YOLO version
+// markupimagewidget.h - Interactive cell visualization widget
 #ifndef MARKUPIMAGEWIDGET_H
 #define MARKUPIMAGEWIDGET_H
 
@@ -7,10 +7,38 @@
 #include <QPixmap>
 #include <QVBoxLayout>
 #include <QScrollArea>
+#include <QMouseEvent>
+#include <QPainter>
 #include "cell.h"
 
-// Simplified MarkupImageWidget - displays image without markup functionality
-// This is a stub replacement after YOLO migration removed the original implementation
+// Interactive label that handles mouse clicks and drawing
+class InteractiveImageLabel : public QLabel {
+    Q_OBJECT
+
+public:
+    explicit InteractiveImageLabel(QWidget* parent = nullptr);
+    void setCells(const QVector<Cell>& cells);
+    void setSelectedCell(int index);
+    void setOriginalImage(const QPixmap& pixmap);
+    void updateDisplay();
+
+signals:
+    void cellClicked(int cellIndex);
+    void cellRightClicked(int cellIndex);
+
+protected:
+    void mousePressEvent(QMouseEvent* event) override;
+    void paintEvent(QPaintEvent* event) override;
+
+private:
+    int findCellAtPosition(const QPoint& pos);
+
+private:
+    QVector<Cell> m_cells;
+    int m_selectedCellIndex;
+    QPixmap m_originalPixmap;
+};
+
 class MarkupImageWidget : public QWidget {
     Q_OBJECT
 
@@ -29,7 +57,7 @@ signals:
     void cellRightClicked(int cellIndex);
 
 private:
-    QLabel* m_imageLabel;
+    InteractiveImageLabel* m_imageLabel;
     QScrollArea* m_scrollArea;
     QPixmap m_currentPixmap;
     QVector<Cell> m_cells;

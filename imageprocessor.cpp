@@ -1,18 +1,16 @@
-// imageprocessor.cpp - YOLO-BASED VERSION
+// imageprocessor.cpp - ONNX-BASED VERSION
 #include "imageprocessor.h"
 #include "utils.h"
 #include "logger.h"
-#include <QProcess>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
 #include <QFileInfo>
 #include <QDir>
 #include <QCoreApplication>
 #include <QImage>
+#include <opencv2/dnn.hpp>
+#include <algorithm>
 
 ImageProcessor::ImageProcessor() : m_debugMode(false) {
-    LOG_INFO("ImageProcessor created (YOLO-based)");
+    LOG_INFO("ImageProcessor created (ONNX-based)");
 }
 
 ImageProcessor::~ImageProcessor() {
@@ -48,8 +46,8 @@ void ImageProcessor::processSingleImage(const QString& path, const YoloParams& p
         throw std::runtime_error("Failed to load image: " + path.toStdString());
     }
 
-    // Detect cells with YOLO
-    QVector<Cell> detectedCells = detectCellsWithYolo(path, params);
+    // Detect cells with ONNX
+    QVector<Cell> detectedCells = detectCellsWithONNX(path, params);
 
     LOG_DEBUG(QString("Detected %1 cells").arg(detectedCells.size()));
 
@@ -101,38 +99,11 @@ void ImageProcessor::processSingleImage(const QString& path, const YoloParams& p
     }
 }
 
-QVector<Cell> ImageProcessor::detectCellsWithYolo(const QString& imagePath, const YoloParams& params) {
+QVector<Cell> ImageProcessor::detectCellsWithONNX(const QString& imagePath, const YoloParams& params) {
     QVector<Cell> detectedCells;
 
-    // Find Python script path - try multiple locations
-    QString appDir = QCoreApplication::applicationDirPath();
-    QString scriptPath;
-
-    QStringList scriptSearchPaths = {
-        QDir(appDir).filePath("ml-data/scripts/detect_cells.py"),
-        QDir(appDir).filePath("../ml-data/scripts/detect_cells.py"),
-        QDir(appDir).filePath("../../ml-data/scripts/detect_cells.py"),
-        "ml-data/scripts/detect_cells.py",
-        "cell-analyzer/ml-data/scripts/detect_cells.py"
-    };
-
-    for (const QString& path : scriptSearchPaths) {
-        if (QFile::exists(path)) {
-            scriptPath = QFileInfo(path).absoluteFilePath();
-            LOG_DEBUG(QString("Found detection script at: %1").arg(scriptPath));
-            break;
-        }
-    }
-
-    if (scriptPath.isEmpty() || !QFile::exists(scriptPath)) {
-        LOG_ERROR(QString("Detection script not found. Searched in:"));
-        for (const QString& path : scriptSearchPaths) {
-            LOG_ERROR(QString("  - %1").arg(path));
-        }
-        throw std::runtime_error("YOLO detection script not found");
-    }
-
     // Find model path - try multiple locations
+    QString appDir = QCoreApplication::applicationDirPath();
     QString modelPath;
 
     QStringList modelSearchPaths = {
@@ -146,124 +117,211 @@ QVector<Cell> ImageProcessor::detectCellsWithYolo(const QString& imagePath, cons
     for (const QString& path : modelSearchPaths) {
         if (QFile::exists(path)) {
             modelPath = QFileInfo(path).absoluteFilePath();
-            LOG_DEBUG(QString("Found YOLO model at: %1").arg(modelPath));
+            LOG_DEBUG(QString("Found ONNX model at: %1").arg(modelPath));
             break;
         }
     }
 
     if (modelPath.isEmpty() || !QFile::exists(modelPath)) {
-        LOG_ERROR(QString("YOLO model not found. Searched in:"));
+        LOG_ERROR(QString("ONNX model not found. Searched in:"));
         for (const QString& path : modelSearchPaths) {
             LOG_ERROR(QString("  - %1").arg(path));
         }
-        throw std::runtime_error("YOLO model not found");
+        throw std::runtime_error("ONNX model not found");
     }
 
-    // Build command
-    QStringList arguments;
-    arguments << scriptPath
-              << "--model" << modelPath
-              << "--image" << imagePath
-              << "--conf" << QString::number(params.confThreshold)
-              << "--iou" << QString::number(params.iouThreshold)
-              << "--min-area" << QString::number(params.minCellArea)
-              << "--device" << params.device;
+    LOG_INFO(QString("Loading ONNX model: %1").arg(modelPath));
 
-    // Try different Python commands (python3, python, py)
-    QStringList pythonCommands = {"python", "python3", "py"};
-    QString pythonCmd;
-    QProcess testProcess;
-
-    for (const QString& cmd : pythonCommands) {
-        testProcess.start(cmd, QStringList() << "--version");
-        if (testProcess.waitForFinished(3000) && testProcess.exitCode() == 0) {
-            pythonCmd = cmd;
-            LOG_DEBUG(QString("Found Python command: %1").arg(cmd));
-            break;
-        }
+    // Load ONNX model
+    cv::dnn::Net net;
+    try {
+        net = cv::dnn::readNetFromONNX(modelPath.toStdString());
+    } catch (const cv::Exception& e) {
+        LOG_ERROR(QString("Failed to load ONNX model: %1").arg(e.what()));
+        throw std::runtime_error("Failed to load ONNX model: " + std::string(e.what()));
     }
 
-    if (pythonCmd.isEmpty()) {
-        LOG_ERROR("Python not found. Tried: python, python3, py");
-        throw std::runtime_error("Python not found in system PATH");
+    // Set backend and target
+    if (params.useCUDA) {
+        LOG_INFO("Using CUDA backend");
+        net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
+        net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
+    } else {
+        LOG_INFO("Using CPU backend");
+        net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+        net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
     }
 
-    LOG_INFO(QString("Running: %1 %2").arg(pythonCmd).arg(arguments.join(" ")));
-
-    // Execute Python script
-    QProcess process;
-    process.start(pythonCmd, arguments);
-
-    if (!process.waitForFinished(30000)) { // 30 second timeout
-        LOG_ERROR("YOLO detection process timeout");
-        throw std::runtime_error("YOLO detection timeout");
-    }
-
-    if (process.exitCode() != 0) {
-        QString error = process.readAllStandardError();
-        LOG_ERROR(QString("YOLO detection failed: %1").arg(error));
-        throw std::runtime_error("YOLO detection failed: " + error.toStdString());
-    }
-
-    // Parse JSON output
-    QByteArray output = process.readAllStandardOutput();
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(output);
-
-    if (jsonDoc.isNull() || !jsonDoc.isObject()) {
-        LOG_ERROR("Failed to parse YOLO detection output");
-        throw std::runtime_error("Invalid YOLO detection output");
-    }
-
-    QJsonObject result = jsonDoc.object();
-
-    if (!result["success"].toBool()) {
-        QString error = result["error"].toString();
-        LOG_ERROR(QString("YOLO detection error: %1").arg(error));
-        throw std::runtime_error("YOLO detection error: " + error.toStdString());
-    }
-
-    // Load source image for creating cell objects
+    // Load and preprocess image
     cv::Mat srcImage = loadImageSafely(imagePath);
     if (srcImage.empty()) {
-        throw std::runtime_error("Failed to load image for cell creation");
+        throw std::runtime_error("Failed to load image for ONNX inference");
     }
 
-    // Parse detected cells
-    QJsonArray cellsArray = result["cells"].toArray();
-    LOG_INFO(QString("YOLO detected %1 cells in %2").arg(cellsArray.size()).arg(imagePath));
+    LOG_DEBUG(QString("Image size: %1x%2").arg(srcImage.cols).arg(srcImage.rows));
 
-    for (const QJsonValue& cellValue : cellsArray) {
-        QJsonObject cellData = cellValue.toObject();
-        Cell cell = createCellFromYoloDetection(srcImage, cellData, imagePath.toStdString());
-        detectedCells.append(cell);
+    // Preprocess image for YOLOv8 (640x640, normalized)
+    cv::Mat blob = preprocessImage(srcImage);
+
+    // Run inference
+    net.setInput(blob);
+    std::vector<cv::Mat> outputs;
+    net.forward(outputs, net.getUnconnectedOutLayersNames());
+
+    LOG_DEBUG(QString("ONNX inference completed, outputs: %1").arg(outputs.size()));
+
+    if (outputs.empty()) {
+        LOG_ERROR("No outputs from ONNX model");
+        return detectedCells;
     }
+
+    // Postprocess results
+    detectedCells = postprocessONNX(outputs[0], srcImage, imagePath, params);
+
+    LOG_INFO(QString("ONNX detected %1 cells in %2").arg(detectedCells.size()).arg(imagePath));
 
     return detectedCells;
 }
 
-Cell ImageProcessor::createCellFromYoloDetection(const cv::Mat& srcImage,
-                                                 const QJsonObject& cellData,
-                                                 const std::string& imagePath) {
-    Cell cell;
+cv::Mat ImageProcessor::preprocessImage(const cv::Mat& image) {
+    // YOLOv8 expects 640x640 input
+    int inputWidth = 640;
+    int inputHeight = 640;
 
-    // Extract data from JSON
-    cell.center_x = cellData["center_x"].toDouble();
-    cell.center_y = cellData["center_y"].toDouble();
-    cell.radius = cellData["radius"].toDouble();
-    cell.diameter_pixels = cellData["diameter_pixels"].toDouble();
-    cell.diameterPx = cell.diameter_pixels;
-    cell.area = cellData["area"].toInt();
-    cell.confidence = cellData["confidence"].toDouble();
-    cell.imagePath = imagePath;
+    cv::Mat resized;
+    cv::resize(image, resized, cv::Size(inputWidth, inputHeight));
 
-    // Create cv::Vec3f for compatibility (center_x, center_y, radius)
-    cell.circle = cv::Vec3f(cell.center_x, cell.center_y, cell.radius);
+    // Convert BGR to RGB and normalize to [0, 1]
+    cv::Mat rgb;
+    cv::cvtColor(resized, rgb, cv::COLOR_BGR2RGB);
 
-    // Initialize diameter_um (will be filled by scale detection)
-    cell.diameter_um = 0.0;
-    cell.diameterNm = 0.0;
+    // Create blob: convert to float, normalize, and transpose to NCHW format
+    cv::Mat blob = cv::dnn::blobFromImage(rgb, 1.0 / 255.0, cv::Size(inputWidth, inputHeight),
+                                          cv::Scalar(0, 0, 0), true, false);
 
-    return cell;
+    return blob;
+}
+
+QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::Mat& originalImage,
+                                               const QString& imagePath, const YoloParams& params) {
+    QVector<Cell> detectedCells;
+
+    // YOLOv8 output format: [1, 84, 8400] for detection or [1, 116, 8400] for segmentation
+    // Dimensions: [batch, features, predictions]
+    // Features: [x, y, w, h, class0_score, class1_score, ..., classN_score, mask_coeffs...]
+
+    // Check output dimensions
+    if (output.dims < 3) {
+        LOG_ERROR(QString("Invalid output dimensions: %1").arg(output.dims));
+        return detectedCells;
+    }
+
+    int batchSize = output.size[0];    // Should be 1
+    int numFeatures = output.size[1];  // 84 for detection, 116 for segmentation
+    int numDetections = output.size[2]; // 8400
+
+    LOG_DEBUG(QString("Output shape: [%1, %2, %3]").arg(batchSize).arg(numFeatures).arg(numDetections));
+
+    // YOLOv8 uses transposed format, need to reshape
+    // Transpose from [1, 84, 8400] to [1, 8400, 84]
+    cv::Mat transposed = output.reshape(1, numDetections);  // Flatten to 2D: [8400, 84]
+
+    float scaleX = (float)originalImage.cols / 640.0f;
+    float scaleY = (float)originalImage.rows / 640.0f;
+
+    std::vector<cv::Rect> boxes;
+    std::vector<float> confidences;
+
+    // Parse detections - each row is one detection
+    for (int i = 0; i < numDetections; i++) {
+        const float* detection = transposed.ptr<float>(i);
+
+        // First 4 values: x_center, y_center, width, height (in 640x640 space)
+        float xCenter = detection[0];
+        float yCenter = detection[1];
+        float w = detection[2];
+        float h = detection[3];
+
+        // Next values are class scores (typically 1 class for cell detection)
+        // Find max confidence across all classes
+        float maxScore = 0.0f;
+        int numClasses = std::min(numFeatures - 4, 80);  // Usually 80 classes or less
+
+        for (int j = 0; j < numClasses; j++) {
+            float score = detection[4 + j];
+            if (score > maxScore) {
+                maxScore = score;
+            }
+        }
+
+        // Filter by confidence threshold
+        if (maxScore < params.confThreshold) {
+            continue;
+        }
+
+        // Convert from center format to corner format and scale to original image
+        int left = static_cast<int>((xCenter - w / 2.0f) * scaleX);
+        int top = static_cast<int>((yCenter - h / 2.0f) * scaleY);
+        int width = static_cast<int>(w * scaleX);
+        int height = static_cast<int>(h * scaleY);
+
+        // Clamp to image boundaries
+        left = std::max(0, std::min(left, originalImage.cols - 1));
+        top = std::max(0, std::min(top, originalImage.rows - 1));
+        width = std::min(width, originalImage.cols - left);
+        height = std::min(height, originalImage.rows - top);
+
+        if (width > 0 && height > 0) {
+            boxes.push_back(cv::Rect(left, top, width, height));
+            confidences.push_back(maxScore);
+        }
+    }
+
+    LOG_DEBUG(QString("Before NMS: %1 detections").arg(boxes.size()));
+
+    // Apply Non-Maximum Suppression
+    std::vector<int> indices;
+    cv::dnn::NMSBoxes(boxes, confidences, params.confThreshold, params.iouThreshold, indices);
+
+    LOG_DEBUG(QString("After NMS: %1 detections").arg(indices.size()));
+
+    // Create Cell objects
+    for (int idx : indices) {
+        cv::Rect box = boxes[idx];
+
+        // Calculate area
+        int area = box.width * box.height;
+        if (area < params.minCellArea) {
+            continue;
+        }
+
+        // Convert bbox to circle (inscribed circle)
+        int diameter = std::max(box.width, box.height);
+        int radius = diameter / 2;
+        int centerX = box.x + box.width / 2;
+        int centerY = box.y + box.height / 2;
+
+        // Clamp to image boundaries
+        centerX = std::max(0, std::min(centerX, originalImage.cols - 1));
+        centerY = std::max(0, std::min(centerY, originalImage.rows - 1));
+
+        Cell cell;
+        cell.center_x = centerX;
+        cell.center_y = centerY;
+        cell.radius = radius;
+        cell.diameter_pixels = diameter;
+        cell.diameterPx = diameter;
+        cell.area = area;
+        cell.confidence = confidences[idx];
+        cell.imagePath = imagePath.toStdString();
+        cell.circle = cv::Vec3f(centerX, centerY, radius);
+        cell.diameter_um = 0.0;
+        cell.diameterNm = 0.0;
+
+        detectedCells.append(cell);
+    }
+
+    return detectedCells;
 }
 
 cv::Mat ImageProcessor::loadImageSafely(const QString& imagePath) {
