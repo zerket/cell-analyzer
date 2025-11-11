@@ -178,11 +178,11 @@ void StatisticsWidget::populateOverviewTab(const StatisticsAnalyzer::Comprehensi
     int cellsAboveMax = 0;
 
     for (const Cell& cell : currentCells) {
-        if (cell.diameter_nm > 0) { // Учитываем только клетки с заданным диаметром
-            if (cell.diameter_nm < minThreshold) {
+        if (cell.diameter_um > 0) { // Учитываем только клетки с заданным диаметром
+            if (cell.diameter_um < minThreshold) {
                 cellsBelowMin++;
             }
-            if (cell.diameter_nm > maxThreshold) {
+            if (cell.diameter_um > maxThreshold) {
                 cellsAboveMax++;
             }
         }
@@ -394,9 +394,9 @@ void StatisticsWidget::populateOutliersTab(const StatisticsAnalyzer::Comprehensi
         const Cell& cell = currentCells[cellIndex];
         
         outliersTable->setItem(rowIndex, 0, new QTableWidgetItem(QString::number(cellIndex + 1)));
-        outliersTable->setItem(rowIndex, 1, new QTableWidgetItem(formatStatValue(cell.diameter_nm)));
+        outliersTable->setItem(rowIndex, 1, new QTableWidgetItem(formatStatValue(cell.diameter_um)));
         // Вычисляем площадь в мкм²
-        double area_um2 = M_PI * (cell.diameter_nm / 2.0) * (cell.diameter_nm / 2.0);
+        double area_um2 = M_PI * (cell.diameter_um / 2.0) * (cell.diameter_um / 2.0);
         outliersTable->setItem(rowIndex, 2, new QTableWidgetItem(formatStatValue(area_um2)));
         
         QString imageName = QFileInfo(QString::fromStdString(cell.imagePath)).baseName();
@@ -404,7 +404,7 @@ void StatisticsWidget::populateOutliersTab(const StatisticsAnalyzer::Comprehensi
         
         // Z-score для диаметра (в микрометрах)
         if (diamStats.standardDeviation > 0) {
-            double zScore = std::abs(cell.diameter_nm - diamStats.mean) / diamStats.standardDeviation;
+            double zScore = std::abs(cell.diameter_um - diamStats.mean) / diamStats.standardDeviation;
             outliersTable->setItem(rowIndex, 4, new QTableWidgetItem(formatStatValue(zScore, 2)));
         } else {
             outliersTable->setItem(rowIndex, 4, new QTableWidgetItem("N/A"));

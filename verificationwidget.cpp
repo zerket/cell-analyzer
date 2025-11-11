@@ -614,7 +614,7 @@ QVector<Cell> VerificationWidget::getVerifiedCells() const
                 diameterNm = updatedCells[globalIndex].diameterPx * currentCoeff;
             }
 
-            updatedCells[globalIndex].diameter_nm = diameterNm;
+            updatedCells[globalIndex].diameter_um = diameterNm;
             updatedCells[globalIndex].diameterNm = static_cast<float>(diameterNm);
         }
     }
@@ -627,7 +627,7 @@ QVector<Cell> VerificationWidget::getVerifiedCells() const
             QVector<int> cellIndices = it.value();
             for (int globalIndex : cellIndices) {
                 double diameterNm = updatedCells[globalIndex].diameterPx * currentCoeff;
-                updatedCells[globalIndex].diameter_nm = diameterNm;
+                updatedCells[globalIndex].diameter_um = diameterNm;
                 updatedCells[globalIndex].diameterNm = static_cast<float>(diameterNm);
             }
         }

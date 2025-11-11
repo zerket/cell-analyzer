@@ -9,7 +9,7 @@ struct Cell {
     int center_y = 0;         // Y координата центра
     int radius = 0;           // Радиус в пикселях
     int diameter_pixels = 0;  // Диаметр в пикселях
-    double diameter_nm = 0.0; // Диаметр в нанометрах
+    double diameter_um = 0.0; // Диаметр в микрометрах
     int area = 0;             // Площадь в пикселях
 
     // Параметры для нейросетевой детекции
@@ -37,7 +37,7 @@ struct Cell {
         , center_y(other.center_y)
         , radius(other.radius)
         , diameter_pixels(other.diameter_pixels)
-        , diameter_nm(other.diameter_nm)
+        , diameter_um(other.diameter_um)
         , area(other.area)
         , cellType(other.cellType)
         , cellTypeName(other.cellTypeName)
@@ -63,7 +63,7 @@ struct Cell {
             center_y = other.center_y;
             radius = other.radius;
             diameter_pixels = other.diameter_pixels;
-            diameter_nm = other.diameter_nm;
+            diameter_um = other.diameter_um;
             area = other.area;
             cellType = other.cellType;
             cellTypeName = other.cellTypeName;

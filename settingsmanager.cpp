@@ -39,9 +39,9 @@ void SettingsManager::saveSettings() {
     // Сохраняем пресеты как массив
     QJsonArray presetsArray;
     for (const auto& preset : m_presets) {
-        presetsArray.append(houghParamsToJson(preset));
+        presetsArray.append(yoloParamsToJson(preset));
     }
-    root["houghParams"] = presetsArray;
+    root["yoloParams"] = presetsArray;
 
     // Сохраняем размер превью
     root["previewSize"] = m_previewSize;
@@ -75,15 +75,12 @@ void SettingsManager::loadSettings() {
     if (!file.exists()) {
         qDebug() << "Settings file not found, using defaults";
         // Создаем дефолтный пресет
-        ImageProcessor::HoughParams defaultPreset;
-        defaultPreset.name = "default";
-        defaultPreset.dp = 0.5;
-        defaultPreset.minDist = 35.0;
-        defaultPreset.param1 = 80.0;
-        defaultPreset.param2 = 40.0;
-        defaultPreset.minRadius = 20;
-        defaultPreset.maxRadius = 80;
-        defaultPreset.umPerPixel = 0.99878;
+        ImageProcessor::YoloParams defaultPreset;
+        defaultPreset.modelPath = "ml-data/models/yolov8s_cells_v1.0.pt";
+        defaultPreset.confThreshold = 0.25;
+        defaultPreset.iouThreshold = 0.7;
+        defaultPreset.minCellArea = 500;
+        defaultPreset.device = "0";
         m_presets.append(defaultPreset);
         saveSettings(); // Создаем файл с настройками по умолчанию
         return;
@@ -97,15 +94,20 @@ void SettingsManager::loadSettings() {
         if (!doc.isNull() && doc.isObject()) {
             QJsonObject root = doc.object();
 
-            // Загружаем пресеты из массива
-            if (root.contains("houghParams") && root["houghParams"].isArray()) {
-                QJsonArray presetsArray = root["houghParams"].toArray();
+            // Загружаем пресеты из массива (поддерживаем старые и новые форматы)
+            if (root.contains("yoloParams") && root["yoloParams"].isArray()) {
+                QJsonArray presetsArray = root["yoloParams"].toArray();
                 m_presets.clear();
                 for (const QJsonValue& value : presetsArray) {
                     if (value.isObject()) {
-                        m_presets.append(jsonToHoughParams(value.toObject()));
+                        m_presets.append(jsonToYoloParams(value.toObject()));
                     }
                 }
+            } else if (root.contains("houghParams") && root["houghParams"].isArray()) {
+                // Старый формат - создаем default preset
+                m_presets.clear();
+                ImageProcessor::YoloParams defaultPreset;
+                m_presets.append(defaultPreset);
             }
 
             // Загружаем размер превью

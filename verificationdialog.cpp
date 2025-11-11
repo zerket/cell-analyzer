@@ -2,7 +2,7 @@
 #include "verificationdialog.h"
 
 
-VerificationDialog::VerificationDialog(const QVector<QPair<QImage, CellData>>& cells, QWidget* parent)
+VerificationDialog::VerificationDialog(const QVector<QPair<QImage, Cell>>& cells, QWidget* parent)
     : QDialog(parent), m_layout(new QGridLayout(this))
 {
     int row = 0, col = 0;

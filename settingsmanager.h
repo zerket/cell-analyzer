@@ -37,10 +37,10 @@ public:
     void setValue(const QString& key, const QVariant& value);
 
     // Методы для работы с пресетами (новая структура - массив)
-    QVector<ImageProcessor::HoughParams> getAllPresets() const;
-    void setAllPresets(const QVector<ImageProcessor::HoughParams>& presets);
-    ImageProcessor::HoughParams getPresetByName(const QString& name) const;
-    void savePreset(const ImageProcessor::HoughParams& preset);
+    QVector<ImageProcessor::YoloParams> getAllPresets() const;
+    void setAllPresets(const QVector<ImageProcessor::YoloParams>& presets);
+    ImageProcessor::YoloParams getPresetByName(const QString& name) const;
+    void savePreset(const ImageProcessor::YoloParams& preset);
     void deletePreset(const QString& name);
     QString getLastSelectedPreset() const;
     void setLastSelectedPreset(const QString& presetName);
@@ -52,10 +52,10 @@ private:
     SettingsManager& operator=(const SettingsManager&) = delete;
 
     void ensureSettingsDirectory();
-    QJsonObject houghParamsToJson(const ImageProcessor::HoughParams& params) const;
-    ImageProcessor::HoughParams jsonToHoughParams(const QJsonObject& json) const;
+    QJsonObject yoloParamsToJson(const ImageProcessor::YoloParams& params) const;
+    ImageProcessor::YoloParams jsonToYoloParams(const QJsonObject& json) const;
 
-    QVector<ImageProcessor::HoughParams> m_presets;
+    QVector<ImageProcessor::YoloParams> m_presets;
     int m_previewSize = 150;
     double m_statisticsMinThreshold = 50.0;  // По умолчанию 50 мкм
     double m_statisticsMaxThreshold = 100.0; // По умолчанию 100 мкм

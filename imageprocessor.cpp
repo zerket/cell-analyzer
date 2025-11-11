@@ -64,7 +64,7 @@ void ImageProcessor::processSingleImage(const QString& path, const YoloParams& p
         // Apply scale if detected
         if (umPerPixel > 0) {
             cell.diameterNm = cell.diameterPx * umPerPixel;
-            cell.diameter_nm = cell.diameter_pixels * umPerPixel;
+            cell.diameter_um = cell.diameter_pixels * umPerPixel;
         }
 
         // Create cell image (crop from original with padding)
@@ -210,8 +210,8 @@ Cell ImageProcessor::createCellFromYoloDetection(const cv::Mat& srcImage,
     // Create cv::Vec3f for compatibility (center_x, center_y, radius)
     cell.circle = cv::Vec3f(cell.center_x, cell.center_y, cell.radius);
 
-    // Initialize diameter_nm (will be filled by scale detection)
-    cell.diameter_nm = 0.0;
+    // Initialize diameter_um (will be filled by scale detection)
+    cell.diameter_um = 0.0;
     cell.diameterNm = 0.0;
 
     return cell;

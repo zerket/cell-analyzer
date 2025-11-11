@@ -1,6 +1,6 @@
 // VerificationDialog.h
 #pragma once
-#include "imageprocessor.h"
+#include "cell.h"
 #include <QDialog>
 #include <QGridLayout>
 #include <QCheckBox>
@@ -9,9 +9,8 @@
 class VerificationDialog : public QDialog {
     Q_OBJECT
 public:
-    VerificationDialog(const QVector<QPair<QImage,
-                             CellData>>& cells,
-                             QWidget* parent = nullptr);
+    VerificationDialog(const QVector<QPair<QImage, Cell>>& cells,
+                       QWidget* parent = nullptr);
 
     QVector<bool> getSelection() const;
 

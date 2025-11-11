@@ -225,7 +225,7 @@ build\Release\CellAnalyzer.exe
    - Zoomable image preview with pan controls
 
 3. **File Output**:
-   - CSV export with columns: filename, cell_number, center_x, center_y, diameter_pixels, diameter_nm (micrometers)
+   - CSV export with columns: filename, cell_number, center_x, center_y, diameter_pixels, diameter_um (micrometers)
    - Individual cell images saved separately
    - Statistical reports in Text/CSV/Markdown formats
    - Debug images with highlighted cells (when logging enabled)

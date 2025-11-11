@@ -433,9 +433,9 @@ QVector<double> StatisticsAnalyzer::extractDiameters(const QVector<Cell>& cells)
     int zeroCells = 0;
     
     for (const Cell& cell : cells) {
-        // Используем только diameter_nm (микрометры)
-        if (cell.diameter_nm > 0) {
-            diameters.append(cell.diameter_nm);
+        // Используем только diameter_um (микрометры)
+        if (cell.diameter_um > 0) {
+            diameters.append(cell.diameter_um);
             validCells++;
         } else {
             zeroCells++;
@@ -450,9 +450,9 @@ QVector<double> StatisticsAnalyzer::extractAreas(const QVector<Cell>& cells) {
     QVector<double> areas;
     
     for (const Cell& cell : cells) {
-        // Вычисляем площадь в мкм² на основе diameter_nm
-        if (cell.diameter_nm > 0) {
-            double radius_um = cell.diameter_nm / 2.0;
+        // Вычисляем площадь в мкм² на основе diameter_um
+        if (cell.diameter_um > 0) {
+            double radius_um = cell.diameter_um / 2.0;
             double area_um2 = M_PI * radius_um * radius_um;
             areas.append(area_um2);
         }
