@@ -252,6 +252,7 @@ QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::M
     if (dim2 == 8400) {
         // NON-transposed: [1, features, 8400]
         // Need to access as [0, feature_idx, detection_idx]
+        // For YOLOv8-seg: indices 0-3 = bbox, 4-5 = class scores (2 classes), 6-37 = mask coefficients (32)
         for (int i = 0; i < numDetections; i++) {
             // Get bbox coordinates
             float xCenter = output.at<float>(0, 0, i);
@@ -260,10 +261,10 @@ QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::M
             float h = output.at<float>(0, 3, i);
 
             // Get class score(s)
-            // For single-class model: typically index 4
-            // For multi-class: indices 4 to numFeatures-1
+            // IMPORTANT: For YOLOv8-seg with 2 classes, indices 4-5 are class scores, rest are mask coefficients
+            // We only check the first 2 class scores (indices 4-5)
             float maxScore = 0.0f;
-            int numClasses = numFeatures - 4;  // Remaining features after bbox
+            int numClasses = std::min(2, numFeatures - 4);  // Only use first 2 scores for classes
 
             for (int j = 0; j < numClasses; j++) {
                 float score = output.at<float>(0, 4 + j, i);
@@ -306,6 +307,7 @@ QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::M
         }
     } else {
         // Transposed: [1, 8400, features]
+        // For YOLOv8-seg: indices 0-3 = bbox, 4-5 = class scores (2 classes), 6-37 = mask coefficients (32)
         for (int i = 0; i < numDetections; i++) {
             const float* detection = output.ptr<float>(0, i);
 
@@ -315,7 +317,7 @@ QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::M
             float h = detection[3];
 
             float maxScore = 0.0f;
-            int numClasses = numFeatures - 4;
+            int numClasses = std::min(2, numFeatures - 4);  // Only use first 2 scores for classes
 
             for (int j = 0; j < numClasses; j++) {
                 float score = detection[4 + j];
@@ -351,8 +353,9 @@ QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::M
     LOG_INFO(QString("Before NMS: %1 detections").arg(boxes.size()));
 
     // Apply Non-Maximum Suppression
+    // Note: We already filtered by confThreshold above, so use 0.0 here to avoid double filtering
     std::vector<int> indices;
-    cv::dnn::NMSBoxes(boxes, confidences, params.confThreshold, params.iouThreshold, indices);
+    cv::dnn::NMSBoxes(boxes, confidences, 0.0f, params.iouThreshold, indices);
 
     LOG_INFO(QString("After NMS: %1 detections").arg(indices.size()));
 
