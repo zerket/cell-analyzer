@@ -12,6 +12,12 @@ struct Cell {
     double diameter_um = 0.0; // Диаметр в микрометрах
     int area = 0;             // Площадь в пикселях
 
+    // YOLO bounding box (original detection from model)
+    int bbox_x = 0;           // Верхний левый угол bbox
+    int bbox_y = 0;           // Верхний левый угол bbox
+    int bbox_width = 0;       // Ширина bbox
+    int bbox_height = 0;      // Высота bbox
+
     // Параметры для нейросетевой детекции
     int cellType = 0;         // Тип клетки (0 = unknown/not classified, 1+ = class ID)
     std::string cellTypeName = ""; // Название типа клетки (например, "Type A", "Type B")
@@ -39,6 +45,10 @@ struct Cell {
         , diameter_pixels(other.diameter_pixels)
         , diameter_um(other.diameter_um)
         , area(other.area)
+        , bbox_x(other.bbox_x)
+        , bbox_y(other.bbox_y)
+        , bbox_width(other.bbox_width)
+        , bbox_height(other.bbox_height)
         , cellType(other.cellType)
         , cellTypeName(other.cellTypeName)
         , confidence(other.confidence)
@@ -65,6 +75,10 @@ struct Cell {
             diameter_pixels = other.diameter_pixels;
             diameter_um = other.diameter_um;
             area = other.area;
+            bbox_x = other.bbox_x;
+            bbox_y = other.bbox_y;
+            bbox_width = other.bbox_width;
+            bbox_height = other.bbox_height;
             cellType = other.cellType;
             cellTypeName = other.cellTypeName;
             confidence = other.confidence;

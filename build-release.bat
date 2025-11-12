@@ -54,8 +54,28 @@ echo Copying documentation and settings files...
 copy "..\CHANGELOG.md" "Release\" >nul
 copy "..\CLAUDE.md" "Release\" >nul
 copy "..\README.md" "Release\" >nul
+copy "..\RELEASE_NOTES.md" "Release\" >nul
 copy "..\todo.md" "Release\" >nul
 copy "..\settings.json" "Release\" >nul
+
+:: Copy ML data (models and scripts)
+echo Copying ML data (models and scripts)...
+if not exist "Release\ml-data\models" mkdir "Release\ml-data\models"
+if not exist "Release\ml-data\scripts" mkdir "Release\ml-data\scripts"
+if not exist "Release\ml-data\docs" mkdir "Release\ml-data\docs"
+
+:: Copy ONNX models (required for inference)
+copy "..\ml-data\models\*.onnx" "Release\ml-data\models\" >nul
+echo   - ONNX models copied
+
+:: Copy Python scripts (if needed for fallback)
+copy "..\ml-data\scripts\*.py" "Release\ml-data\scripts\" >nul
+echo   - Python scripts copied
+
+:: Copy ML documentation
+copy "..\ml-data\*.md" "Release\ml-data\" >nul
+copy "..\ml-data\docs\*.md" "Release\ml-data\docs\" >nul
+echo   - ML documentation copied
 
 :: Return to original directory
 cd ..

@@ -40,6 +40,8 @@ private slots:
     void onClearDiametersClicked();
     void onSaveCellsClicked();
     void loadNextThumbnailBatch();
+    void onEditCoefficientClicked();
+    void onCoefficientEditingFinished();
 
 private:
     // Setup methods
@@ -79,6 +81,7 @@ private:
 
     // Bottom toolbar
     QLineEdit* m_coefficientEdit;
+    QPushButton* m_editCoefficientButton;
     QPushButton* m_recalcButton;
     QPushButton* m_clearDiametersButton;
     QPushButton* m_statisticsButton;

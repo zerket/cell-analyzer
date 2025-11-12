@@ -70,6 +70,7 @@ try {
         "CHANGELOG.md",
         "CLAUDE.md",
         "README.md",
+        "RELEASE_NOTES.md",
         "todo.md",
         "settings.json"
     )
@@ -84,6 +85,58 @@ try {
             Write-Host "  - Warning: $file not found!" -ForegroundColor Red
         }
     }
+
+    # Copy ML data (models and scripts)
+    Write-Host "`nCopying ML data (models and scripts)..." -ForegroundColor Yellow
+
+    # Create ml-data directory structure
+    $mlDataDirs = @(
+        "Release\ml-data\models",
+        "Release\ml-data\scripts",
+        "Release\ml-data\docs"
+    )
+
+    foreach ($dir in $mlDataDirs) {
+        if (-not (Test-Path $dir)) {
+            New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        }
+    }
+
+    # Copy ONNX models (required for inference)
+    $onnxModels = Get-ChildItem "..\ml-data\models\*.onnx" -ErrorAction SilentlyContinue
+    if ($onnxModels) {
+        foreach ($model in $onnxModels) {
+            Copy-Item $model.FullName "Release\ml-data\models\" -Force
+            Write-Host "  - Copied ONNX model: $($model.Name)" -ForegroundColor Gray
+        }
+    } else {
+        Write-Host "  - Warning: No ONNX models found!" -ForegroundColor Red
+    }
+
+    # Copy Python scripts (if needed for fallback)
+    $pythonScripts = Get-ChildItem "..\ml-data\scripts\*.py" -ErrorAction SilentlyContinue
+    if ($pythonScripts) {
+        foreach ($script in $pythonScripts) {
+            Copy-Item $script.FullName "Release\ml-data\scripts\" -Force
+        }
+        Write-Host "  - Copied Python scripts ($($pythonScripts.Count) files)" -ForegroundColor Gray
+    }
+
+    # Copy ML documentation
+    $mlDocs = Get-ChildItem "..\ml-data\*.md" -ErrorAction SilentlyContinue
+    if ($mlDocs) {
+        foreach ($doc in $mlDocs) {
+            Copy-Item $doc.FullName "Release\ml-data\" -Force
+        }
+    }
+
+    $mlDocsSubdir = Get-ChildItem "..\ml-data\docs\*.md" -ErrorAction SilentlyContinue
+    if ($mlDocsSubdir) {
+        foreach ($doc in $mlDocsSubdir) {
+            Copy-Item $doc.FullName "Release\ml-data\docs\" -Force
+        }
+    }
+    Write-Host "  - Copied ML documentation" -ForegroundColor Gray
 
     # Return to original directory
     Set-Location ..

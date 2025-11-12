@@ -10,6 +10,8 @@
 #include <QDateTime>
 #include <QSettings>
 #include <QImage>
+#include <QScrollBar>
+#include <cmath>
 #include "logger.h"
 #include "settingsmanager.h"
 #include "utils.h"
@@ -28,6 +30,7 @@ VerificationWidget::VerificationWidget(const QVector<Cell>& cells, QWidget *pare
     , m_cellRadiusLabel(nullptr)
     , m_cellAreaLabel(nullptr)
     , m_coefficientEdit(nullptr)
+    , m_editCoefficientButton(nullptr)
     , m_recalcButton(nullptr)
     , m_clearDiametersButton(nullptr)
     , m_statisticsButton(nullptr)
@@ -159,6 +162,53 @@ void VerificationWidget::setupUI()
     connect(m_previewWidget, &MarkupImageWidget::cellRightClicked, this, &VerificationWidget::onImageCellRightClicked);
     rightLayout->addWidget(m_previewWidget, 1);
 
+    // Zoom controls toolbar
+    QWidget* zoomToolbar = new QWidget(this);
+    zoomToolbar->setMaximumHeight(50);
+    QHBoxLayout* zoomLayout = new QHBoxLayout(zoomToolbar);
+    zoomLayout->setContentsMargins(5, 5, 5, 5);
+    zoomLayout->setSpacing(5);
+
+    QLabel* zoomLabel = new QLabel("Масштаб:");
+    zoomLayout->addWidget(zoomLabel);
+
+    QPushButton* zoomOutBtn = new QPushButton("-");
+    zoomOutBtn->setFixedSize(30, 30);
+    zoomOutBtn->setToolTip("Уменьшить (Ctrl + колесико вниз)");
+    zoomOutBtn->setStyleSheet("QPushButton { font-size: 18px; font-weight: bold; }");
+    connect(zoomOutBtn, &QPushButton::clicked, m_previewWidget, &MarkupImageWidget::zoomOut);
+    zoomLayout->addWidget(zoomOutBtn);
+
+    QPushButton* zoomInBtn = new QPushButton("+");
+    zoomInBtn->setFixedSize(30, 30);
+    zoomInBtn->setToolTip("Увеличить (Ctrl + колесико вверх)");
+    zoomInBtn->setStyleSheet("QPushButton { font-size: 18px; font-weight: bold; }");
+    connect(zoomInBtn, &QPushButton::clicked, m_previewWidget, &MarkupImageWidget::zoomIn);
+    zoomLayout->addWidget(zoomInBtn);
+
+    QPushButton* resetZoomBtn = new QPushButton("100%");
+    resetZoomBtn->setFixedSize(50, 30);
+    resetZoomBtn->setToolTip("Сбросить масштаб");
+    connect(resetZoomBtn, &QPushButton::clicked, m_previewWidget, &MarkupImageWidget::resetZoom);
+    zoomLayout->addWidget(resetZoomBtn);
+
+    QPushButton* fitToWindowBtn = new QPushButton("По размеру");
+    fitToWindowBtn->setToolTip("Подогнать под окно");
+    connect(fitToWindowBtn, &QPushButton::clicked, m_previewWidget, &MarkupImageWidget::fitToWindow);
+    zoomLayout->addWidget(fitToWindowBtn);
+
+    QLabel* zoomValueLabel = new QLabel("100%");
+    zoomValueLabel->setMinimumWidth(60);
+    zoomValueLabel->setAlignment(Qt::AlignCenter);
+    connect(m_previewWidget, &MarkupImageWidget::zoomChanged, [zoomValueLabel](double zoom) {
+        zoomValueLabel->setText(QString("%1%").arg(static_cast<int>(zoom * 100)));
+    });
+    zoomLayout->addWidget(zoomValueLabel);
+
+    zoomLayout->addStretch();
+    zoomToolbar->setLayout(zoomLayout);
+    rightLayout->addWidget(zoomToolbar);
+
     // Cell info panel
     m_infoPanel = new QWidget(this);
     m_infoPanel->setMaximumHeight(100);
@@ -204,9 +254,31 @@ void VerificationWidget::setupUI()
 
     m_coefficientEdit = new QLineEdit();
     m_coefficientEdit->setReadOnly(true);
-    m_coefficientEdit->setMaximumWidth(100);
-    m_coefficientEdit->setPlaceholderText("0.0000");
+    m_coefficientEdit->setMaximumWidth(120);
+    m_coefficientEdit->setPlaceholderText("0.00000");
+    m_coefficientEdit->setAlignment(Qt::AlignCenter);
+    connect(m_coefficientEdit, &QLineEdit::editingFinished, this, &VerificationWidget::onCoefficientEditingFinished);
+    connect(m_coefficientEdit, &QLineEdit::returnPressed, this, &VerificationWidget::onCoefficientEditingFinished);
     bottomLayout->addWidget(m_coefficientEdit);
+
+    // Edit coefficient button (pencil icon)
+    m_editCoefficientButton = new QPushButton("✏️");
+    m_editCoefficientButton->setFixedSize(30, 30);
+    m_editCoefficientButton->setToolTip("Редактировать коэффициент");
+    m_editCoefficientButton->setStyleSheet(
+        "QPushButton { "
+        "border: 1px solid #ccc; "
+        "border-radius: 5px; "
+        "padding: 2px; "
+        "background-color: white; "
+        "}"
+        "QPushButton:hover { "
+        "background-color: #E3F2FD; "
+        "border: 1px solid #90CAF9; "
+        "}"
+    );
+    connect(m_editCoefficientButton, &QPushButton::clicked, this, &VerificationWidget::onEditCoefficientClicked);
+    bottomLayout->addWidget(m_editCoefficientButton);
 
     m_recalcButton = new QPushButton("Пересчитать");
     m_recalcButton->setStyleSheet("QPushButton { border: 1px solid #ccc; border-radius: 5px; padding: 5px 15px; }");
@@ -397,7 +469,30 @@ void VerificationWidget::selectCell(int globalCellIndex)
     // Update info panel
     updateCellInfoPanel();
 
-    LOG_INFO(QString("Selected cell: global=%1, local=%2").arg(globalCellIndex).arg(localIndex));
+    // Detailed logging for debugging border cells
+    const Cell& cell = m_cells[globalCellIndex];
+    LOG_INFO(QString("========================================"));
+    LOG_INFO(QString("CELL #%1 CLICKED (Global index: %2, Local index: %3)").arg(localIndex + 1).arg(globalCellIndex).arg(localIndex));
+    LOG_INFO(QString("========================================"));
+    LOG_INFO(QString("YOLO BBOX (from model):"));
+    LOG_INFO(QString("  bbox_x = %1, bbox_y = %2").arg(cell.bbox_x).arg(cell.bbox_y));
+    LOG_INFO(QString("  bbox_width = %1, bbox_height = %2").arg(cell.bbox_width).arg(cell.bbox_height));
+    LOG_INFO(QString("  bbox corners: (%1, %2) to (%3, %4)")
+        .arg(cell.bbox_x)
+        .arg(cell.bbox_y)
+        .arg(cell.bbox_x + cell.bbox_width)
+        .arg(cell.bbox_y + cell.bbox_height));
+    LOG_INFO(QString(""));
+    LOG_INFO(QString("CIRCLE (calculated from bbox):"));
+    LOG_INFO(QString("  center_x = %1, center_y = %2").arg(cell.center_x).arg(cell.center_y));
+    LOG_INFO(QString("  radius = %1 px").arg(cell.radius));
+    LOG_INFO(QString("  diameter = %1 px").arg(cell.diameter_pixels));
+    LOG_INFO(QString(""));
+    LOG_INFO(QString("OTHER INFO:"));
+    LOG_INFO(QString("  area = %1 px²").arg(cell.area));
+    LOG_INFO(QString("  confidence = %1").arg(cell.confidence));
+    LOG_INFO(QString("  diameter_um = %1 μm").arg(cell.diameter_um, 0, 'f', 2));
+    LOG_INFO(QString("========================================"));
 }
 
 void VerificationWidget::updateCellInfoPanel()
@@ -490,6 +585,12 @@ void VerificationWidget::onCellItemRemoved(CellListItemWidget* item)
     if (localIndex >= 0 && localIndex < cellIndices.size()) {
         int globalIndex = cellIndices[localIndex];
 
+        // Сохраняем текущую позицию скролла
+        int scrollPosition = 0;
+        if (m_cellListScrollArea) {
+            scrollPosition = m_cellListScrollArea->verticalScrollBar()->value();
+        }
+
         // Remove cell from data
         m_cells.removeAt(globalIndex);
 
@@ -509,6 +610,11 @@ void VerificationWidget::onCellItemRemoved(CellListItemWidget* item)
         // Refresh UI
         updateCellList();
         updatePreviewImage();
+
+        // Восстанавливаем позицию скролла
+        if (m_cellListScrollArea) {
+            m_cellListScrollArea->verticalScrollBar()->setValue(scrollPosition);
+        }
 
         // Select next cell if available
         cellIndices = m_cellsByFile[m_currentFilePath];
@@ -592,11 +698,14 @@ void VerificationWidget::recalculateDiameters()
         }
     }
 
+    // Limit to 5 decimal places
+    avgScale = std::round(avgScale * 100000.0) / 100000.0;
+
     // Update coefficient display and save to settings
-    m_coefficientEdit->setText(QString::number(avgScale, 'f', 4));
+    m_coefficientEdit->setText(QString::number(avgScale, 'f', 5));
     SettingsManager::instance().setCoefficient(avgScale);
 
-    LOG_INFO(QString("Recalculated with coefficient: %1 μm/px").arg(avgScale));
+    LOG_INFO(QString("Recalculated with coefficient: %1 μm/px").arg(avgScale, 0, 'f', 5));
 }
 
 void VerificationWidget::loadSavedCoefficient()
@@ -605,8 +714,8 @@ void VerificationWidget::loadSavedCoefficient()
     LOG_INFO(QString("loadSavedCoefficient: savedCoeff=%1").arg(savedCoeff));
 
     if (savedCoeff > 0) {
-        m_coefficientEdit->setText(QString::number(savedCoeff, 'f', 4));
-        LOG_INFO(QString("Loaded saved coefficient: %1 μm/px").arg(savedCoeff));
+        m_coefficientEdit->setText(QString::number(savedCoeff, 'f', 5));
+        LOG_INFO(QString("Loaded saved coefficient: %1 μm/px").arg(savedCoeff, 0, 'f', 5));
     }
 }
 
@@ -880,4 +989,67 @@ void VerificationWidget::loadNextThumbnailBatch()
         }
         LOG_INFO(QString("All thumbnails loaded (%1 total)").arg(m_cellWidgets.size()));
     }
+}
+
+void VerificationWidget::onEditCoefficientClicked()
+{
+    // Toggle edit mode for coefficient field
+    bool isReadOnly = m_coefficientEdit->isReadOnly();
+
+    if (isReadOnly) {
+        // Enable editing
+        m_coefficientEdit->setReadOnly(false);
+        m_coefficientEdit->setFocus();
+        m_coefficientEdit->selectAll();
+        m_editCoefficientButton->setText("💾");  // Save icon
+        m_editCoefficientButton->setToolTip("Сохранить коэффициент");
+        m_coefficientEdit->setStyleSheet("QLineEdit { background-color: #FFFDE7; border: 2px solid #FFC107; }");  // Yellow highlight
+
+        LOG_INFO("Coefficient editing enabled");
+    } else {
+        // Finish editing (validate and save)
+        onCoefficientEditingFinished();
+    }
+}
+
+void VerificationWidget::onCoefficientEditingFinished()
+{
+    if (m_coefficientEdit->isReadOnly()) {
+        return;  // Already in read-only mode
+    }
+
+    QString text = m_coefficientEdit->text().trimmed();
+
+    // Validate input
+    bool ok;
+    double coefficient = text.toDouble(&ok);
+
+    if (!ok || coefficient <= 0) {
+        QMessageBox::warning(this, "Ошибка",
+            "Неверное значение коэффициента. Введите положительное число.");
+        m_coefficientEdit->setFocus();
+        m_coefficientEdit->selectAll();
+        return;
+    }
+
+    // Limit to 5 decimal places
+    coefficient = std::round(coefficient * 100000.0) / 100000.0;
+
+    // Update display
+    m_coefficientEdit->setText(QString::number(coefficient, 'f', 5));
+    m_coefficientEdit->setReadOnly(true);
+    m_coefficientEdit->setStyleSheet("");  // Remove yellow highlight
+    m_editCoefficientButton->setText("✏️");  // Pencil icon
+    m_editCoefficientButton->setToolTip("Редактировать коэффициент");
+
+    // Save to settings
+    SettingsManager::instance().setCoefficient(coefficient);
+
+    LOG_INFO(QString("Coefficient manually set to: %1 μm/px").arg(coefficient, 0, 'f', 5));
+
+    // Recalculate all cell diameters with new coefficient
+    recalculateDiameters();
+
+    QMessageBox::information(this, "Успешно",
+        QString("Коэффициент установлен: %1 мкм/px\nРазмеры клеток пересчитаны.").arg(coefficient, 0, 'f', 5));
 }

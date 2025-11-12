@@ -369,15 +369,66 @@ QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::M
             continue;
         }
 
+        // Store original bbox coordinates
+        int bbox_x = box.x;
+        int bbox_y = box.y;
+        int bbox_width = box.width;
+        int bbox_height = box.height;
+
         // Convert bbox to circle (inscribed circle)
+        // The circle should be inscribed in a square with side = max(width, height)
+        // For border cells, we extend the bbox to a full square
         int diameter = std::max(box.width, box.height);
         int radius = diameter / 2;
-        int centerX = box.x + box.width / 2;
-        int centerY = box.y + box.height / 2;
 
-        // Clamp to image boundaries
-        centerX = std::max(0, std::min(centerX, originalImage.cols - 1));
-        centerY = std::max(0, std::min(centerY, originalImage.rows - 1));
+        // Calculate center based on which dimension is larger
+        // The center should be at the center of the implied full square
+        int centerX, centerY;
+
+        if (box.width < box.height) {
+            // Cell is cut horizontally (left or right edge)
+            // Width is smaller, height is full dimension
+            // Check if it's left edge (x close to 0) or right edge
+            if (box.x < radius) {
+                // Left edge: center is at distance radius from RIGHT edge of bbox
+                centerX = (box.x + box.width) - radius;
+            } else {
+                // Right edge: center is at distance radius from LEFT edge of bbox
+                centerX = box.x + radius;
+            }
+            // Y is normal: center of height
+            centerY = box.y + radius;
+        } else if (box.height < box.width) {
+            // Cell is cut vertically (top or bottom edge)
+            // Height is smaller, width is full dimension
+            // Check if it's top edge (y close to 0) or bottom edge
+            if (box.y < radius) {
+                // Top edge: center is at distance radius from BOTTOM edge of bbox
+                centerY = (box.y + box.height) - radius;
+            } else {
+                // Bottom edge: center is at distance radius from TOP edge of bbox
+                centerY = box.y + radius;
+            }
+            // X is normal: center of width
+            centerX = box.x + radius;
+        } else {
+            // Square bbox: center is simply at center
+            centerX = box.x + radius;
+            centerY = box.y + radius;
+        }
+
+        // DO NOT clamp center to image boundaries - allow circles to extend beyond edges
+        // This is important for border cells to be correctly represented
+
+        // Log calculation for first few cells or border cells
+        if (detectedCells.size() < 3 ||
+            bbox_x < radius || bbox_y < radius ||
+            (bbox_x + bbox_width + radius) > originalImage.cols ||
+            (bbox_y + bbox_height + radius) > originalImage.rows) {
+            LOG_INFO(QString("Cell calculation: bbox(%1,%2,%3,%4) -> diameter=%5, radius=%6, center=(%7,%8)")
+                .arg(bbox_x).arg(bbox_y).arg(bbox_width).arg(bbox_height)
+                .arg(diameter).arg(radius).arg(centerX).arg(centerY));
+        }
 
         Cell cell;
         cell.center_x = centerX;
@@ -386,6 +437,10 @@ QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::M
         cell.diameter_pixels = diameter;
         cell.diameterPx = diameter;
         cell.area = area;
+        cell.bbox_x = bbox_x;
+        cell.bbox_y = bbox_y;
+        cell.bbox_width = bbox_width;
+        cell.bbox_height = bbox_height;
         cell.confidence = confidences[idx];
         cell.imagePath = imagePath.toStdString();
         cell.circle = cv::Vec3f(centerX, centerY, radius);

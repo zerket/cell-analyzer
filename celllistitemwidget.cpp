@@ -2,6 +2,7 @@
 #include "celllistitemwidget.h"
 #include <QMouseEvent>
 #include <QImage>
+#include <QPalette>
 #include <opencv2/opencv.hpp>
 #include "utils.h"
 #include "logger.h"
@@ -14,6 +15,7 @@ CellListItemWidget::CellListItemWidget(int cellNumber, const Cell& cell, QWidget
     , m_hovered(false)
     , m_thumbnailLoaded(false)
 {
+    setAutoFillBackground(true);  // Enable background painting
     setupUI();
     setMouseTracking(true);
 }
@@ -109,12 +111,16 @@ void CellListItemWidget::clearDiameterNm()
 
 void CellListItemWidget::setSelected(bool selected)
 {
-    m_selected = selected;
-    updateStyle();
+    if (m_selected != selected) {
+        m_selected = selected;
+        updateStyle();
 
-    // Загружаем thumbnail только для выделенной ячейки
-    if (selected && !m_thumbnailLoaded) {
-        loadThumbnail();
+        LOG_DEBUG(QString("Cell #%1 selection changed to: %2").arg(m_cellNumber).arg(selected ? "true" : "false"));
+
+        // Загружаем thumbnail только для выделенной ячейки
+        if (selected && !m_thumbnailLoaded) {
+            loadThumbnail();
+        }
     }
 }
 
@@ -164,27 +170,48 @@ void CellListItemWidget::updateStyle()
     QString style;
 
     if (m_selected) {
-        // Серая подсветка для выделенной клетки, текст не меняется
-        style = "CellListItemWidget { "
-                "background-color: #BDBDBD; "  // Серый фон
-                "border: 2px solid #9E9E9E; "   // Темно-серая рамка
+        // Яркая синяя подсветка для выделенной клетки
+        style = "QWidget { "
+                "background-color: #2196F3; "  // Яркий синий фон
+                "border: 3px solid #1976D2; "   // Темно-синяя толстая рамка
                 "border-radius: 5px; "
-                "}";
+                "}"
+                "QLabel { color: white; font-weight: bold; }"  // Белый жирный текст
+                "QLineEdit { background-color: white; color: black; border: 1px solid #1976D2; }";  // Белое поле ввода
+
+        LOG_DEBUG(QString("Applying SELECTED style to cell #%1").arg(m_cellNumber));
+
+        // Also set palette for background
+        QPalette pal = palette();
+        pal.setColor(QPalette::Window, QColor(33, 150, 243));  // #2196F3
+        setPalette(pal);
     } else if (m_hovered) {
         // Светлая подсветка при наведении
-        style = "CellListItemWidget { "
+        style = "QWidget { "
                 "background-color: #E3F2FD; "
                 "border: 2px solid #90CAF9; "
                 "border-radius: 5px; "
                 "}";
+
+        QPalette pal = palette();
+        pal.setColor(QPalette::Window, QColor(227, 242, 253));  // #E3F2FD
+        setPalette(pal);
     } else {
         // Обычное состояние
-        style = "CellListItemWidget { "
+        style = "QWidget { "
                 "background-color: white; "
                 "border: 1px solid #E0E0E0; "
                 "border-radius: 5px; "
                 "}";
+
+        QPalette pal = palette();
+        pal.setColor(QPalette::Window, Qt::white);
+        setPalette(pal);
     }
 
     setStyleSheet(style);
+
+    // Force immediate repaint
+    update();
+    repaint();
 }

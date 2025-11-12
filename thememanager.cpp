@@ -7,8 +7,9 @@ ThemeManager& ThemeManager::instance() {
     return instance;
 }
 
-ThemeManager::ThemeManager(QObject* parent) : QObject(parent), m_currentTheme(Theme::Dark) {
-    loadThemeFromSettings();
+ThemeManager::ThemeManager(QObject* parent) : QObject(parent), m_currentTheme(Theme::Light) {
+    // Всегда используем светлую тему
+    applyTheme(Theme::Light);
 }
 
 void ThemeManager::setTheme(Theme theme) {

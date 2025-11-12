@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "imageprocessor.h"
-#include "thememanager.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -28,12 +27,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Создаем меню
     setupMenuBar();
-
-    // Инициализируем тему
-    ThemeManager& themeManager = ThemeManager::instance();
-    connect(&themeManager, &ThemeManager::themeChanged, this, [](ThemeManager::Theme theme) {
-        Logger::instance().log("Тема изменена на: " + QString(theme == ThemeManager::Theme::Dark ? "темную" : "светлую"));
-    });
 
     verificationWidget = nullptr;
     statisticsWidget = nullptr;
@@ -302,6 +295,23 @@ void MainWindow::startAnalysis() {
     LOG_INFO("Connecting signals");
     connect(verificationWidget, &VerificationWidget::analysisCompleted, this, [this]() {
         LOG_INFO("Analysis completed, returning to main screen");
+
+        // Полная очистка старых данных
+        QWidget* oldCentral = takeCentralWidget();
+        if (oldCentral) {
+            LOG_INFO("Deleting old central widget (VerificationWidget)");
+            oldCentral->deleteLater();
+        }
+
+        // Очищаем указатели
+        verificationWidget = nullptr;
+        if (statisticsWidget) {
+            statisticsWidget->deleteLater();
+            statisticsWidget = nullptr;
+        }
+
+        // Создаем НОВЫЙ главный виджет
+        LOG_INFO("Creating fresh main widget");
         setCentralWidget(createMainWidget());
     });
 
@@ -361,32 +371,6 @@ void MainWindow::resizeEvent(QResizeEvent* event) {
 
 void MainWindow::setupMenuBar() {
     QMenuBar* menuBar = this->menuBar();
-
-    // Меню "Вид"
-    QMenu* viewMenu = menuBar->addMenu("Вид");
-
-    // Действие переключения темы
-    QAction* toggleThemeAction = new QAction("Переключить тему", this);
-    toggleThemeAction->setShortcut(QKeySequence("Ctrl+T"));
-    connect(toggleThemeAction, &QAction::triggered, []() {
-        ThemeManager::instance().toggleTheme();
-    });
-    viewMenu->addAction(toggleThemeAction);
-
-    // Подменю выбора темы
-    QMenu* themeMenu = viewMenu->addMenu("Выбрать тему");
-
-    QAction* lightThemeAction = new QAction("Светлая тема", this);
-    connect(lightThemeAction, &QAction::triggered, []() {
-        ThemeManager::instance().setTheme(ThemeManager::Theme::Light);
-    });
-    themeMenu->addAction(lightThemeAction);
-
-    QAction* darkThemeAction = new QAction("Темная тема", this);
-    connect(darkThemeAction, &QAction::triggered, []() {
-        ThemeManager::instance().setTheme(ThemeManager::Theme::Dark);
-    });
-    themeMenu->addAction(darkThemeAction);
 
     // Меню "Справка"
     QMenu* helpMenu = menuBar->addMenu("Справка");

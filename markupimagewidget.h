@@ -37,6 +37,7 @@ private:
     QVector<Cell> m_cells;
     int m_selectedCellIndex;
     QPixmap m_originalPixmap;
+    int m_canvasOffset = 0;  // Offset for extended canvas
 };
 
 class MarkupImageWidget : public QWidget {
@@ -52,9 +53,23 @@ public:
     void setSelectedCell(int index);
     void clear();
 
+    // Zoom controls
+    void zoomIn();
+    void zoomOut();
+    void resetZoom();
+    void fitToWindow();
+    double getZoomFactor() const { return m_zoomFactor; }
+
 signals:
     void cellClicked(int cellIndex);
     void cellRightClicked(int cellIndex);
+    void zoomChanged(double zoomFactor);
+
+protected:
+    void wheelEvent(QWheelEvent* event) override;
+
+private:
+    void updateZoom();
 
 private:
     InteractiveImageLabel* m_imageLabel;
@@ -62,6 +77,7 @@ private:
     QPixmap m_currentPixmap;
     QVector<Cell> m_cells;
     int m_selectedCellIndex;
+    double m_zoomFactor;
 };
 
 #endif // MARKUPIMAGEWIDGET_H

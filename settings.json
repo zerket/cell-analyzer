@@ -1,5 +1,5 @@
 {
-    "Theme": "Dark",
+    "coefficient": 0.9945,
     "previewSize": 150,
     "statisticsMaxThreshold": 100,
     "statisticsMinThreshold": 50
