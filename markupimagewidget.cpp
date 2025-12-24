@@ -7,8 +7,12 @@
 #include <QBrush>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include <QHBoxLayout>
+#include <QScrollBar>
 #include <cmath>
+#include <limits>
 #include "logger.h"
+#include "settingsmanager.h"
 
 // ============================================================================
 // InteractiveImageLabel Implementation
@@ -17,9 +21,16 @@
 InteractiveImageLabel::InteractiveImageLabel(QWidget* parent)
     : QLabel(parent)
     , m_selectedCellIndex(-1)
+    , m_zoomFactor(1.0)
+    , m_minZoom(0.1)
+    , m_maxZoom(5.0)
+    , m_dragging(false)
+    , m_panOffset(0, 0)
 {
     setMouseTracking(true);
-    setCursor(Qt::CrossCursor);
+    setCursor(Qt::OpenHandCursor);
+    setAlignment(Qt::AlignCenter);
+    setMinimumSize(100, 100);
 }
 
 void InteractiveImageLabel::setCells(const QVector<Cell>& cells)
@@ -76,7 +87,12 @@ void InteractiveImageLabel::updateDisplay()
     // Store offset for coordinate transformation
     m_canvasOffset = maxExtension;
 
-    // Draw all cells with offset coordinates
+    // Load colors from settings
+    SettingsManager& settings = SettingsManager::instance();
+    QColor cellHighlightColor(settings.getCellHighlightColor());  // Color for all cells
+    QColor cellSelectionColor(settings.getCellSelectionColor());  // Color for selected cell
+
+    // Draw all cells with offset coordinates (scaled by zoom)
     for (int i = 0; i < m_cells.size(); ++i) {
         const Cell& cell = m_cells[i];
 
@@ -84,12 +100,12 @@ void InteractiveImageLabel::updateDisplay()
         bool isSelected = (i == m_selectedCellIndex);
 
         if (isSelected) {
-            // Selected cell: thick red circle
-            painter.setPen(QPen(QColor(255, 0, 0), 3));
+            // Selected cell: use selection color from settings
+            painter.setPen(QPen(cellSelectionColor, 3));
             painter.setBrush(Qt::NoBrush);
         } else {
-            // Normal cell: green circle
-            painter.setPen(QPen(QColor(0, 255, 0), 2));
+            // Normal cell: use highlight color from settings
+            painter.setPen(QPen(cellHighlightColor, 2));
             painter.setBrush(Qt::NoBrush);
         }
 
@@ -108,18 +124,75 @@ void InteractiveImageLabel::updateDisplay()
 
     painter.end();
 
-    setPixmap(displayPixmap);
-    adjustSize();
+    // Apply zoom scaling
+    QSize scaledSize = displayPixmap.size() * m_zoomFactor;
+    QPixmap scaledPixmap = displayPixmap.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    setPixmap(scaledPixmap);
+    resize(scaledPixmap.size());
+}
+
+void InteractiveImageLabel::setZoomFactor(double factor)
+{
+    factor = qBound(m_minZoom, factor, m_maxZoom);
+
+    if (qAbs(m_zoomFactor - factor) > 0.001) {
+        m_zoomFactor = factor;
+        updateDisplay();
+        emit zoomChanged(m_zoomFactor);
+    }
+}
+
+void InteractiveImageLabel::zoomIn()
+{
+    setZoomFactor(m_zoomFactor * 1.25);
+}
+
+void InteractiveImageLabel::zoomOut()
+{
+    setZoomFactor(m_zoomFactor / 1.25);
+}
+
+void InteractiveImageLabel::resetZoom()
+{
+    setZoomFactor(1.0);
+    m_panOffset = QPoint(0, 0);
+    updateDisplay();
+}
+
+void InteractiveImageLabel::fitToWindow()
+{
+    if (m_originalPixmap.isNull() || !parentWidget()) return;
+
+    QSize parentSize = parentWidget()->size();
+    QSize imageSize = m_originalPixmap.size();
+
+    double scaleX = double(parentSize.width()) / imageSize.width();
+    double scaleY = double(parentSize.height()) / imageSize.height();
+    double scale = qMin(scaleX, scaleY) * 0.9; // 90% от размера окна
+
+    setZoomFactor(scale);
+    m_panOffset = QPoint(0, 0);
 }
 
 void InteractiveImageLabel::mousePressEvent(QMouseEvent* event)
 {
-    int cellIndex = findCellAtPosition(event->pos());
+    if (event->button() == Qt::LeftButton) {
+        int cellIndex = findCellAtPosition(event->pos());
 
-    if (cellIndex >= 0) {
-        if (event->button() == Qt::LeftButton) {
+        if (cellIndex >= 0) {
+            // Clicked on a cell - select it
             emit cellClicked(cellIndex);
-        } else if (event->button() == Qt::RightButton) {
+            m_dragging = false;
+        } else {
+            // Clicked outside cells - start panning
+            m_dragging = true;
+            m_lastPanPoint = event->pos();
+            setCursor(Qt::ClosedHandCursor);
+        }
+    } else if (event->button() == Qt::RightButton) {
+        int cellIndex = findCellAtPosition(event->pos());
+        if (cellIndex >= 0) {
             emit cellRightClicked(cellIndex);
         }
     }
@@ -127,30 +200,107 @@ void InteractiveImageLabel::mousePressEvent(QMouseEvent* event)
     QLabel::mousePressEvent(event);
 }
 
+void InteractiveImageLabel::mouseMoveEvent(QMouseEvent* event)
+{
+    if (m_dragging && (event->buttons() & Qt::LeftButton)) {
+        // Calculate scroll delta
+        QPoint delta = event->pos() - m_lastPanPoint;
+        m_lastPanPoint = event->pos();
+
+        // Get parent scroll area and adjust scroll position
+        QScrollArea* scrollArea = qobject_cast<QScrollArea*>(parent()->parent());
+        if (scrollArea) {
+            QScrollBar* hBar = scrollArea->horizontalScrollBar();
+            QScrollBar* vBar = scrollArea->verticalScrollBar();
+
+            if (hBar) {
+                hBar->setValue(hBar->value() - delta.x());
+            }
+            if (vBar) {
+                vBar->setValue(vBar->value() - delta.y());
+            }
+        }
+    }
+
+    QLabel::mouseMoveEvent(event);
+}
+
+void InteractiveImageLabel::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton) {
+        if (m_dragging) {
+            m_dragging = false;
+            setCursor(Qt::OpenHandCursor);
+        }
+    }
+    QLabel::mouseReleaseEvent(event);
+}
+
+void InteractiveImageLabel::wheelEvent(QWheelEvent* event)
+{
+    const double scaleFactor = 1.15;
+
+    if (event->angleDelta().y() > 0) {
+        setZoomFactor(m_zoomFactor * scaleFactor);
+    } else {
+        setZoomFactor(m_zoomFactor / scaleFactor);
+    }
+
+    event->accept();
+}
+
 void InteractiveImageLabel::paintEvent(QPaintEvent* event)
 {
     QLabel::paintEvent(event);
 }
 
+QPoint InteractiveImageLabel::mapToOriginalImage(const QPoint& widgetPos) const
+{
+    if (m_originalPixmap.isNull()) return QPoint(-1, -1);
+
+    // Account for zoom and canvas offset
+    double invZoom = 1.0 / m_zoomFactor;
+    QPoint originalPos(
+        static_cast<int>((widgetPos.x() * invZoom) - m_canvasOffset),
+        static_cast<int>((widgetPos.y() * invZoom) - m_canvasOffset)
+    );
+
+    return originalPos;
+}
+
 int InteractiveImageLabel::findCellAtPosition(const QPoint& pos)
 {
     // Find the cell closest to the click position
-    // Account for canvas offset (extended canvas for border circles)
+    // Account for canvas offset and zoom
+
+    // Iterate through all cells and find the closest one within its radius
+    int closestIndex = -1;
+    double closestDistance = std::numeric_limits<double>::max();
+
     for (int i = 0; i < m_cells.size(); ++i) {
         const Cell& cell = m_cells[i];
 
-        // Calculate distance from click to cell center (with canvas offset)
-        double dx = pos.x() - (cell.center_x + m_canvasOffset);
-        double dy = pos.y() - (cell.center_y + m_canvasOffset);
+        // Calculate distance from click to cell center (with canvas offset and zoom)
+        double scaledCenterX = (cell.center_x + m_canvasOffset) * m_zoomFactor;
+        double scaledCenterY = (cell.center_y + m_canvasOffset) * m_zoomFactor;
+        double scaledRadius = cell.radius * m_zoomFactor;
+
+        double dx = pos.x() - scaledCenterX;
+        double dy = pos.y() - scaledCenterY;
         double distance = std::sqrt(dx * dx + dy * dy);
 
         // Check if click is within cell radius
-        if (distance <= cell.radius) {
-            return i;
+        if (distance <= scaledRadius && distance < closestDistance) {
+            closestDistance = distance;
+            closestIndex = i;
         }
     }
 
-    return -1;  // No cell found
+    if (closestIndex >= 0) {
+        LOG_DEBUG(QString("Cell found at index %1 (distance: %2 px)").arg(closestIndex).arg(closestDistance, 0, 'f', 1));
+    }
+
+    return closestIndex;
 }
 
 // ============================================================================
@@ -162,14 +312,31 @@ MarkupImageWidget::MarkupImageWidget(QWidget* parent)
     , m_imageLabel(nullptr)
     , m_scrollArea(nullptr)
     , m_selectedCellIndex(-1)
-    , m_zoomFactor(1.0)
+    , m_toolbar(nullptr)
+    , m_zoomSlider(nullptr)
+    , m_zoomSpin(nullptr)
+    , m_updatingControls(false)
+{
+    setupUI();
+}
+
+MarkupImageWidget::~MarkupImageWidget()
+{
+}
+
+void MarkupImageWidget::setupUI()
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+
+    setupToolbar();
+    layout->addWidget(m_toolbar);
 
     m_scrollArea = new QScrollArea(this);
     m_scrollArea->setWidgetResizable(false);  // Allow scrolling
     m_scrollArea->setAlignment(Qt::AlignCenter);
+    m_scrollArea->setStyleSheet("QScrollArea { border: none; }");
 
     m_imageLabel = new InteractiveImageLabel();
     m_imageLabel->setScaledContents(false);
@@ -180,15 +347,75 @@ MarkupImageWidget::MarkupImageWidget(QWidget* parent)
             this, &MarkupImageWidget::cellClicked);
     connect(m_imageLabel, &InteractiveImageLabel::cellRightClicked,
             this, &MarkupImageWidget::cellRightClicked);
+    connect(m_imageLabel, &InteractiveImageLabel::zoomChanged,
+            this, &MarkupImageWidget::onImageZoomChanged);
 
     m_scrollArea->setWidget(m_imageLabel);
-    layout->addWidget(m_scrollArea);
+    layout->addWidget(m_scrollArea, 1);
 
     setLayout(layout);
 }
 
-MarkupImageWidget::~MarkupImageWidget()
+void MarkupImageWidget::setupToolbar()
 {
+    m_toolbar = new QToolBar();
+    m_toolbar->setStyleSheet("QToolBar { border: none; background: #f0f0f0; padding: 3px; spacing: 5px; }");
+    m_toolbar->setMaximumHeight(40);
+
+    // Zoom buttons
+    QPushButton* zoomInBtn = new QPushButton("🔍+");
+    zoomInBtn->setToolTip("Увеличить (Ctrl + колесо мыши)");
+    zoomInBtn->setMaximumSize(35, 30);
+    connect(zoomInBtn, &QPushButton::clicked, this, &MarkupImageWidget::zoomIn);
+    m_toolbar->addWidget(zoomInBtn);
+
+    QPushButton* zoomOutBtn = new QPushButton("🔍-");
+    zoomOutBtn->setToolTip("Уменьшить (Ctrl + колесо мыши)");
+    zoomOutBtn->setMaximumSize(35, 30);
+    connect(zoomOutBtn, &QPushButton::clicked, this, &MarkupImageWidget::zoomOut);
+    m_toolbar->addWidget(zoomOutBtn);
+
+    m_toolbar->addSeparator();
+
+    QPushButton* resetBtn = new QPushButton("1:1");
+    resetBtn->setToolTip("Исходный размер");
+    resetBtn->setMaximumSize(35, 30);
+    connect(resetBtn, &QPushButton::clicked, this, &MarkupImageWidget::resetZoom);
+    m_toolbar->addWidget(resetBtn);
+
+    QPushButton* fitBtn = new QPushButton("⬜");
+    fitBtn->setToolTip("Вписать в окно");
+    fitBtn->setMaximumSize(35, 30);
+    connect(fitBtn, &QPushButton::clicked, this, &MarkupImageWidget::fitToWindow);
+    m_toolbar->addWidget(fitBtn);
+
+    m_toolbar->addSeparator();
+
+    // Zoom slider
+    QLabel* zoomLabel = new QLabel(" Масштаб:");
+    m_toolbar->addWidget(zoomLabel);
+
+    m_zoomSlider = new QSlider(Qt::Horizontal);
+    m_zoomSlider->setRange(10, 500); // 10% - 500%
+    m_zoomSlider->setValue(100);
+    m_zoomSlider->setMaximumWidth(150);
+    m_zoomSlider->setToolTip("Масштаб изображения");
+    connect(m_zoomSlider, &QSlider::valueChanged, this, &MarkupImageWidget::onZoomSliderChanged);
+    m_toolbar->addWidget(m_zoomSlider);
+
+    // Zoom spinbox
+    m_zoomSpin = new QSpinBox();
+    m_zoomSpin->setRange(10, 500);
+    m_zoomSpin->setValue(100);
+    m_zoomSpin->setSuffix("%");
+    m_zoomSpin->setMaximumWidth(80);
+    connect(m_zoomSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, &MarkupImageWidget::onZoomSpinChanged);
+    m_toolbar->addWidget(m_zoomSpin);
+
+    // Spacer
+    QWidget* spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_toolbar->addWidget(spacer);
 }
 
 void MarkupImageWidget::setImage(const QPixmap& pixmap)
@@ -227,95 +454,67 @@ void MarkupImageWidget::clear()
     m_imageLabel->clear();
     m_cells.clear();
     m_selectedCellIndex = -1;
-    m_zoomFactor = 1.0;
+}
+
+double MarkupImageWidget::getZoomFactor() const
+{
+    return m_imageLabel->getZoomFactor();
+}
+
+void MarkupImageWidget::setZoomFactor(double factor)
+{
+    m_imageLabel->setZoomFactor(factor);
 }
 
 void MarkupImageWidget::zoomIn()
 {
-    m_zoomFactor *= 1.25;
-    if (m_zoomFactor > 5.0) {
-        m_zoomFactor = 5.0;  // Максимальный zoom 500%
-    }
-    updateZoom();
-    emit zoomChanged(m_zoomFactor);
+    m_imageLabel->zoomIn();
 }
 
 void MarkupImageWidget::zoomOut()
 {
-    m_zoomFactor /= 1.25;
-    if (m_zoomFactor < 0.1) {
-        m_zoomFactor = 0.1;  // Минимальный zoom 10%
-    }
-    updateZoom();
-    emit zoomChanged(m_zoomFactor);
+    m_imageLabel->zoomOut();
 }
 
 void MarkupImageWidget::resetZoom()
 {
-    m_zoomFactor = 1.0;
-    updateZoom();
-    emit zoomChanged(m_zoomFactor);
+    m_imageLabel->resetZoom();
 }
 
 void MarkupImageWidget::fitToWindow()
 {
-    if (m_currentPixmap.isNull() || !m_scrollArea) {
-        return;
-    }
-
-    // Вычисляем коэффициент для подгонки под размер окна
-    QSize availableSize = m_scrollArea->viewport()->size();
-    QSize pixmapSize = m_currentPixmap.size();
-
-    double scaleX = static_cast<double>(availableSize.width()) / pixmapSize.width();
-    double scaleY = static_cast<double>(availableSize.height()) / pixmapSize.height();
-
-    m_zoomFactor = qMin(scaleX, scaleY);
-    if (m_zoomFactor > 1.0) {
-        m_zoomFactor = 1.0;  // Не увеличиваем больше оригинального размера
-    }
-
-    updateZoom();
-    emit zoomChanged(m_zoomFactor);
+    m_imageLabel->fitToWindow();
 }
 
-void MarkupImageWidget::updateZoom()
+void MarkupImageWidget::onZoomSliderChanged(int value)
 {
-    if (m_currentPixmap.isNull()) {
-        return;
+    if (!m_updatingControls) {
+        double factor = value / 100.0;
+        m_imageLabel->setZoomFactor(factor);
     }
-
-    // Масштабируем оригинальное изображение
-    QSize newSize = m_currentPixmap.size() * m_zoomFactor;
-    QPixmap scaledPixmap = m_currentPixmap.scaled(newSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    m_imageLabel->setOriginalImage(scaledPixmap);
-
-    // Обновляем ячейки с учётом масштаба
-    QVector<Cell> scaledCells;
-    for (const Cell& cell : m_cells) {
-        Cell scaledCell = cell;
-        scaledCell.center_x *= m_zoomFactor;
-        scaledCell.center_y *= m_zoomFactor;
-        scaledCell.radius *= m_zoomFactor;
-        scaledCells.append(scaledCell);
-    }
-
-    m_imageLabel->setCells(scaledCells);
-    LOG_DEBUG(QString("Zoom updated to %1%").arg(m_zoomFactor * 100, 0, 'f', 0));
 }
 
-void MarkupImageWidget::wheelEvent(QWheelEvent* event)
+void MarkupImageWidget::onZoomSpinChanged(int value)
 {
-    // Ctrl + колесико мыши для zoom
-    if (event->modifiers() & Qt::ControlModifier) {
-        if (event->angleDelta().y() > 0) {
-            zoomIn();
-        } else {
-            zoomOut();
-        }
-        event->accept();
-    } else {
-        QWidget::wheelEvent(event);
+    if (!m_updatingControls) {
+        double factor = value / 100.0;
+        m_imageLabel->setZoomFactor(factor);
     }
+}
+
+void MarkupImageWidget::onImageZoomChanged(double factor)
+{
+    updateZoomControls(factor);
+    emit zoomChanged(factor);
+}
+
+void MarkupImageWidget::updateZoomControls(double factor)
+{
+    m_updatingControls = true;
+
+    int percentage = static_cast<int>(factor * 100);
+    m_zoomSlider->setValue(percentage);
+    m_zoomSpin->setValue(percentage);
+
+    m_updatingControls = false;
 }

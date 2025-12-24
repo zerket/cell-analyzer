@@ -74,7 +74,9 @@ build\Release\CellAnalyzer.exe
 - **NEW DESIGN**: Multi-tab interface with per-image organization
 - Tab-based file navigation showing cell count per image
 - Split panel layout: cell list (left 25%) and preview with markup (right 75%)
-- Interactive cell selection: click on list or image to select, right-click on image to remove
+- Interactive cell selection: click on list or image to select
+- **Cell removal**: Delete cells using ❌ button in cell list OR right-click on cell in image preview
+- **Global index tracking**: Each cell widget stores its global index for accurate removal with filtering enabled
 - Manual diameter input in micrometers for each cell
 - Coefficient calculation and management:
   - Manual input of μm diameters for reference cells
@@ -84,6 +86,7 @@ build\Release\CellAnalyzer.exe
 - Cell info panel showing position, radius, and diameter
 - Export to CSV with filename, cell number, position, diameter (pixels and μm)
 - Debug images with highlighted cells and annotations
+- **Scroll preservation**: Cell list scroll position preserved when removing cells
 
 **SettingsManager** (`settingsmanager.h/cpp`)
 - Singleton pattern for centralized settings management
@@ -164,6 +167,7 @@ build\Release\CellAnalyzer.exe
 - **ImprovedPreviewGrid** (`improvedpreviewgrid.h`): Advanced image grid with drag-and-drop, multi-selection, sorting (name/date/size), resizable thumbnails, context menus, and animations
 - **PreviewGrid** (`previewgrid.h`): Basic grid for image thumbnails with adjustable size (100-500px)
 - **CellItem/CellItemWidget** (`cellitem.h/cellitemwidget.h`): Data structure and widget for individual cell display
+- **MarkupImageWidget** (`markupimagewidget.h/cpp`): Image viewer with cell markup and interactive selection (no zoom, 1:1 scale only)
 - **Utils** (`utils.h/cpp`): Helper functions including circle visibility calculations
 
 ### Key Design Patterns

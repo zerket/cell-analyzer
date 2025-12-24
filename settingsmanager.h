@@ -31,6 +31,28 @@ public:
     QString getTheme() const { return m_theme; }
     void setTheme(const QString& theme);
 
+    // Цвет обводки всех клеток
+    QString getCellHighlightColor() const { return m_cellHighlightColor; }
+    void setCellHighlightColor(const QString& color);
+
+    // Цвет обводки выбранной клетки
+    QString getCellSelectionColor() const { return m_cellSelectionColor; }
+    void setCellSelectionColor(const QString& color);
+
+    // Игнорировать пограничные клетки
+    bool getIgnoreBorderCells() const { return m_ignoreBorderCells; }
+    void setIgnoreBorderCells(bool ignore);
+
+    // Порог видимости клетки (0-99%)
+    int getCellVisibilityThreshold() const { return m_cellVisibilityThreshold; }
+    void setCellVisibilityThreshold(int threshold);
+
+    // Фильтр по диаметру клетки (пиксели)
+    int getMinCellDiameter() const { return m_minCellDiameter; }
+    void setMinCellDiameter(int diameter);
+    int getMaxCellDiameter() const { return m_maxCellDiameter; }
+    void setMaxCellDiameter(int diameter);
+
     // Путь к файлу настроек
     QString getSettingsPath() const;
 
@@ -51,6 +73,12 @@ private:
     double m_statisticsMaxThreshold = 100.0; // По умолчанию 100 мкм
     double m_coefficient = 0.0;              // Коэффициент мкм/пиксель
     QString m_theme = "Dark";
+    QString m_cellHighlightColor = "#00FF00";   // Зелёный цвет для всех клеток
+    QString m_cellSelectionColor = "#FF0000";   // Красный цвет для выбранной клетки
+    bool m_ignoreBorderCells = false;           // По умолчанию не игнорировать
+    int m_cellVisibilityThreshold = 85;         // По умолчанию 85% видимости
+    int m_minCellDiameter = 30;                 // Минимальный диаметр клетки (px)
+    int m_maxCellDiameter = 160;                // Максимальный диаметр клетки (px)
     QString m_settingsFile = "settings.json";
     mutable QJsonObject m_settings;
 };

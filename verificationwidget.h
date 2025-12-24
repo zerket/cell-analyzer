@@ -61,7 +61,6 @@ private:
     void saveDebugImage(const QString& originalImagePath,
                        const QVector<QPair<Cell, double>>& cells,
                        const QString& outputPath);
-
     // UI Elements - Top level
     QTabWidget* m_fileTabWidget;
     QSplitter* m_mainSplitter;
@@ -94,6 +93,9 @@ private:
     QVector<CellListItemWidget*> m_cellWidgets;
     int m_selectedCellIndex;
     QString m_currentFilePath;
+
+    // Image size cache for border detection
+    mutable QMap<QString, QSize> m_imageSizeCache;
 
     // Lazy loading optimization
     QTimer* m_thumbnailLoadTimer;

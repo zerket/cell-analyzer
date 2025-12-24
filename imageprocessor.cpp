@@ -447,6 +447,32 @@ QVector<Cell> ImageProcessor::postprocessONNX(const cv::Mat& output, const cv::M
         cell.diameter_um = 0.0;
         cell.diameterNm = 0.0;
 
+        // Apply diameter filter
+        if (diameter < params.minCellDiameter) {
+            LOG_DEBUG(QString("Filtering out cell at (%1, %2): diameter %3px < min %4px")
+                .arg(centerX).arg(centerY).arg(diameter).arg(params.minCellDiameter));
+            continue;  // Skip this cell
+        }
+        if (diameter > params.maxCellDiameter) {
+            LOG_DEBUG(QString("Filtering out cell at (%1, %2): diameter %3px > max %4px")
+                .arg(centerX).arg(centerY).arg(diameter).arg(params.maxCellDiameter));
+            continue;  // Skip this cell
+        }
+
+        // Apply border cell filter if enabled
+        if (params.ignoreBorderCells) {
+            // Calculate visibility: min(width, height) / max(width, height) * 100
+            int minSide = std::min(bbox_width, bbox_height);
+            int maxSide = std::max(bbox_width, bbox_height);
+            double visibility = (static_cast<double>(minSide) / static_cast<double>(maxSide)) * 100.0;
+
+            if (visibility < params.cellVisibilityThreshold) {
+                LOG_DEBUG(QString("Filtering out border cell at (%1, %2): visibility %3% < threshold %4%")
+                    .arg(centerX).arg(centerY).arg(visibility, 0, 'f', 1).arg(params.cellVisibilityThreshold));
+                continue;  // Skip this cell
+            }
+        }
+
         detectedCells.append(cell);
     }
 

@@ -29,6 +29,7 @@ private slots:
     void updateAnalysisButtonState();
     void clearImages();
     void onBackFromStatistics();
+    void openSettings();
 
 private:
     PreviewGrid* previewGrid;

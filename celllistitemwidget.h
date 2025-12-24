@@ -22,6 +22,10 @@ public:
     QString diameterNmText() const;
     double getDiameterNm() const;
     int diameterPx() const { return m_cell.diameterPx; }
+    int globalIndex() const { return m_globalIndex; }
+
+    // Setter for global index
+    void setGlobalIndex(int index) { m_globalIndex = index; }
 
     // Setters
     void setDiameterNm(double nm);
@@ -52,6 +56,7 @@ private:
 private:
     int m_cellNumber;
     Cell m_cell;
+    int m_globalIndex;  // Global index in m_cells array
     bool m_selected;
     bool m_hovered;
     bool m_thumbnailLoaded;

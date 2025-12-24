@@ -1,5 +1,12 @@
 {
-    "coefficient": 0.9945,
+    "Theme": "Dark",
+    "cellHighlightColor": "#FF0004",
+    "cellSelectionColor": "#1E00FF",
+    "cellVisibilityThreshold": 60,
+    "coefficient": 0.9745,
+    "ignoreBorderCells": true,
+    "maxCellDiameter": 165,
+    "minCellDiameter": 25,
     "previewSize": 150,
     "statisticsMaxThreshold": 100,
     "statisticsMinThreshold": 50

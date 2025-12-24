@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "imageprocessor.h"
+#include "settingsdialog.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -242,8 +243,17 @@ void MainWindow::startAnalysis() {
 
     // Обработка изображений с параметрами YOLO по умолчанию
     ImageProcessor::YoloParams params;  // Default: conf=0.25, iou=0.7, minArea=500
+    params.ignoreBorderCells = SettingsManager::instance().getIgnoreBorderCells();
+    params.cellVisibilityThreshold = SettingsManager::instance().getCellVisibilityThreshold();
+    params.minCellDiameter = SettingsManager::instance().getMinCellDiameter();
+    params.maxCellDiameter = SettingsManager::instance().getMaxCellDiameter();
 
-    LOG_INFO(QString("Processing %1 images with YOLO").arg(selectedImagePaths.size()));
+    LOG_INFO(QString("Processing %1 images with YOLO (ignoreBorderCells=%2, visibilityThreshold=%3, diameterRange=%4-%5)")
+        .arg(selectedImagePaths.size())
+        .arg(params.ignoreBorderCells)
+        .arg(params.cellVisibilityThreshold)
+        .arg(params.minCellDiameter)
+        .arg(params.maxCellDiameter));
 
     try {
         processor->processImages(selectedImagePaths, params);
@@ -371,6 +381,14 @@ void MainWindow::resizeEvent(QResizeEvent* event) {
 
 void MainWindow::setupMenuBar() {
     QMenuBar* menuBar = this->menuBar();
+
+    // Меню "Настройки"
+    QMenu* settingsMenu = menuBar->addMenu("Настройки");
+
+    QAction* settingsAction = new QAction("⚙️ Настройки", this);
+    settingsAction->setShortcut(QKeySequence("Ctrl+,"));
+    connect(settingsAction, &QAction::triggered, this, &MainWindow::openSettings);
+    settingsMenu->addAction(settingsAction);
 
     // Меню "Справка"
     QMenu* helpMenu = menuBar->addMenu("Справка");
@@ -501,4 +519,9 @@ void MainWindow::onBackFromStatistics() {
     } catch (...) {
         Logger::instance().log("onBackFromStatistics: Неизвестное исключение", LogLevel::ERROR);
     }
+}
+
+void MainWindow::openSettings() {
+    SettingsDialog dialog(this);
+    dialog.exec();
 }

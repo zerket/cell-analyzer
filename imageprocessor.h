@@ -17,6 +17,10 @@ public:
         double iouThreshold = 0.7;
         int minCellArea = 500;
         bool useCUDA = false;  // Use CUDA backend if available
+        bool ignoreBorderCells = false;  // Filter out border cells
+        int cellVisibilityThreshold = 85;  // Visibility threshold percentage
+        int minCellDiameter = 30;  // Minimum cell diameter in pixels
+        int maxCellDiameter = 160;  // Maximum cell diameter in pixels
     };
 
     ImageProcessor();

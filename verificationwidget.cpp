@@ -112,10 +112,13 @@ void VerificationWidget::setupUI()
         QVector<int> cellIndices = it.value();
 
         QString fileName = QFileInfo(filePath).fileName();
-        QString tabLabel = QString("%1 (%2)").arg(fileName).arg(cellIndices.size());
+        int cellCount = cellIndices.size();
+
+        QString tabLabel = QString("%1 (%2)").arg(fileName).arg(cellCount);
+
         m_fileTabWidget->addTab(new QWidget(), tabLabel);
         m_fileTabWidget->setTabToolTip(tabIndex++, filePath);
-        LOG_INFO(QString("setupUI: Added tab for %1 with %2 cells").arg(fileName).arg(cellIndices.size()));
+        LOG_INFO(QString("setupUI: Added tab for %1 with %2 cells").arg(fileName).arg(cellCount));
     }
 
     // Unblock signals AFTER all UI is created
@@ -161,53 +164,6 @@ void VerificationWidget::setupUI()
     connect(m_previewWidget, &MarkupImageWidget::cellClicked, this, &VerificationWidget::onImageCellClicked);
     connect(m_previewWidget, &MarkupImageWidget::cellRightClicked, this, &VerificationWidget::onImageCellRightClicked);
     rightLayout->addWidget(m_previewWidget, 1);
-
-    // Zoom controls toolbar
-    QWidget* zoomToolbar = new QWidget(this);
-    zoomToolbar->setMaximumHeight(50);
-    QHBoxLayout* zoomLayout = new QHBoxLayout(zoomToolbar);
-    zoomLayout->setContentsMargins(5, 5, 5, 5);
-    zoomLayout->setSpacing(5);
-
-    QLabel* zoomLabel = new QLabel("Масштаб:");
-    zoomLayout->addWidget(zoomLabel);
-
-    QPushButton* zoomOutBtn = new QPushButton("-");
-    zoomOutBtn->setFixedSize(30, 30);
-    zoomOutBtn->setToolTip("Уменьшить (Ctrl + колесико вниз)");
-    zoomOutBtn->setStyleSheet("QPushButton { font-size: 18px; font-weight: bold; }");
-    connect(zoomOutBtn, &QPushButton::clicked, m_previewWidget, &MarkupImageWidget::zoomOut);
-    zoomLayout->addWidget(zoomOutBtn);
-
-    QPushButton* zoomInBtn = new QPushButton("+");
-    zoomInBtn->setFixedSize(30, 30);
-    zoomInBtn->setToolTip("Увеличить (Ctrl + колесико вверх)");
-    zoomInBtn->setStyleSheet("QPushButton { font-size: 18px; font-weight: bold; }");
-    connect(zoomInBtn, &QPushButton::clicked, m_previewWidget, &MarkupImageWidget::zoomIn);
-    zoomLayout->addWidget(zoomInBtn);
-
-    QPushButton* resetZoomBtn = new QPushButton("100%");
-    resetZoomBtn->setFixedSize(50, 30);
-    resetZoomBtn->setToolTip("Сбросить масштаб");
-    connect(resetZoomBtn, &QPushButton::clicked, m_previewWidget, &MarkupImageWidget::resetZoom);
-    zoomLayout->addWidget(resetZoomBtn);
-
-    QPushButton* fitToWindowBtn = new QPushButton("По размеру");
-    fitToWindowBtn->setToolTip("Подогнать под окно");
-    connect(fitToWindowBtn, &QPushButton::clicked, m_previewWidget, &MarkupImageWidget::fitToWindow);
-    zoomLayout->addWidget(fitToWindowBtn);
-
-    QLabel* zoomValueLabel = new QLabel("100%");
-    zoomValueLabel->setMinimumWidth(60);
-    zoomValueLabel->setAlignment(Qt::AlignCenter);
-    connect(m_previewWidget, &MarkupImageWidget::zoomChanged, [zoomValueLabel](double zoom) {
-        zoomValueLabel->setText(QString("%1%").arg(static_cast<int>(zoom * 100)));
-    });
-    zoomLayout->addWidget(zoomValueLabel);
-
-    zoomLayout->addStretch();
-    zoomToolbar->setLayout(zoomLayout);
-    rightLayout->addWidget(zoomToolbar);
 
     // Cell info panel
     m_infoPanel = new QWidget(this);
@@ -381,6 +337,7 @@ void VerificationWidget::updateCellList()
         const Cell& cell = m_cells[globalIndex];
 
         CellListItemWidget* cellWidget = new CellListItemWidget(i + 1, cell, this);
+        cellWidget->setGlobalIndex(globalIndex);  // ВАЖНО: сохраняем глобальный индекс
 
         // Автоматически заполняем диаметр, если коэффициент существует
         double currentCoeff = SettingsManager::instance().getCoefficient();
@@ -397,7 +354,7 @@ void VerificationWidget::updateCellList()
         m_cellWidgets.append(cellWidget);
     }
 
-    LOG_INFO(QString("Updated cell list with %1 cells").arg(cellIndices.size()));
+    LOG_INFO(QString("Updated cell list: %1 cells").arg(cellIndices.size()));
 
     // Начинаем постепенную загрузку изображений
     m_thumbnailLoadIndex = 0;
@@ -427,6 +384,8 @@ void VerificationWidget::updatePreviewImage()
             LOG_ERROR(QString("Invalid cell index: %1").arg(idx));
         }
     }
+
+    LOG_INFO(QString("Preview image: showing %1 cells").arg(fileCells.size()));
 
     m_previewWidget->setCells(fileCells);
 }
@@ -518,11 +477,12 @@ void VerificationWidget::onCellItemClicked(CellListItemWidget* item)
 {
     if (!item) return;
 
-    // Find global index
-    QVector<int> cellIndices = m_cellsByFile[m_currentFilePath];
-    int localIndex = m_cellWidgets.indexOf(item);
-    if (localIndex >= 0 && localIndex < cellIndices.size()) {
-        selectCell(cellIndices[localIndex]);
+    // Get global index directly from widget
+    int globalIndex = item->globalIndex();
+    if (globalIndex >= 0 && globalIndex < m_cells.size()) {
+        selectCell(globalIndex);
+    } else {
+        LOG_ERROR(QString("Invalid global index in clicked cell widget: %1").arg(globalIndex));
     }
 }
 
@@ -538,52 +498,103 @@ void VerificationWidget::onImageCellRightClicked(int localCellIndex)
 {
     // Удаление клетки по правому клику на изображении
     QVector<int> cellIndices = m_cellsByFile[m_currentFilePath];
-    if (localCellIndex >= 0 && localCellIndex < cellIndices.size()) {
-        int globalIndex = cellIndices[localCellIndex];
 
-        // Remove cell from data
-        m_cells.removeAt(globalIndex);
-
-        // Regroup cells
-        groupCellsByFile();
-
-        // Update current tab label
-        int currentTabIndex = m_fileTabWidget->currentIndex();
-        QStringList filePaths = m_cellsByFile.keys();
-        if (currentTabIndex < filePaths.size()) {
-            QString filePath = filePaths[currentTabIndex];
-            QString fileName = QFileInfo(filePath).fileName();
-            int count = m_cellsByFile[filePath].size();
-            m_fileTabWidget->setTabText(currentTabIndex, QString("%1 (%2)").arg(fileName).arg(count));
-        }
-
-        // Refresh UI
-        updateCellList();
-        updatePreviewImage();
-
-        // Select next cell if available
-        cellIndices = m_cellsByFile[m_currentFilePath];
-        if (!cellIndices.isEmpty()) {
-            int nextIndex = qMin(localCellIndex, cellIndices.size() - 1);
-            selectCell(cellIndices[nextIndex]);
-        } else {
-            m_selectedCellIndex = -1;
-            updateCellInfoPanel();
-        }
-
-        LOG_INFO(QString("Cell removed by right-click on image: local index %1").arg(localCellIndex));
+    if (localCellIndex < 0 || localCellIndex >= cellIndices.size()) {
+        LOG_WARNING(QString("Invalid local cell index for right-click: %1").arg(localCellIndex));
+        return;
     }
+
+    int globalIndex = cellIndices[localCellIndex];
+
+    LOG_INFO(QString("Right-click: localIndex=%1, globalIndex=%2, cell at (%3, %4)")
+        .arg(localCellIndex)
+        .arg(globalIndex)
+        .arg(m_cells[globalIndex].center_x)
+        .arg(m_cells[globalIndex].center_y));
+
+    // Сохраняем текущую позицию скролла
+    int scrollPosition = 0;
+    if (m_cellListScrollArea) {
+        scrollPosition = m_cellListScrollArea->verticalScrollBar()->value();
+    }
+
+    // Remove cell from data
+    m_cells.removeAt(globalIndex);
+
+    // Regroup cells
+    groupCellsByFile();
+
+    // Update current tab label
+    int currentTabIndex = m_fileTabWidget->currentIndex();
+    QStringList filePaths = m_cellsByFile.keys();
+    if (currentTabIndex < filePaths.size()) {
+        QString filePath = filePaths[currentTabIndex];
+        QString fileName = QFileInfo(filePath).fileName();
+        int cellCount = m_cellsByFile[filePath].size();
+        QString tabLabel = QString("%1 (%2)").arg(fileName).arg(cellCount);
+        m_fileTabWidget->setTabText(currentTabIndex, tabLabel);
+    }
+
+    // Refresh UI
+    updateCellList();
+    updatePreviewImage();
+
+    // Восстанавливаем позицию скролла
+    if (m_cellListScrollArea) {
+        m_cellListScrollArea->verticalScrollBar()->setValue(scrollPosition);
+    }
+
+    // Select next cell if available (without auto-scroll)
+    if (!m_cellWidgets.isEmpty()) {
+        int nextWidgetIndex = qMin(localCellIndex, m_cellWidgets.size() - 1);
+        CellListItemWidget* nextWidget = m_cellWidgets[nextWidgetIndex];
+        int nextGlobalIndex = nextWidget->globalIndex();
+
+        // Обновляем выбранную клетку вручную БЕЗ auto-scroll
+        m_selectedCellIndex = nextGlobalIndex;
+
+        // Update cell list selection (without ensureWidgetVisible)
+        for (int i = 0; i < m_cellWidgets.size(); ++i) {
+            if (m_cellWidgets[i]) {
+                m_cellWidgets[i]->setSelected(i == nextWidgetIndex);
+            }
+        }
+
+        // Update preview selection
+        QVector<int> newCellIndices = m_cellsByFile[m_currentFilePath];
+        int previewIndex = newCellIndices.indexOf(nextGlobalIndex);
+
+        if (m_previewWidget && previewIndex >= 0) {
+            m_previewWidget->setSelectedCell(previewIndex);
+        }
+
+        // Update info panel
+        updateCellInfoPanel();
+
+        LOG_INFO(QString("Selected next cell at widget index %1 (global %2) after right-click removal").arg(nextWidgetIndex).arg(nextGlobalIndex));
+    } else {
+        m_selectedCellIndex = -1;
+        updateCellInfoPanel();
+    }
+
+    LOG_INFO(QString("Cell removed by right-click: was at local index %1, global index %2, scroll preserved at %3")
+        .arg(localCellIndex).arg(globalIndex).arg(scrollPosition));
 }
 
 void VerificationWidget::onCellItemRemoved(CellListItemWidget* item)
 {
     if (!item) return;
 
-    // Find global index
-    QVector<int> cellIndices = m_cellsByFile[m_currentFilePath];
+    // Get global index directly from widget (bypasses filtering issues)
+    int globalIndex = item->globalIndex();
+    if (globalIndex < 0 || globalIndex >= m_cells.size()) {
+        LOG_ERROR(QString("Invalid global index from widget: %1").arg(globalIndex));
+        return;
+    }
+
+    // Find local index in widget list
     int localIndex = m_cellWidgets.indexOf(item);
-    if (localIndex >= 0 && localIndex < cellIndices.size()) {
-        int globalIndex = cellIndices[localIndex];
+    if (localIndex >= 0) {
 
         // Сохраняем текущую позицию скролла
         int scrollPosition = 0;
@@ -603,30 +614,55 @@ void VerificationWidget::onCellItemRemoved(CellListItemWidget* item)
         if (currentTabIndex < filePaths.size()) {
             QString filePath = filePaths[currentTabIndex];
             QString fileName = QFileInfo(filePath).fileName();
-            int count = m_cellsByFile[filePath].size();
-            m_fileTabWidget->setTabText(currentTabIndex, QString("%1 (%2)").arg(fileName).arg(count));
+            int cellCount = m_cellsByFile[filePath].size();
+            QString tabLabel = QString("%1 (%2)").arg(fileName).arg(cellCount);
+            m_fileTabWidget->setTabText(currentTabIndex, tabLabel);
         }
 
         // Refresh UI
         updateCellList();
         updatePreviewImage();
 
-        // Восстанавливаем позицию скролла
+        // Восстанавливаем позицию скролла ПЕРЕД выбором клетки
         if (m_cellListScrollArea) {
             m_cellListScrollArea->verticalScrollBar()->setValue(scrollPosition);
         }
 
-        // Select next cell if available
-        cellIndices = m_cellsByFile[m_currentFilePath];
-        if (!cellIndices.isEmpty()) {
-            int nextIndex = qMin(localIndex, cellIndices.size() - 1);
-            selectCell(cellIndices[nextIndex]);
+        // Select next cell if available (without auto-scroll)
+        // ВАЖНО: используем m_cellWidgets (только видимые клетки), а не cellIndices
+        if (!m_cellWidgets.isEmpty()) {
+            int nextWidgetIndex = qMin(localIndex, m_cellWidgets.size() - 1);
+            CellListItemWidget* nextWidget = m_cellWidgets[nextWidgetIndex];
+            int nextGlobalIndex = nextWidget->globalIndex();
+
+            // Обновляем выбранную клетку вручную БЕЗ auto-scroll
+            m_selectedCellIndex = nextGlobalIndex;
+
+            // Update cell list selection (without ensureWidgetVisible)
+            for (int i = 0; i < m_cellWidgets.size(); ++i) {
+                if (m_cellWidgets[i]) {
+                    m_cellWidgets[i]->setSelected(i == nextWidgetIndex);
+                }
+            }
+
+            // Update preview selection
+            QVector<int> cellIndices = m_cellsByFile[m_currentFilePath];
+            int previewIndex = cellIndices.indexOf(nextGlobalIndex);
+
+            if (m_previewWidget && previewIndex >= 0) {
+                m_previewWidget->setSelectedCell(previewIndex);
+            }
+
+            // Update info panel
+            updateCellInfoPanel();
+
+            LOG_INFO(QString("Selected next cell at widget index %1 (global %2) without auto-scroll").arg(nextWidgetIndex).arg(nextGlobalIndex));
         } else {
             m_selectedCellIndex = -1;
             updateCellInfoPanel();
         }
 
-        LOG_INFO(QString("Removed cell at index %1").arg(globalIndex));
+        LOG_INFO(QString("Removed cell at global index %1, scroll position preserved at %2").arg(globalIndex).arg(scrollPosition));
     }
 }
 
@@ -721,6 +757,7 @@ void VerificationWidget::loadSavedCoefficient()
 
 QVector<Cell> VerificationWidget::getVerifiedCells() const
 {
+    // Копируем все клетки
     QVector<Cell> updatedCells = m_cells;
 
     // Получаем коэффициент из настроек
@@ -776,14 +813,16 @@ void VerificationWidget::onSaveCellsClicked()
         if (!m_cellWidgets[i]) continue;
 
         int globalIndex = currentIndices[i];
+        const Cell& cell = m_cells[globalIndex];
+
         double diameterNm = m_cellWidgets[i]->getDiameterNm();
 
         // Если поле пустое (0.0) и есть коэффициент, применяем его
         if (diameterNm == 0.0 && currentCoeff > 0.0) {
-            diameterNm = m_cells[globalIndex].diameterPx * currentCoeff;
+            diameterNm = cell.diameterPx * currentCoeff;
         }
 
-        verifiedCells.append(qMakePair(m_cells[globalIndex], diameterNm));
+        verifiedCells.append(qMakePair(cell, diameterNm));
     }
 
     // Add cells from other files (with coefficient if available)
@@ -803,13 +842,16 @@ void VerificationWidget::onSaveCellsClicked()
         return;
     }
 
-    // Create results directory
-    QString resultsDir = QDir::currentPath() + "/results";
-    QDir().mkpath(resultsDir);
+    // Create results directory with timestamp for this analysis
+    QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss");
+    QString baseResultsDir = QDir::currentPath() + "/results";
+    QString analysisDir = baseResultsDir + QString("/analysis_%1").arg(timestamp);
+    QDir().mkpath(analysisDir);
+
+    LOG_INFO(QString("Created analysis directory: %1").arg(analysisDir));
 
     // Generate CSV export
-    QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss");
-    QString csvPath = resultsDir + QString("/cell_analysis_%1.csv").arg(timestamp);
+    QString csvPath = analysisDir + "/cell_analysis.csv";
 
     QFile csvFile(csvPath);
     if (csvFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -854,7 +896,7 @@ void VerificationWidget::onSaveCellsClicked()
             }
 
             QString debugFileName = QFileInfo(imagePath).baseName() + "_highlighted.png";
-            QString debugPath = resultsDir + "/" + debugFileName;
+            QString debugPath = analysisDir + "/" + debugFileName;
             saveDebugImage(imagePath, imageCells, debugPath);
         }
 
@@ -864,9 +906,9 @@ void VerificationWidget::onSaveCellsClicked()
         }
 
         QMessageBox::information(this, "Успех",
-            QString("Результаты сохранены:\n- CSV: %1\n- Папка с результатами: %2")
-            .arg(QFileInfo(csvPath).fileName())
-            .arg(resultsDir));
+            QString("Результаты сохранены:\n- Папка: %1\n- Файлов: CSV + %2 изображений")
+            .arg(QDir(analysisDir).dirName())
+            .arg(processedImages.size()));
     } else {
         QMessageBox::critical(this, "Ошибка", "Не удалось создать файл CSV.");
         LOG_ERROR(QString("Failed to create CSV file: %1").arg(csvPath));
@@ -877,7 +919,7 @@ void VerificationWidget::saveDebugImage(const QString& originalImagePath,
                                        const QVector<QPair<Cell, double>>& cells,
                                        const QString& outputPath)
 {
-    LOG_INFO(QString("saveDebugImage: %1, cells=%2").arg(originalImagePath).arg(cells.size()));
+    LOG_INFO(QString("saveDebugImage: %1, cells=%2 (already filtered)").arg(originalImagePath).arg(cells.size()));
 
     cv::Mat originalImage = loadImageSafely(originalImagePath);
     if (originalImage.empty()) {
@@ -885,6 +927,7 @@ void VerificationWidget::saveDebugImage(const QString& originalImagePath,
         return;
     }
 
+    // Note: cells vector already contains only filtered cells (passed from verifiedCells)
     for (const auto& cellPair : cells) {
         const Cell& cell = cellPair.first;
         cv::Vec3f circle = cell.circle;
@@ -906,7 +949,14 @@ void VerificationWidget::saveDebugImage(const QString& originalImagePath,
         }
     }
 
-    bool saved = cv::imwrite(outputPath.toStdString(), originalImage);
+    // Convert cv::Mat to QImage for Unicode path support
+    cv::Mat rgb;
+    cv::cvtColor(originalImage, rgb, cv::COLOR_BGR2RGB);
+
+    QImage qImage(rgb.data, rgb.cols, rgb.rows, rgb.step, QImage::Format_RGB888);
+    QImage imageCopy = qImage.copy(); // Deep copy to avoid dangling pointer
+
+    bool saved = imageCopy.save(outputPath);
     if (saved) {
         LOG_INFO(QString("Debug image saved: %1").arg(outputPath));
     } else {
@@ -1053,3 +1103,4 @@ void VerificationWidget::onCoefficientEditingFinished()
     QMessageBox::information(this, "Успешно",
         QString("Коэффициент установлен: %1 мкм/px\nРазмеры клеток пересчитаны.").arg(coefficient, 0, 'f', 5));
 }
+

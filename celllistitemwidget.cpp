@@ -11,6 +11,7 @@ CellListItemWidget::CellListItemWidget(int cellNumber, const Cell& cell, QWidget
     : QWidget(parent)
     , m_cellNumber(cellNumber)
     , m_cell(cell)
+    , m_globalIndex(-1)  // Initialize to -1, will be set later
     , m_selected(false)
     , m_hovered(false)
     , m_thumbnailLoaded(false)

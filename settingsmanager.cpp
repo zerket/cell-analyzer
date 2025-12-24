@@ -50,6 +50,20 @@ void SettingsManager::saveSettings() {
     // Сохраняем тему
     root["Theme"] = m_theme;
 
+    // Сохраняем цвета клеток
+    root["cellHighlightColor"] = m_cellHighlightColor;
+    root["cellSelectionColor"] = m_cellSelectionColor;
+
+    // Сохраняем флаг игнорирования пограничных клеток
+    root["ignoreBorderCells"] = m_ignoreBorderCells;
+
+    // Сохраняем порог видимости клетки
+    root["cellVisibilityThreshold"] = m_cellVisibilityThreshold;
+
+    // Сохраняем фильтры по диаметру
+    root["minCellDiameter"] = m_minCellDiameter;
+    root["maxCellDiameter"] = m_maxCellDiameter;
+
     // Записываем в файл
     QJsonDocument doc(root);
     QFile file(getSettingsPath());
@@ -99,6 +113,32 @@ void SettingsManager::loadSettings() {
             // Загружаем тему
             if (root.contains("Theme")) {
                 m_theme = root["Theme"].toString("Dark");
+            }
+
+            // Загружаем цвета клеток
+            if (root.contains("cellHighlightColor")) {
+                m_cellHighlightColor = root["cellHighlightColor"].toString("#00FF00");
+            }
+            if (root.contains("cellSelectionColor")) {
+                m_cellSelectionColor = root["cellSelectionColor"].toString("#FF0000");
+            }
+
+            // Загружаем флаг игнорирования пограничных клеток
+            if (root.contains("ignoreBorderCells")) {
+                m_ignoreBorderCells = root["ignoreBorderCells"].toBool(false);
+            }
+
+            // Загружаем порог видимости клетки
+            if (root.contains("cellVisibilityThreshold")) {
+                m_cellVisibilityThreshold = root["cellVisibilityThreshold"].toInt(85);
+            }
+
+            // Загружаем фильтры по диаметру
+            if (root.contains("minCellDiameter")) {
+                m_minCellDiameter = root["minCellDiameter"].toInt(30);
+            }
+            if (root.contains("maxCellDiameter")) {
+                m_maxCellDiameter = root["maxCellDiameter"].toInt(160);
             }
 
             // Сохраняем весь объект для общих настроек
@@ -190,4 +230,37 @@ void SettingsManager::setValue(const QString& key, const QVariant& value) {
     }
 
     saveSettings();
+}
+
+void SettingsManager::setCellHighlightColor(const QString& color) {
+    m_cellHighlightColor = color;
+    saveSettings();
+}
+
+void SettingsManager::setCellSelectionColor(const QString& color) {
+    m_cellSelectionColor = color;
+    saveSettings();
+}
+
+void SettingsManager::setIgnoreBorderCells(bool ignore) {
+    m_ignoreBorderCells = ignore;
+    saveSettings();
+}
+
+void SettingsManager::setCellVisibilityThreshold(int threshold) {
+    m_cellVisibilityThreshold = threshold;
+    saveSettings();
+    LOG_INFO(QString("Cell visibility threshold updated: %1%").arg(threshold));
+}
+
+void SettingsManager::setMinCellDiameter(int diameter) {
+    m_minCellDiameter = diameter;
+    saveSettings();
+    LOG_INFO(QString("Min cell diameter updated: %1 px").arg(diameter));
+}
+
+void SettingsManager::setMaxCellDiameter(int diameter) {
+    m_maxCellDiameter = diameter;
+    saveSettings();
+    LOG_INFO(QString("Max cell diameter updated: %1 px").arg(diameter));
 }

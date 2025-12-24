@@ -48,6 +48,8 @@ add_executable(${PROJECT_NAME}
     celllistitemwidget.cpp
     settingsmanager.h
     settingsmanager.cpp
+    settingsdialog.h
+    settingsdialog.cpp
     logger.h
     thememanager.h
     thememanager.cpp
